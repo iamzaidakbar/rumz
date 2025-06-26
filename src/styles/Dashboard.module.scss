@@ -1,0 +1,51 @@
+@use "./App.module.scss" as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.header {
+  font-size: 2.1rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #222;
+  letter-spacing: -0.5px;
+}
+
+.metricsRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.sectionTitle {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 1rem;
+  margin-top: 0.5rem;
+}
+
+.trendsRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+@media (max-width: 900px) {
+  .metricsRow {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+  .trendsRow {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+  .page {
+    gap: 1.2rem;
+  }
+}

@@ -1,0 +1,150 @@
+.dataTableWrap {
+  width: 100%;
+  background: none;
+}
+.tabs {
+  display: flex;
+  gap: 2.2rem;
+  margin-bottom: 1.2rem;
+}
+.tabs button {
+  background: none;
+  border: none;
+  font-weight: 600;
+  color: #888;
+  padding: 0.7rem 0.2rem 0.7rem 0.2rem;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color 0.2s, border-bottom 0.2s;
+}
+.tabs .activeTab {
+  color: #000;
+  border-bottom: 2.5px solid #000;
+  background: none;
+}
+.searchBar {
+  margin-bottom: 1.2rem;
+  width: 100%;
+}
+.searchBar input {
+  width: 100%;
+  padding: 0.85rem 1.2rem;
+  border-radius: 10px;
+  border: 1.5px solid #e0eaff;
+  background: #fff;
+  color: #222;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.tableOuter {
+  width: 100%;
+  overflow-x: auto;
+  background: #fff;
+  border-radius: 16px;
+  padding: 0.2rem 0.2rem 0.2rem 0.2rem;
+}
+.dataTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: none;
+  border: 1px solid #e5e8eb;
+  border-radius: 14px;
+  overflow: hidden;
+  font-size: 0.85rem;
+}
+.dataTable th,
+.dataTable td {
+  padding: 1.1rem 1.2rem;
+  text-align: left;
+  border-bottom: 1.5px solid #f0f0f0;
+}
+.dataTable th {
+  font-weight: 400;
+  color: #222;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+.dataTable th.sortable:hover {
+  color: #000;
+}
+.sortArrow {
+  margin-left: 0.4rem;
+  color: #000;
+}
+.dataTable tr:last-child td {
+  border-bottom: none;
+}
+.dataTable td {
+  color: #6b7582;
+  font-weight: 300;
+  background: none;
+
+  &:nth-child(2) {
+    color: #121417;
+  }
+}
+
+// Booking status pills
+.statusPill {
+  display: inline-block;
+  font-weight: 600;
+  padding: 0.32rem 1.1rem;
+  border-radius: 999px;
+  background: #f4f7fe;
+  color: #0056d6;
+  margin-right: 0.2rem;
+}
+
+// View button
+.viewBtn {
+  background: #f4f7fe;
+  color: #0056d6;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1.2rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.viewBtn:hover,
+.viewBtn:focus {
+  background: #0056d6;
+  color: #fff;
+  outline: none;
+}
+
+.cancelled {
+  background: #ffe4e6;
+  color: #ef4444;
+}
+
+.iconBtn {
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.iconBtn svg {
+  transition: color 0.2s;
+}
+.iconBtn:hover {
+  background: #f4f7fe;
+}
+.iconBtn:hover svg {
+  color: #0056d6;
+}
+
+@media (max-width: 900px) {
+  .tableOuter {
+    padding: 0.2rem 0;
+  }
+  .dataTable th,
+  .dataTable td {
+    padding: 0.7rem 0.5rem;
+    font-size: 0.97rem;
+  }
+  .searchBar input {
+    font-size: 0.97rem;
+  }
+}

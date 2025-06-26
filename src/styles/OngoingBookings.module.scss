@@ -1,0 +1,73 @@
+.ongoingSection {
+  background: none;
+  margin-bottom: 2.5rem;
+  width: 100%;
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.2rem;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #222;
+  margin: 0;
+}
+
+// Status pills for ongoing bookings
+.statusPill {
+  display: inline-block;
+  font-weight: 500;
+  border-radius: 999px;
+}
+.confirmed {
+  color: #22c55e;
+}
+.pending {
+  color: #eab308;
+}
+.cancelled {
+  color: #ef4444;
+}
+
+.empty {
+  color: #888;
+  padding: 1.1rem 0.5rem;
+  text-align: center;
+  background: #f8faff;
+  border-radius: 12px;
+  font-weight: 500;
+  min-width: 220px;
+  margin-bottom: 1.5rem;
+}
+.checkAllBtn {
+  margin-top: 2rem;
+  background: linear-gradient(90deg, #0056d6 60%, #4f8cff 100%);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 999px;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(0, 86, 214, 0.1);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.checkAllBtn:hover,
+.checkAllBtn:focus {
+  background: linear-gradient(90deg, #003e9f 60%, #4f8cff 100%);
+  box-shadow: 0 4px 24px rgba(0, 86, 214, 0.13);
+  outline: none;
+  transform: translateY(-2px) scale(1.03);
+}
+
+@media (max-width: 900px) {
+  .checkAllBtn {
+    width: 100%;
+    text-align: center;
+  }
+}

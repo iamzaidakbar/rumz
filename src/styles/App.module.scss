@@ -1,0 +1,23 @@
+// App.module.scss
+// Base styles for the app and page containers
+@import url("https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Roboto+Serif:ital,opsz,wght@0,8..144,100..900;1,8..144,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
+
+.app {
+  min-height: 100vh;
+  background: #ffffff;
+}
+
+.page {
+  margin: 0 auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 12px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  font-family: "Roboto", serif;
+  font-weight: 400;
+  box-sizing: border-box;
+}

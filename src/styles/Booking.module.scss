@@ -1,0 +1,41 @@
+@use "./App.module.scss" as *;
+
+.page {
+  @extend .page;
+  width: 100%;
+  padding: 2.5rem 2.5rem 2.5rem 0;
+  background: none;
+  h1 {
+    color: #121417;
+  }
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.7rem;
+}
+
+.header {
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: #222;
+  margin: 0;
+}
+
+.newBookingBtn {
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+@media (max-width: 900px) {
+  .page {
+    padding: 1.2rem 0.2rem 1.2rem 0;
+  }
+  .headerRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.1rem;
+  }
+}

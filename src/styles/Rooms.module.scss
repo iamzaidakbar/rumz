@@ -1,0 +1,58 @@
+@use "./App.module.scss" as *;
+
+.page {
+  @extend .page;
+  width: 100%;
+  padding: 2.5rem 2.5rem 2.5rem 0;
+  background: none;
+  h1 {
+    color: #121417;
+  }
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.7rem;
+}
+
+.header {
+  font-weight: 700;
+  color: #222;
+  margin: 0;
+}
+
+.tabs {
+  display: flex;
+  gap: 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.tabs button {
+  background: none;
+  border: none;
+  font-weight: 600;
+  color: #888;
+  padding: 0.7rem 0.2rem 0.7rem 0.2rem;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  transition: color 0.2s, border-bottom 0.2s;
+}
+
+.tabs .activeTab {
+  color: #121417;
+  border-bottom: 3px solid #121417;
+}
+
+@media (max-width: 900px) {
+  .page {
+    padding: 1.2rem 0.5rem 1.2rem 0.5rem;
+  }
+  .tabs {
+    gap: 0.8rem;
+    button {
+      font-size: 1.05rem;
+    }
+  }
+}

@@ -1,0 +1,8 @@
+@use "./App.module.scss" as *;
+
+.page {
+  @extend .page;
+  h1 {
+    color: #c0392b;
+  }
+}

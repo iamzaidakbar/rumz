@@ -1,0 +1,56 @@
+.barCard {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  padding: 1.5rem 2rem 1rem 2rem;
+  font-family: "Inter", Arial, sans-serif;
+  min-width: 220px;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.percent {
+  font-size: 1.5rem;
+  color: #222;
+  font-weight: 700;
+}
+
+.sublabel {
+  font-size: 1rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+.green {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2.2rem;
+  height: 70px;
+  margin-top: 0.5rem;
+}
+
+.barGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bar {
+  width: 22px;
+  background: #e0eaff;
+  border-radius: 6px 6px 0 0;
+  transition: height 0.3s;
+}
+
+.barLabel {
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  color: #6b7280;
+}
