@@ -41,3 +41,16 @@
   color: #b0b0b0;
   margin-top: 0.2rem;
 }
+
+.trendCard[data-theme="dark"] {
+  background: #23242a;
+  .percent {
+    color: #fff;
+  }
+  .sublabel {
+    color: #aaa;
+  }
+  .months {
+    color: #aaa;
+  }
+}

@@ -1,51 +1,87 @@
 @use "./App.module.scss" as *;
 
 .page {
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
+  padding: 1.5rem 2rem;
+  background-color: white;
+  min-height: 100vh;
 }
 
 .header {
-  font-size: 2.1rem;
-  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1.5rem;
-  color: #222;
-  letter-spacing: -0.5px;
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+  }
 }
 
 .metricsRow {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
 }
 
-.sectionTitle {
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: #222;
-  margin-bottom: 1rem;
-  margin-top: 0.5rem;
-}
-
-.trendsRow {
+.mainGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: auto;
   gap: 2rem;
-  margin-bottom: 2.5rem;
 }
 
-@media (max-width: 900px) {
-  .metricsRow {
-    grid-template-columns: 1fr;
-    gap: 1.2rem;
+.gridItem {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  transition: box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+      0 4px 6px -4px rgb(0 0 0 / 0.1);
   }
-  .trendsRow {
-    grid-template-columns: 1fr;
-    gap: 1.2rem;
+}
+
+.gridItemWide {
+  grid-column: 1 / -1;
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.chartWrapper,
+.calendarWrapper {
+  height: 100%;
+}
+
+.chartTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+}
+
+/* Dark theme adjustments */
+.page[data-theme="dark"] {
+  background-color: #17191c;
+
+  .header h1 {
+    color: #f9fafb;
   }
-  .page {
-    gap: 1.2rem;
+
+  .gridItem,
+  .gridItemWide {
+    background: #1f2937;
+    box-shadow: 0 4px 6px -1px rgb(255 255 255 / 0.1),
+      0 2px 4px -2px rgb(255 255 255 / 0.1);
+  }
+
+  .chartTitle {
+    color: #e5e7eb;
   }
 }

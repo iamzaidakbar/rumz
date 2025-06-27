@@ -1,8 +1,108 @@
 @use "./App.module.scss" as *;
 
 .page {
-  @extend .page;
-  h1 {
-    color: #c0392b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: white;
+  padding: 2rem;
+  text-align: center;
+}
+
+.container {
+  max-width: 600px;
+}
+
+.errorCode {
+  font-size: 6rem;
+  font-weight: 800;
+  color: #3b82f6; /* Blue-500 */
+  line-height: 1;
+}
+
+.title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #111827; /* Gray-900 */
+  margin-top: 1rem;
+}
+
+.message {
+  margin-top: 1rem;
+  font-size: 1.125rem;
+  color: #6b7280; /* Gray-500 */
+}
+
+.actions {
+  margin-top: 2.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.backButton,
+.homeLink {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  cursor: pointer;
+}
+
+.backButton {
+  background-color: #3b82f6;
+  color: #fff;
+  border: 1px solid transparent;
+
+  &:hover {
+    background-color: #2563eb;
+  }
+}
+
+.homeLink {
+  background-color: #fff;
+  color: #374151; /* Gray-700 */
+  border: 1px solid #d1d5db; /* Gray-300 */
+
+  &:hover {
+    background-color: #f9fafb; /* Gray-50 */
+  }
+}
+
+/* Dark Theme */
+.page[data-theme="dark"] {
+  background-color: #17191c;
+
+  .errorCode {
+    color: #60a5fa; /* Blue-400 */
+  }
+
+  .title {
+    color: #f9fafb;
+  }
+
+  .message {
+    color: #9ca3af;
+  }
+
+  .backButton {
+    background-color: #60a5fa;
+    color: #111827;
+
+    &:hover {
+      background-color: #3b82f6;
+    }
+  }
+
+  .homeLink {
+    background-color: #1f2937;
+    color: #d1d5db;
+    border-color: #4b5563;
+
+    &:hover {
+      background-color: #374151;
+    }
   }
 }

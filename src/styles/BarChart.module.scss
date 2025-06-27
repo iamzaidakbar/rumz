@@ -54,3 +54,19 @@
   font-size: 0.95rem;
   color: #6b7280;
 }
+
+.barCard[data-theme="dark"] {
+  background: #23242a;
+  .percent {
+    color: #fff;
+  }
+  .sublabel {
+    color: #aaa;
+  }
+  .bars .bar {
+    background: #33343a;
+  }
+  .barLabel {
+    color: #aaa;
+  }
+}

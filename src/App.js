@@ -1,38 +1,36 @@
-import React, { Suspense, lazy } from "react";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import React, { lazy, Suspense } from "react";
 import Layout from "./components/Layout";
+import { Routes, Route } from "react-router-dom";
+import { AppProvider } from "./contexts/AppContext";
 import LoadingFallback from "./components/LoadingFallback";
 import "./styles/App.module.scss";
 
 // Lazy load pages for code splitting
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Rooms = lazy(() => import("./pages/Rooms"));
 const Booking = lazy(() => import("./pages/Booking"));
 const Guests = lazy(() => import("./pages/Guests"));
-const Rooms = lazy(() => import("./pages/Rooms"));
 const Settings = lazy(() => import("./pages/Settings"));
+const Owner = lazy(() => import("./pages/Owner"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-
-// Define routes using createBrowserRouter, all wrapped in Layout
-const router = createBrowserRouter([
-  {
-    element: <Layout />,
-    children: [
-      { path: "/", element: <Dashboard /> },
-      { path: "/booking", element: <Booking /> },
-      { path: "/guests", element: <Guests /> },
-      { path: "/rooms", element: <Rooms /> },
-      { path: "/settings", element: <Settings /> },
-      { path: "*", element: <NotFound /> },
-    ],
-  },
-]);
 
 function App() {
   return (
-    // Suspense fallback for lazy-loaded routes
-    <Suspense fallback={<LoadingFallback />}>
-      <RouterProvider router={router} />
-    </Suspense>
+    <AppProvider>
+      <Layout>
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/rooms" element={<Rooms />} />
+            <Route path="/booking" element={<Booking />} />
+            <Route path="/guests" element={<Guests />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/owner" element={<Owner />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
+      </Layout>
+    </AppProvider>
   );
 }
 

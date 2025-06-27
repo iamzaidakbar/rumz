@@ -1,32 +1,128 @@
 @use "./App.module.scss" as *;
 
 .page {
-  @extend .page;
-  width: 100%;
-  padding: 2.5rem 2.5rem 2.5rem 0;
-  background: none;
-  h1 {
-    color: #121417;
-  }
+  padding: 1.5rem 2rem;
+  background-color: white;
+  min-height: 100vh;
 }
 
 .headerRow {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.7rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
 }
 
 .header {
-  font-size: 2.1rem;
+  font-size: 2rem;
   font-weight: 700;
-  color: #222;
-  margin: 0;
+  color: #111827;
 }
 
 .newBookingBtn {
+  background-color: #3b82f6; /* Blue-500 */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #2563eb; /* Blue-600 */
+  }
+}
+
+.subtitle {
+  margin-bottom: 2rem;
+  font-size: 1rem;
+  color: #6b7280; /* Gray-500 */
+}
+
+.statusPill {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.confirmed {
+  background-color: #dcfce7; /* Green-100 */
+  color: #166534; /* Green-800 */
+}
+
+.pending {
+  background-color: #fef3c7; /* Amber-100 */
+  color: #92400e; /* Amber-800 */
+}
+
+.cancelled {
+  background-color: #fee2e2; /* Red-100 */
+  color: #991b1b; /* Red-800 */
+}
+
+.viewBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+  color: #6b7280;
+
+  &:hover {
+    background-color: #f3f4f6; /* Gray-100 */
+    color: #111827;
+  }
+}
+
+/* Dark Theme */
+.page[data-theme="dark"] {
+  background-color: #17191c;
+
+  .header {
+    color: #f9fafb;
+  }
+
+  .subtitle {
+    color: #9ca3af;
+  }
+
+  .newBookingBtn {
+    background-color: #2563eb; /* Blue-600 */
+    &:hover {
+      background-color: #1d4ed8; /* Blue-700 */
+    }
+  }
+
+  .confirmed {
+    background-color: #14532d; /* Green-900 */
+    color: #bbf7d0; /* Green-200 */
+  }
+
+  .pending {
+    background-color: #78350f; /* Amber-900 */
+    color: #fde68a; /* Amber-200 */
+  }
+
+  .cancelled {
+    background-color: #7f1d1d; /* Red-900 */
+    color: #fecaca; /* Red-200 */
+  }
+
+  .viewBtn {
+    color: #9ca3af;
+    &:hover {
+      background-color: #374151; /* Gray-700 */
+      color: #f9fafb;
+    }
+  }
 }
 
 @media (max-width: 900px) {

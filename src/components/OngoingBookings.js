@@ -3,6 +3,7 @@ import { bookings } from "../data/bookings";
 import { useNavigate } from "react-router-dom";
 import styles from "../styles/OngoingBookings.module.scss";
 import DataTable from "./DataTable";
+import { useAppContext } from "../contexts/AppContext";
 
 function isOngoing(booking) {
   const today = new Date();
@@ -33,11 +34,16 @@ const columns = [
 ];
 
 const OngoingBookings = () => {
+  const { theme } = useAppContext();
   const navigate = useNavigate();
   const ongoing = bookings.filter(isOngoing);
 
   return (
-    <section className={styles.ongoingSection} aria-label="Ongoing Bookings">
+    <section
+      className={styles.ongoingSection}
+      data-theme={theme}
+      aria-label="Ongoing Bookings"
+    >
       <div className={styles.headerRow}>
         <h2 className={styles.title}>Ongoing Bookings</h2>
       </div>

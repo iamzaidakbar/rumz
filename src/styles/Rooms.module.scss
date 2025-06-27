@@ -1,58 +1,131 @@
 @use "./App.module.scss" as *;
 
 .page {
-  @extend .page;
-  width: 100%;
-  padding: 2.5rem 2.5rem 2.5rem 0;
-  background: none;
-  h1 {
-    color: #121417;
-  }
+  padding: 1.5rem 2rem;
+  background-color: white;
+  min-height: 100vh;
 }
 
 .headerRow {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.7rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
 }
 
 .header {
+  font-size: 2rem;
   font-weight: 700;
-  color: #222;
-  margin: 0;
+  color: #111827;
+}
+
+.searchBar input {
+  width: 300px;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  }
 }
 
 .tabs {
   display: flex;
-  gap: 1.2rem;
-  margin-bottom: 1.5rem;
-}
+  gap: 2rem;
+  margin-bottom: 2rem;
 
-.tabs button {
-  background: none;
-  border: none;
-  font-weight: 600;
-  color: #888;
-  padding: 0.7rem 0.2rem 0.7rem 0.2rem;
-  border-bottom: 3px solid transparent;
-  cursor: pointer;
-  transition: color 0.2s, border-bottom 0.2s;
-}
+  button {
+    padding: 0.75rem 0.2rem;
+    border: none;
+    background: none;
+    font-weight: 600;
+    color: #6b7280;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+    border-bottom: 2.5px solid transparent;
 
-.tabs .activeTab {
-  color: #121417;
-  border-bottom: 3px solid #121417;
-}
+    &.activeTab {
+      color: #111827;
+      border-bottom-color: #000;
+    }
 
-@media (max-width: 900px) {
-  .page {
-    padding: 1.2rem 0.5rem 1.2rem 0.5rem;
+    &:hover:not(.activeTab) {
+      color: #374151;
+    }
   }
+}
+
+.roomGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Dark Theme */
+.page[data-theme="dark"] {
+  background-color: #17191c;
+
+  .header {
+    color: #f9fafb;
+  }
+
+  .searchBar input {
+    background-color: #1f2937;
+    border-color: #4b5563;
+    color: #f9fafb;
+
+    &:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+  }
+
   .tabs {
-    gap: 0.8rem;
+    border-bottom-color: transparent;
+
     button {
-      font-size: 1.05rem;
+      color: #9ca3af;
+
+      &.activeTab {
+        color: #f9fafb;
+        border-bottom-color: #3b82f6;
+      }
+
+      &:hover:not(.activeTab) {
+        color: #d1d5db;
+      }
+    }
+  }
+
+  .card {
+    /* This assumes you have a .card class for your room cards */
+    background: #1f2937;
+
+    .roomType {
+      color: #f9fafb;
+    }
+
+    .roomNumber,
+    .floor {
+      color: #9ca3af;
+    }
+
+    .amenityIcon {
+      color: #9ca3af;
+    }
+
+    .viewButton {
+      background-color: #2563eb;
+      color: #eff6ff;
+
+      &:hover {
+        background-color: #3b82f6;
+      }
     }
   }
 }

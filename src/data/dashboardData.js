@@ -1,34 +1,27 @@
-// src/pages/dashboardData.js
+// src/data/dashboardData.js
 // Mock API-style data for Dashboard
 
 export const metrics = [
-  { label: "Bookings", value: 120, change: 15 },
-  { label: "Revenue", value: 15000, change: 10 },
-  { label: "Occupancy Rate", value: 75, change: 0 },
-];
-
-export const bookingsTrend = [
-  { month: "Jan", value: 30 },
-  { month: "Feb", value: 40 },
-  { month: "Mar", value: 35 },
-  { month: "Apr", value: 50 },
-  { month: "May", value: 45 },
-  { month: "Jun", value: 60 },
-  { month: "Jul", value: 55 },
+  { label: "Total Revenue", value: "£45,231", change: "+4.2%" },
+  { label: "Occupancy Rate", value: "82%", change: "-1.5%" },
+  { label: "Available Rooms", value: "28", change: "" },
+  { label: "Total Bookings", value: "124", change: "+8.0%" },
 ];
 
 export const revenueTrend = [
-  { month: "Jan", value: 12000 },
-  { month: "Feb", value: 15000 },
-  { month: "Mar", value: 10000 },
-  { month: "Apr", value: 17000 },
+  { name: "Jan", revenue: 4000 },
+  { name: "Feb", revenue: 3000 },
+  { name: "Mar", revenue: 5000 },
+  { name: "Apr", revenue: 4500 },
+  { name: "May", revenue: 6000 },
+  { name: "Jun", revenue: 5500 },
 ];
 
 export const roomTypeData = [
-  { name: "Standard", value: 40 },
-  { name: "Deluxe", value: 60 },
-  { name: "Suite", value: 80 },
-  { name: "Penthouse", value: 50 },
+  { name: "Standard", value: 400 },
+  { name: "Deluxe", value: 300 },
+  { name: "Suite", value: 200 },
+  { name: "Penthouse", value: 100 },
 ];
 
 export const guestSources = [

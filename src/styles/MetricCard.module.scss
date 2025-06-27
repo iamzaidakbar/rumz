@@ -47,3 +47,22 @@
   display: flex;
   align-items: center;
 }
+
+.metricCard[data-theme="dark"] {
+  background: #23242a;
+  .label {
+    color: #e5e5e5;
+  }
+  .value {
+    color: #fff;
+  }
+  .sublabel {
+    color: #aaa;
+  }
+  .positive {
+    color: #22c55e;
+  }
+  .negative {
+    color: #ef4444;
+  }
+}

@@ -198,3 +198,83 @@
     padding: 1.1rem 0.5rem 1.1rem 0.5rem;
   }
 }
+
+.calendarWrap[data-theme="dark"] {
+  border: 1px solid #33343a;
+}
+
+.calendarWrap[data-theme="dark"] .monthBlock {
+  background: #23242a;
+}
+
+.calendarWrap[data-theme="dark"] .monthHeader {
+  color: #fff;
+}
+
+.calendarWrap[data-theme="dark"] .monthHeader button {
+  color: #aaa;
+}
+
+.calendarWrap[data-theme="dark"] .monthHeader button:hover,
+.calendarWrap[data-theme="dark"] .monthHeader button:focus {
+  color: #60a5fa;
+  background: #23242a;
+}
+
+.calendarWrap[data-theme="dark"] .calendar th {
+  color: #aaa;
+}
+
+.calendarWrap[data-theme="dark"] .day {
+  color: #e5e5e5;
+}
+
+.calendarWrap[data-theme="dark"] .day:hover,
+.calendarWrap[data-theme="dark"] .day:focus {
+  background: #33343a;
+  color: #60a5fa;
+  box-shadow: 0 0 0 2px #23242a;
+}
+
+.calendarWrap[data-theme="dark"] .selected {
+  background: linear-gradient(135deg, #60a5fa 60%, #23242a 100%);
+  color: #fff;
+}
+
+.calendarWrap[data-theme="dark"] .bookingDot {
+  background: #22c55e;
+  border: 2px solid #23242a;
+}
+
+.calendarWrap[data-theme="dark"] .bookingPopup {
+  background: #23242a;
+  color: #fff;
+}
+
+.calendarWrap[data-theme="dark"] .popupHeader {
+  color: #fff;
+}
+
+.calendarWrap[data-theme="dark"] .popupHeader button {
+  color: #aaa;
+}
+
+.calendarWrap[data-theme="dark"] .popupHeader button:hover {
+  color: #ef4444;
+  background: #23242a;
+}
+
+.calendarWrap[data-theme="dark"] .popupList li b {
+  color: #60a5fa;
+}
+
+.calendarWrap[data-theme="dark"] .bookingItem {
+  background: #23242a;
+  color: #fff;
+  border-left: 3px solid #60a5fa;
+}
+
+.calendarWrap[data-theme="dark"] .noBooking {
+  background: #23242a;
+  color: #aaa;
+}

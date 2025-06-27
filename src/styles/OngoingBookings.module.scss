@@ -18,6 +18,10 @@
   margin: 0;
 }
 
+.ongoingSection[data-theme="dark"] .title {
+  color: #fff;
+}
+
 // Status pills for ongoing bookings
 .statusPill {
   display: inline-block;
@@ -70,4 +74,7 @@
     width: 100%;
     text-align: center;
   }
+}
+.ongoingSection[data-theme="dark"] .title {
+  color: #fff;
 }

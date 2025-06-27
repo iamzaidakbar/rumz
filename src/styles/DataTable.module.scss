@@ -148,3 +148,82 @@
     font-size: 0.97rem;
   }
 }
+
+.dataTableWrap[data-theme="dark"] {
+  .tabs button {
+    color: #aaa;
+  }
+  .tabs .activeTab {
+    color: #fff;
+    border-bottom: 2.5px solid #fff;
+  }
+  .searchBar input {
+    background: #23242a;
+    color: #fff;
+    border: 1.5px solid #33343a;
+  }
+  .tableOuter {
+    background: #23242a;
+  }
+  .dataTable {
+    border: none;
+    background: none;
+  }
+  .dataTable th,
+  .dataTable td {
+    border-bottom: 1.5px solid #33343a;
+  }
+  .dataTable tr {
+    &:last-child {
+      td {
+        border-bottom: none;
+      }
+    }
+  }
+  .dataTable th {
+    color: #fff;
+    background-color: #23242a;
+  }
+  .dataTable th.sortable:hover {
+    color: #fff;
+  }
+  .sortArrow {
+    color: #fff;
+  }
+  .dataTable td {
+    color: #e5e5e5;
+    background: none;
+    &:nth-child(2) {
+      color: #fff;
+    }
+  }
+  .statusPill {
+    background: #23242a;
+    color: #60a5fa;
+    border: 1px solid #33343a;
+  }
+  .cancelled {
+    background: #3a232a;
+    color: #ef4444;
+  }
+  .viewBtn {
+    background: #23242a;
+    color: #60a5fa;
+    border: 1px solid #33343a;
+  }
+  .viewBtn:hover,
+  .viewBtn:focus {
+    background: #60a5fa;
+    color: #23242a;
+  }
+  .iconBtn:hover {
+    background: #23242a;
+  }
+  .iconBtn:hover svg {
+    color: #60a5fa;
+  }
+}
+
+.app[data-theme="dark"] {
+  background: #18191c;
+}

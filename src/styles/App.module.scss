@@ -21,3 +21,12 @@
   font-weight: 400;
   box-sizing: border-box;
 }
+
+.app[data-theme="dark"] {
+  background: #18191c;
+}
+
+.page[data-theme="dark"] {
+  background: #18191c;
+  color: #fff;
+}

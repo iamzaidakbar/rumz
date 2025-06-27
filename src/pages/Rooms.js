@@ -3,6 +3,8 @@ import styles from "../styles/Rooms.module.scss";
 import { rooms } from "../data/rooms";
 import DataTable from "../components/DataTable";
 import { IoEyeOutline } from "react-icons/io5";
+import { useAppContext } from "../contexts/AppContext";
+import { motion } from "framer-motion";
 
 const TABS = ["All", "Ground", "1st Floor", "2nd Floor"];
 
@@ -29,6 +31,7 @@ const columns = [
 
 // Rooms page for managing room details
 const Rooms = () => {
+  const { theme } = useAppContext();
   const [floor, setFloor] = useState("All");
 
   const filteredData = useMemo(() => {
@@ -37,7 +40,13 @@ const Rooms = () => {
   }, [floor]);
 
   return (
-    <div className={styles.page}>
+    <motion.div
+      data-theme={theme}
+      className={styles.page}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
       <div className={styles.headerRow}>
         <h1 className={styles.header}>Rooms & Suites</h1>
       </div>
@@ -61,7 +70,7 @@ const Rooms = () => {
         }}
         actions={() => <IoEyeOutline size={20} className={styles.iconBtn} />}
       />
-    </div>
+    </motion.div>
   );
 };
 

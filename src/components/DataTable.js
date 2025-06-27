@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useAppContext } from "../contexts/AppContext";
 import styles from "../styles/DataTable.module.scss";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -17,6 +18,8 @@ const DataTable = ({
   const [sortField, setSortField] = useState(null);
   const [sortDir, setSortDir] = useState("asc");
   const [searchValue, setSearchValue] = useState("");
+  const { theme } = useAppContext();
+  const [currentPage, setCurrentPage] = useState(1);
 
   const sortedData = useMemo(() => {
     let filtered = data;
@@ -51,7 +54,7 @@ const DataTable = ({
   };
 
   return (
-    <div className={styles.dataTableWrap}>
+    <div className={styles.dataTableWrap} data-theme={theme}>
       {tabs.length > 0 && (
         <div className={styles.tabs}>
           {tabs.map((tab) => (

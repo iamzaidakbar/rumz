@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useAppContext } from "../contexts/AppContext";
 import styles from "../styles/Calendar.module.scss";
 import { bookings } from "../data/dashboardData";
 import { motion, AnimatePresence } from "framer-motion";
@@ -72,7 +73,8 @@ function renderMonth(month, year, selectedDay, setSelectedDay, setPopupInfo) {
 }
 
 const Calendar = () => {
-  const today = new Date();
+  const { theme } = useAppContext();
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [month, setMonth] = useState(6); // July (0-indexed)
   const [year, setYear] = useState(2024);
   const [selectedDay, setSelectedDay] = useState(null);
@@ -81,8 +83,11 @@ const Calendar = () => {
   // Select current date on mount or when month/year changes
   useEffect(() => {
     let initialDay = null;
-    if (today.getFullYear() === year && today.getMonth() === month) {
-      initialDay = today.getDate();
+    if (
+      currentDate.getFullYear() === year &&
+      currentDate.getMonth() === month
+    ) {
+      initialDay = currentDate.getDate();
     } else {
       initialDay = 1;
     }
@@ -109,8 +114,12 @@ const Calendar = () => {
     }
   }
 
+  const bookingsByDate = bookings.reduce((acc, booking) => {
+    // ... existing code ...
+  }, {});
+
   return (
-    <div className={styles.calendarWrap}>
+    <div className={styles.calendarWrap} data-theme={theme}>
       <div className={styles.monthBlock}>
         <div className={styles.monthHeader}>
           <button onClick={prevMonth} aria-label="Previous Month">

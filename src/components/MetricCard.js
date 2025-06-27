@@ -1,13 +1,16 @@
 import React from "react";
+import { useAppContext } from "../contexts/AppContext";
 import styles from "../styles/MetricCard.module.scss";
 import { motion } from "framer-motion";
 
 // MetricCard for dashboard metrics
 const MetricCard = ({ label, value, change }) => {
-  const isPositive = change >= 0;
+  const { theme } = useAppContext();
+  const isPositive = change && change.startsWith("+");
   return (
     <div
       className={styles.metricCard}
+      data-theme={theme}
       aria-label={`${label}: ${value}, ${isPositive ? "up" : "down"} ${Math.abs(
         change
       )}%`}
