@@ -1,0 +1,48 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  margin-top: 2rem;
+}
+
+.iconWrapper {
+  margin-bottom: 1rem;
+  color: #6b7280;
+}
+
+.title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.message {
+  font-size: 1rem;
+  color: #6b7280;
+  margin-top: 0.5rem;
+  max-width: 400px;
+}
+
+/* Dark Theme */
+.container[data-theme="dark"] {
+  background-color: #1c1e22;
+  border-color: #374151;
+}
+
+.container[data-theme="dark"] .iconWrapper {
+  color: #9ca3af;
+}
+
+.container[data-theme="dark"] .title {
+  color: #f9fafb;
+}
+
+.container[data-theme="dark"] .message {
+  color: #9ca3af;
+}

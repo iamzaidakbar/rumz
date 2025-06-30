@@ -32,7 +32,7 @@ function saveRooms(rooms) {
 }
 
 export const roomsApi = {
-  async fetchRooms() {
+  async getRooms() {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve(getInitialRooms());

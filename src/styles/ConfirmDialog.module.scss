@@ -1,0 +1,121 @@
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dialog {
+  background: #fff;
+  border-radius: 16px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.iconWrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #fee2e2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.icon {
+  color: #ef4444;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.message {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0.5rem 0 1.5rem;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.cancelBtn {
+  background: #fff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+.cancelBtn:hover {
+  background: #f9fafb;
+}
+
+.confirmBtn {
+  background: #ef4444;
+  color: #fff;
+}
+.confirmBtn:hover {
+  background: #dc2626;
+}
+
+/* Dark Theme */
+.dialog[data-theme="dark"] {
+  background: #23242a;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.dialog[data-theme="dark"] .iconWrapper {
+  background: #3e2525;
+}
+
+.dialog[data-theme="dark"] .icon {
+  color: #f87171;
+}
+
+.dialog[data-theme="dark"] .title {
+  color: #f9fafb;
+}
+
+.dialog[data-theme="dark"] .message {
+  color: #9ca3af;
+}
+
+.dialog[data-theme="dark"] .cancelBtn {
+  background: #373a40;
+  color: #f3f4f6;
+  border-color: #4b5563;
+}
+.dialog[data-theme="dark"] .cancelBtn:hover {
+  background: #4b5563;
+}
+
+.dialog[data-theme="dark"] .confirmBtn {
+  background: #ef4444;
+}
+.dialog[data-theme="dark"] .confirmBtn:hover {
+  background: #f87171;
+}
