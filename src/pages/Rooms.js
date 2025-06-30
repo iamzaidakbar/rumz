@@ -5,6 +5,7 @@ import DataTable from "../components/DataTable";
 import { IoEyeOutline } from "react-icons/io5";
 import { useAppContext } from "../contexts/AppContext";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const TABS = ["All", "Ground", "1st Floor", "2nd Floor"];
 
@@ -33,6 +34,7 @@ const columns = [
 const Rooms = () => {
   const { theme } = useAppContext();
   const [floor, setFloor] = useState("All");
+  const navigate = useNavigate();
 
   const filteredData = useMemo(() => {
     if (floor === "All") return rooms;
@@ -49,6 +51,12 @@ const Rooms = () => {
     >
       <div className={styles.headerRow}>
         <h1 className={styles.header}>Rooms & Suites</h1>
+        <button
+          className={styles.addRoomBtn}
+          onClick={() => navigate("/rooms/add")}
+        >
+          + Add Room
+        </button>
       </div>
       <div className={styles.tabs}>
         {TABS.map((tab) => (

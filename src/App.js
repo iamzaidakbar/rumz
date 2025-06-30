@@ -13,6 +13,7 @@ const Guests = lazy(() => import("./pages/Guests"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Owner = lazy(() => import("./pages/Owner"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const AddRoom = lazy(() => import("./pages/AddRoom"));
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/rooms" element={<Rooms />} />
+            <Route path="/rooms/add" element={<AddRoom />} />
             <Route path="/booking" element={<Booking />} />
             <Route path="/guests" element={<Guests />} />
             <Route path="/settings" element={<Settings />} />

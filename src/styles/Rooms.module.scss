@@ -8,8 +8,8 @@
 
 .headerRow {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 1.5rem;
 }
 
@@ -64,6 +64,24 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.5rem;
+}
+
+.addRoomBtn {
+  background-color: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-left: 1rem;
+  transition: background-color 0.2s;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+
+  &:hover {
+    background-color: #1d4ed8;
+  }
 }
 
 /* Dark Theme */
@@ -126,6 +144,14 @@
       &:hover {
         background-color: #3b82f6;
       }
+    }
+  }
+
+  .addRoomBtn {
+    background-color: #3b82f6;
+    color: #fff;
+    &:hover {
+      background-color: #2563eb;
     }
   }
 }
