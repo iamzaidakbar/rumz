@@ -5,7 +5,11 @@ import styles from "../styles/BookingDetail.module.scss";
 import { useAppContext } from "../contexts/AppContext";
 import LoadingFallback from "../components/LoadingFallback";
 import InfoMessage from "../components/InfoMessage";
-import { IoWarningOutline, IoArrowBackOutline } from "react-icons/io5";
+import {
+  IoWarningOutline,
+  IoArrowBackOutline,
+  IoPencilOutline,
+} from "react-icons/io5";
 import { motion } from "framer-motion";
 
 const BookingDetail = () => {
@@ -83,9 +87,17 @@ const BookingDetail = () => {
           <h1>Booking Details</h1>
           <p>View and manage booking details</p>
         </div>
-        <button className={styles.backBtn} onClick={() => navigate(-1)}>
-          <IoArrowBackOutline /> Back
-        </button>
+        <div className={styles.headerActions}>
+          <button
+            className={styles.editBtn}
+            onClick={() => navigate(`/bookings/${bookingId}/edit`)}
+          >
+            <IoPencilOutline /> Edit
+          </button>
+          <button className={styles.backBtn} onClick={() => navigate(-1)}>
+            <IoArrowBackOutline /> Back
+          </button>
+        </div>
       </div>
 
       <div className={styles.detailsContainer}>
