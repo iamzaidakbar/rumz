@@ -26,8 +26,10 @@ const getInitialBookings = () => {
         id_type: "Aadhar Card",
         id_number: "1234-5678-9012",
         id_issue_country: "India",
-        id_image_front_url: "https://example.com/id_front.jpg",
-        id_image_back_url: "https://example.com/id_back.jpg",
+        id_images: [
+          "https://i.imgur.com/WbA0yFj.png",
+          "https://i.imgur.com/0u1S4oP.png",
+        ],
       },
       booking_details: {
         room_ids: ["R1751270744223", "R1751272747337"],
@@ -75,8 +77,7 @@ const getInitialBookings = () => {
         id_type: "Passport",
         id_number: "A1B2C3D4",
         id_issue_country: "USA",
-        id_image_front_url: "https://example.com/id_front.jpg",
-        id_image_back_url: "https://example.com/id_back.jpg",
+        id_images: [],
       },
       booking_details: {
         room_ids: ["STD-101"],

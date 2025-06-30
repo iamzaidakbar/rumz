@@ -4,6 +4,7 @@ import { useAppContext } from "../contexts/AppContext";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { bookingsApi } from "../api/bookingsApi";
+import { cloudinaryApi } from "../api/cloudinaryApi";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import CustomDropdown from "../components/CustomDropdown";
 
@@ -55,6 +56,7 @@ const AddBooking = () => {
 
   const [idProofImages, setIdProofImages] = useState([]);
   const [idProofImagePreviews, setIdProofImagePreviews] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
   const [roomIdsInputValue, setRoomIdsInputValue] = useState(
     formData.booking_details.room_ids.join(", ")
   );
@@ -103,12 +105,6 @@ const AddBooking = () => {
         ...newPreviews,
       ]);
 
-      const newFileNames = files.map((file) => file.name);
-      handleInputChange("id_proof", "id_images", [
-        ...formData.id_proof.id_images,
-        ...newFileNames,
-      ]);
-
       e.target.value = null;
     }
   };
@@ -125,11 +121,6 @@ const AddBooking = () => {
       (_, index) => index !== indexToRemove
     );
     setIdProofImagePreviews(newPreviews);
-
-    const newFileNames = formData.id_proof.id_images.filter(
-      (_, index) => index !== indexToRemove
-    );
-    handleInputChange("id_proof", "id_images", newFileNames);
   };
 
   const handleRoomIdsChange = (e) => {
@@ -195,11 +186,6 @@ const AddBooking = () => {
           previewUrl,
         ]);
 
-        handleInputChange("id_proof", "id_images", [
-          ...formData.id_proof.id_images,
-          file.name,
-        ]);
-
         handleCloseCamera();
       }, "image/jpeg");
     }
@@ -207,13 +193,30 @@ const AddBooking = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isUploading) return;
+    setIsUploading(true);
+
     try {
-      // In a real app, you would upload the image first and get a URL
-      // then set that URL in formData before submitting.
-      await bookingsApi.addBooking(formData);
+      let uploadedImageUrls = [];
+      if (idProofImages.length > 0) {
+        uploadedImageUrls = await cloudinaryApi.uploadImages(idProofImages);
+      }
+
+      const finalFormData = {
+        ...formData,
+        id_proof: {
+          ...formData.id_proof,
+          id_images: uploadedImageUrls,
+        },
+      };
+
+      await bookingsApi.addBooking(finalFormData);
       navigate("/bookings");
     } catch (error) {
       console.error("Failed to add booking:", error);
+      alert("Failed to create booking. Please try again.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -660,8 +663,12 @@ const AddBooking = () => {
           </div>
         </div>
         <div className={styles.footer}>
-          <button type="submit" className={styles.saveBtn}>
-            Save Booking
+          <button
+            type="submit"
+            className={styles.saveBtn}
+            disabled={isUploading}
+          >
+            {isUploading ? "Saving..." : "Save Booking"}
           </button>
         </div>
       </form>

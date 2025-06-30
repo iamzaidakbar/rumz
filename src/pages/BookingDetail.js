@@ -112,8 +112,14 @@ const BookingDetail = () => {
             value={booking.id_proof.id_issue_country}
           />
           <div className={styles.idImages}>
-            <img src="https://i.imgur.com/WbA0yFj.png" alt="ID Proof Front" />
-            <img src="https://i.imgur.com/0u1S4oP.png" alt="ID Proof Back" />
+            {booking.id_proof.id_images &&
+            booking.id_proof.id_images.length > 0 ? (
+              booking.id_proof.id_images.map((img, index) => (
+                <img key={index} src={img} alt={`ID Proof ${index + 1}`} />
+              ))
+            ) : (
+              <p>No ID images uploaded.</p>
+            )}
           </div>
         </div>
 
