@@ -27,7 +27,7 @@ const columns = [
   },
   {
     header: "Room(s)",
-    accessor: (row) => row.booking_details.room_nos.join(", "),
+    accessor: (row) => row.booking_details.room_ids?.join(", "),
   },
   {
     header: "Guests",

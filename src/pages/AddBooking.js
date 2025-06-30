@@ -1,10 +1,11 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import styles from "../styles/AddBooking.module.scss";
 import { useAppContext } from "../contexts/AppContext";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { bookingsApi } from "../api/bookingsApi";
 import { IoCloudUploadOutline } from "react-icons/io5";
+import CustomDropdown from "../components/CustomDropdown";
 
 const AddBooking = () => {
   const { theme } = useAppContext();
@@ -26,7 +27,7 @@ const AddBooking = () => {
       id_type: "Aadhar Card",
       id_number: "",
       id_issue_country: "India",
-      id_image_front_url: "",
+      id_images: [],
     },
     booking_details: {
       room_ids: [],
@@ -52,7 +53,14 @@ const AddBooking = () => {
     },
   });
 
-  const [idProofImage, setIdProofImage] = useState(null);
+  const [idProofImages, setIdProofImages] = useState([]);
+  const [idProofImagePreviews, setIdProofImagePreviews] = useState([]);
+  const [roomIdsInputValue, setRoomIdsInputValue] = useState(
+    formData.booking_details.room_ids.join(", ")
+  );
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
 
   const handleInputChange = useCallback((section, field, value) => {
     setFormData((prev) => ({
@@ -77,11 +85,123 @@ const AddBooking = () => {
     }));
   }, []);
 
+  useEffect(() => {
+    return () => {
+      idProofImagePreviews.forEach((preview) => URL.revokeObjectURL(preview));
+    };
+  }, [idProofImagePreviews]);
+
   const handleImageUpload = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setIdProofImage(file);
-      handleInputChange("id_proof", "id_image_front_url", file.name);
+    if (e.target.files && e.target.files.length > 0) {
+      const files = Array.from(e.target.files);
+      const newImages = [...idProofImages, ...files];
+      setIdProofImages(newImages);
+
+      const newPreviews = files.map((file) => URL.createObjectURL(file));
+      setIdProofImagePreviews((prevPreviews) => [
+        ...prevPreviews,
+        ...newPreviews,
+      ]);
+
+      const newFileNames = files.map((file) => file.name);
+      handleInputChange("id_proof", "id_images", [
+        ...formData.id_proof.id_images,
+        ...newFileNames,
+      ]);
+
+      e.target.value = null;
+    }
+  };
+
+  const handleRemoveImage = (indexToRemove) => {
+    URL.revokeObjectURL(idProofImagePreviews[indexToRemove]);
+
+    const newImages = idProofImages.filter(
+      (_, index) => index !== indexToRemove
+    );
+    setIdProofImages(newImages);
+
+    const newPreviews = idProofImagePreviews.filter(
+      (_, index) => index !== indexToRemove
+    );
+    setIdProofImagePreviews(newPreviews);
+
+    const newFileNames = formData.id_proof.id_images.filter(
+      (_, index) => index !== indexToRemove
+    );
+    handleInputChange("id_proof", "id_images", newFileNames);
+  };
+
+  const handleRoomIdsChange = (e) => {
+    const textValue = e.target.value;
+    setRoomIdsInputValue(textValue);
+    const ids = textValue
+      .split(",")
+      .map((id) => id.trim())
+      .filter((id) => id);
+    handleInputChange("booking_details", "room_ids", ids);
+  };
+
+  const handleCloseCamera = useCallback(() => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+    }
+    setIsCameraOpen(false);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      handleCloseCamera();
+    };
+  }, [handleCloseCamera]);
+
+  const handleTakePhotoClick = async () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      alert("Camera not supported on this device");
+      return;
+    }
+
+    setIsCameraOpen(true);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (err) {
+      console.error("Error accessing camera: ", err);
+      alert("Could not access camera. Please check permissions.");
+      setIsCameraOpen(false);
+    }
+  };
+
+  const handleCapture = () => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const context = canvas.getContext("2d");
+      context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+
+      canvas.toBlob((blob) => {
+        const file = new File([blob], `capture-${Date.now()}.jpg`, {
+          type: "image/jpeg",
+        });
+        setIdProofImages((prevImages) => [...prevImages, file]);
+
+        const previewUrl = URL.createObjectURL(file);
+        setIdProofImagePreviews((prevPreviews) => [
+          ...prevPreviews,
+          previewUrl,
+        ]);
+
+        handleInputChange("id_proof", "id_images", [
+          ...formData.id_proof.id_images,
+          file.name,
+        ]);
+
+        handleCloseCamera();
+      }, "image/jpeg");
     }
   };
 
@@ -201,23 +321,20 @@ const AddBooking = () => {
             </div>
           </div>
         </div>
-
         {/* ID Proof Card */}
         <div className={styles.card}>
           <h2>ID Proof</h2>
           <div className={styles.formGrid}>
             <div className={styles.formGroup}>
               <label>ID Type</label>
-              <select
+              <CustomDropdown
+                options={["Aadhar Card", "Passport", "Driving License"]}
                 value={formData.id_proof.id_type}
-                onChange={(e) =>
-                  handleInputChange("id_proof", "id_type", e.target.value)
+                onChange={(option) =>
+                  handleInputChange("id_proof", "id_type", option)
                 }
-              >
-                <option>Aadhar Card</option>
-                <option>Passport</option>
-                <option>Driving License</option>
-              </select>
+                placeholder="Select ID Type"
+              />
             </div>
             <div className={styles.formGroup}>
               <label>ID Number</label>
@@ -233,50 +350,104 @@ const AddBooking = () => {
             </div>
             <div className={styles.formGroup}>
               <label>Issue Country</label>
-              <select
+              <CustomDropdown
+                options={["India", "USA", "UK"]}
                 value={formData.id_proof.id_issue_country}
-                onChange={(e) =>
-                  handleInputChange(
-                    "id_proof",
-                    "id_issue_country",
-                    e.target.value
-                  )
+                onChange={(option) =>
+                  handleInputChange("id_proof", "id_issue_country", option)
                 }
-              >
-                <option>India</option>
-                <option>USA</option>
-                <option>UK</option>
-              </select>
+                placeholder="Select Issue Country"
+              />
             </div>
           </div>
-          <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+          <div
+            style={{ marginTop: "2.5rem" }}
+            className={`${styles.formGroup} ${styles.fullWidth}`}
+          >
             <label>Upload ID Proof Image</label>
-            <div
-              className={styles.uploadBox}
-              onClick={() => document.getElementById("id-upload").click()}
-            >
-              <input
-                type="file"
-                id="id-upload"
-                style={{ display: "none" }}
-                onChange={handleImageUpload}
-              />
-              <IoCloudUploadOutline className={styles.uploadIcon} />
-              {idProofImage ? (
-                <p>{idProofImage.name}</p>
-              ) : (
-                <>
-                  <p>Click to upload or drag and drop</p>
-                  <p className={styles.uploadHint}>SVG, PNG, JPG or GIF</p>
-                </>
-              )}
-              <button type="button" className={styles.uploadBtn}>
-                Upload
+            <div className={styles.uploadArea}>
+              <div className={styles.previewsContainer}>
+                {idProofImagePreviews.map((preview, index) => (
+                  <div key={index} className={styles.previewItem}>
+                    <img
+                      src={preview}
+                      alt={`ID Preview ${index + 1}`}
+                      className={styles.imagePreview}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage(index)}
+                      className={styles.removeBtn}
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div
+                className={styles.uploadBox}
+                onClick={() => document.getElementById("id-upload").click()}
+              >
+                <input
+                  type="file"
+                  id="id-upload"
+                  accept="image/*"
+                  multiple
+                  style={{ display: "none" }}
+                  onChange={handleImageUpload}
+                />
+                <IoCloudUploadOutline className={styles.uploadIcon} />
+                <p>Click to upload or drag and drop</p>
+                <p className={styles.uploadHint}>SVG, PNG, JPG or GIF</p>
+              </div>
+            </div>
+            <div className={styles.uploadButtons}>
+              <button
+                type="button"
+                className={`${styles.uploadBtn} ${styles.primary}`}
+                onClick={() => document.getElementById("id-upload").click()}
+              >
+                Upload Files
+              </button>
+              <button
+                type="button"
+                className={`${styles.uploadBtn} ${styles.secondary}`}
+                onClick={handleTakePhotoClick}
+              >
+                Take Photo
               </button>
             </div>
           </div>
         </div>
-
+        {isCameraOpen && (
+          <div className={styles.cameraModal}>
+            <div className={styles.cameraContainer}>
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                className={styles.cameraFeed}
+              />
+              <canvas ref={canvasRef} style={{ display: "none" }} />
+              <div className={styles.cameraActions}>
+                <button
+                  type="button"
+                  onClick={handleCapture}
+                  className={styles.captureBtn}
+                >
+                  Capture
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCloseCamera}
+                  className={styles.cancelBtn}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Booking Details Card */}
         <div className={styles.card}>
           <h2>Booking Details</h2>
@@ -285,37 +456,22 @@ const AddBooking = () => {
               <label>Room No.s</label>
               <input
                 type="text"
-                placeholder="Enter room ID's (comma separated)"
-                value={formData.booking_details.room_ids.join(", ")}
-                onChange={(e) =>
-                  handleInputChange(
-                    "booking_details",
-                    "room_ids",
-                    e.target.value
-                      .split(",")
-                      .map((id) => id.trim())
-                      .filter((id) => id)
-                  )
-                }
+                placeholder="Enter room No's (comma separated)"
+                value={roomIdsInputValue}
+                onChange={handleRoomIdsChange}
                 required
               />
             </div>
             <div className={styles.formGroup}>
               <label>Room Type</label>
-              <select
+              <CustomDropdown
+                options={["Deluxe Double Room", "Standard Single", "Suite"]}
                 value={formData.booking_details.room_type}
-                onChange={(e) =>
-                  handleInputChange(
-                    "booking_details",
-                    "room_type",
-                    e.target.value
-                  )
+                onChange={(option) =>
+                  handleInputChange("booking_details", "room_type", option)
                 }
-              >
-                <option>Deluxe Double Room</option>
-                <option>Standard Single</option>
-                <option>Suite</option>
-              </select>
+                placeholder="Select Room Type"
+              />
             </div>
             <div className={styles.formGroup}>
               <label>Check-in Date</label>
@@ -395,7 +551,6 @@ const AddBooking = () => {
             </div>
           </div>
         </div>
-
         {/* Referral Information Card */}
         <div className={styles.card}>
           <h2>Referral Information</h2>
@@ -432,7 +587,6 @@ const AddBooking = () => {
             </div>
           </div>
         </div>
-
         {/* Payment Details Card */}
         <div className={styles.card}>
           <h2>Payment Details</h2>
@@ -451,37 +605,25 @@ const AddBooking = () => {
             </div>
             <div className={styles.formGroup}>
               <label>Payment Method</label>
-              <select
+              <CustomDropdown
+                options={["UPI", "Credit Card", "Debit Card", "Cash"]}
                 value={formData.payment_info.payment_method}
-                onChange={(e) =>
-                  handleInputChange(
-                    "payment_info",
-                    "payment_method",
-                    e.target.value
-                  )
+                onChange={(option) =>
+                  handleInputChange("payment_info", "payment_method", option)
                 }
-              >
-                <option>UPI</option>
-                <option>Credit Card</option>
-                <option>Debit Card</option>
-                <option>Cash</option>
-              </select>
+                placeholder="Select Payment Method"
+              />
             </div>
             <div className={styles.formGroup}>
               <label>Payment Status</label>
-              <select
+              <CustomDropdown
+                options={["Paid", "Pending"]}
                 value={formData.payment_info.payment_status}
-                onChange={(e) =>
-                  handleInputChange(
-                    "payment_info",
-                    "payment_status",
-                    e.target.value
-                  )
+                onChange={(option) =>
+                  handleInputChange("payment_info", "payment_status", option)
                 }
-              >
-                <option>Paid</option>
-                <option>Pending</option>
-              </select>
+                placeholder="Select Payment Status"
+              />
             </div>
             <div className={styles.formGroup}>
               <label>Transaction ID</label>
@@ -500,27 +642,23 @@ const AddBooking = () => {
             </div>
           </div>
         </div>
-
         {/* Booking Status Card */}
         <div className={styles.card}>
           <h2>Booking Status</h2>
           <div className={styles.formGrid}>
             <div className={styles.formGroup}>
               <label>Booking Status</label>
-              <select
+              <CustomDropdown
+                options={["Confirmed", "Pending", "Cancelled"]}
                 value={formData.status.booking_status}
-                onChange={(e) =>
-                  handleInputChange("status", "booking_status", e.target.value)
+                onChange={(option) =>
+                  handleInputChange("status", "booking_status", option)
                 }
-              >
-                <option>Confirmed</option>
-                <option>Pending</option>
-                <option>Cancelled</option>
-              </select>
+                placeholder="Select Booking Status"
+              />
             </div>
           </div>
         </div>
-
         <div className={styles.footer}>
           <button type="submit" className={styles.saveBtn}>
             Save Booking

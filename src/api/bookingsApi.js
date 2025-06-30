@@ -1,3 +1,5 @@
+import { roomsApi } from "./roomsApi";
+
 const STORAGE_KEY = "rumz_bookings";
 
 const getInitialBookings = () => {
@@ -136,18 +138,37 @@ export const bookingsApi = {
   },
 
   async addBooking(booking) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const bookings = getInitialBookings();
-        const now = new Date().toISOString();
-        const newBooking = {
-          ...booking,
-          booking_reference_id: `BKNG-${Date.now()}`,
-          timestamps: { created_at: now, updated_at: now },
-        };
-        bookings.push(newBooking);
-        saveBookings(bookings);
-        resolve(newBooking);
+    return new Promise((resolve, reject) => {
+      setTimeout(async () => {
+        try {
+          const bookings = getInitialBookings();
+          const rooms = await roomsApi.getRooms();
+          const roomMap = new Map(
+            rooms.map((room) => [room.id, room.roomNumber])
+          );
+
+          const room_nos = booking.booking_details.room_ids.map(
+            (id) => roomMap.get(id) || "N/A"
+          );
+
+          const now = new Date().toISOString();
+          const newBooking = {
+            ...booking,
+            booking_reference_id: `BKNG-${Date.now()}`,
+            booking_details: {
+              ...booking.booking_details,
+              room_nos,
+            },
+            timestamps: { created_at: now, updated_at: now },
+          };
+
+          bookings.push(newBooking);
+          saveBookings(bookings);
+          resolve(newBooking);
+        } catch (error) {
+          console.error("Failed to add booking:", error);
+          reject(error);
+        }
       }, 300);
     });
   },

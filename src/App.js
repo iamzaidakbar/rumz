@@ -10,15 +10,15 @@ import AddBooking from "./pages/AddBooking";
 import BookingDetail from "./pages/BookingDetail";
 import EditBooking from "./pages/EditBooking";
 import NotFound from "./pages/NotFound";
+import Booking from "./pages/Booking";
+import Guests from "./pages/Guests";
+import Rooms from "./pages/Rooms";
+import AddRoom from "./pages/AddRoom";
 
 // Lazy load pages for code splitting
 const Dashboard = lazy(() => import("./pages/Dashboard"));
-const Rooms = lazy(() => import("./pages/Rooms"));
-const Booking = lazy(() => import("./pages/Booking"));
-const Guests = lazy(() => import("./pages/Guests"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Owner = lazy(() => import("./pages/Owner"));
-const AddRoom = lazy(() => import("./pages/AddRoom"));
 
 function App() {
   return (
@@ -35,9 +35,10 @@ function App() {
             <Route path="/owner" element={<Owner />} />
             <Route path="/rooms/:roomId" element={<RoomDetail />} />
             <Route path="/rooms/:roomId/edit" element={<EditRoom />} />
+            <Route path="/bookings" element={<Booking />} />
             <Route path="/bookings/add" element={<AddBooking />} />
-            <Route path="/bookings/:bookingId" element={<BookingDetail />} />
-            <Route path="/bookings/:bookingId/edit" element={<EditBooking />} />
+            <Route path="bookings/:bookingId" element={<BookingDetail />} />
+            <Route path="bookings/:bookingId/edit" element={<EditBooking />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
