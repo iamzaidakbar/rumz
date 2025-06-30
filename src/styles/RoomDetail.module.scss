@@ -1,0 +1,228 @@
+.pageWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.card {
+  width: 100%;
+  max-width: 80%;
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.header {
+  padding: 1rem 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.breadcrumbs {
+  color: #6b7280;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.breadcrumbs a {
+  color: #4b5563;
+  text-decoration: none;
+  cursor: pointer;
+}
+.breadcrumbs a:hover {
+  text-decoration: underline;
+}
+.breadcrumbs span {
+  color: #111827;
+}
+
+.backBtn {
+  background: none;
+  border: none;
+  color: #4b5563;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.imageWrapper {
+  width: 100%;
+  height: 600px;
+  border-radius: 24px;
+  overflow: hidden;
+}
+.imageWrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.content {
+  padding: 2.5rem 0;
+}
+
+.titleSection h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  color: #111827;
+}
+.titleSection p {
+  font-size: 0.9rem;
+  color: #4b5563;
+  font-weight: 300;
+  margin: 0.25rem 0 0;
+}
+
+.detailsGrid,
+.pricingSection {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.detailItem {
+  display: flex;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid #e5e7eb;
+  gap: 2rem;
+}
+
+.detailItemFull {
+  display: flex;
+  align-items: flex-start;
+  padding: 1rem 0;
+  border-bottom: 1px solid #e5e7eb;
+  gap: 2rem;
+}
+
+.label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #2e2c2c;
+  width: 200px;
+  flex-shrink: 0;
+}
+
+.value {
+  font-size: 1rem;
+  font-weight: 300;
+  color: #4b5563;
+  flex-grow: 1;
+}
+
+.detailItemFull .value {
+  line-height: 1.6;
+}
+
+.amenitiesContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  flex-grow: 1;
+}
+
+.amenityPill {
+  background: #f3f4f6;
+  color: #374151;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.statusPill {
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #fff;
+}
+.available {
+  background-color: #10b981;
+}
+.occupied {
+  background-color: #ef4444;
+}
+.cleaning {
+  background-color: #f59e0b;
+}
+
+.pricingSection h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 1rem;
+}
+
+.actions {
+  margin-top: 2.5rem;
+  text-align: left;
+}
+
+.editBtn {
+  background: #f3f4f6;
+  color: #1f2937;
+  border: 1px solid #e5e7eb;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.editBtn:hover {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+}
+
+/* Dark Theme */
+.pageWrapper[data-theme="dark"] {
+  background: #17191c;
+}
+.pageWrapper[data-theme="dark"] .card {
+  background: #17191c;
+}
+.pageWrapper[data-theme="dark"] .breadcrumbs {
+  color: #9ca3af;
+}
+.pageWrapper[data-theme="dark"] .breadcrumbs a {
+  color: #60a5fa;
+}
+.pageWrapper[data-theme="dark"] .breadcrumbs span {
+  color: #f3f4f6;
+}
+.pageWrapper[data-theme="dark"] .backBtn {
+  color: #9ca3af;
+}
+.pageWrapper[data-theme="dark"] .titleSection h1,
+.pageWrapper[data-theme="dark"] .value,
+.pageWrapper[data-theme="dark"] .pricingSection h2 {
+  color: #f9fafb;
+}
+.pageWrapper[data-theme="dark"] .titleSection p,
+.pageWrapper[data-theme="dark"] .label {
+  color: #9ca3af;
+}
+.pageWrapper[data-theme="dark"] .detailsGrid,
+.pageWrapper[data-theme="dark"] .pricingSection,
+.pageWrapper[data-theme="dark"] .detailItem,
+.pageWrapper[data-theme="dark"] .detailItemFull {
+  border-color: #374151;
+}
+.pageWrapper[data-theme="dark"] .editBtn {
+  background: #23242a;
+  color: #f3f4f6;
+  border-color: #374151;
+}
+.pageWrapper[data-theme="dark"] .editBtn:hover {
+  background: #374151;
+  border-color: #4b5563;
+}
+.pageWrapper[data-theme="dark"] .amenityPill {
+  background: #23242a;
+  color: #e5e7eb;
+}

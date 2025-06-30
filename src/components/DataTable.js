@@ -19,7 +19,6 @@ const DataTable = ({
   const [sortDir, setSortDir] = useState("asc");
   const [searchValue, setSearchValue] = useState("");
   const { theme } = useAppContext();
-  const [currentPage, setCurrentPage] = useState(1);
 
   const sortedData = useMemo(() => {
     let filtered = data;
@@ -116,13 +115,22 @@ const DataTable = ({
                   exit={{ opacity: 0, y: 12 }}
                   transition={{ duration: 0.25, delay: i * 0.03 }}
                 >
-                  {columns.map((col) => (
-                    <td key={col.accessor}>
-                      {renderers[col.accessor]
-                        ? renderers[col.accessor](row[col.accessor], row)
-                        : row[col.accessor]}
-                    </td>
-                  ))}
+                  {columns.map((col) => {
+                    let value;
+                    if (typeof col.accessor === "function") {
+                      value = col.accessor(row);
+                    } else {
+                      value = row[col.accessor];
+                    }
+
+                    const renderedValue = col.header
+                      ? renderers[col.header]
+                        ? renderers[col.header](value)
+                        : value
+                      : value;
+
+                    return <td key={col.accessor}>{renderedValue}</td>;
+                  })}
                   {actions && <td>{actions(row)}</td>}
                 </motion.tr>
               ))}

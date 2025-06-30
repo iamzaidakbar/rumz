@@ -7,6 +7,7 @@ import {
   IoWarningOutline,
   IoBedOutline,
 } from "react-icons/io5";
+import { MdOutlineEdit } from "react-icons/md";
 import { useAppContext } from "../contexts/AppContext";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -147,7 +148,16 @@ const Rooms = () => {
           }}
           actions={(row) => (
             <div className={styles.actionBtns}>
-              <IoEyeOutline size={20} className={styles.iconBtn} />
+              <IoEyeOutline
+                size={20}
+                className={styles.iconBtn}
+                onClick={() => navigate(`/rooms/${row.id}`)}
+              />
+              <MdOutlineEdit
+                size={20}
+                className={`${styles.iconBtn} ${styles.editBtn}`}
+                onClick={() => navigate(`/rooms/${row.id}/edit`)}
+              />
               <IoTrashOutline
                 size={20}
                 className={`${styles.iconBtn} ${styles.deleteBtn}`}

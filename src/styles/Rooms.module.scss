@@ -118,6 +118,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  cursor: pointer;
 }
 
 .deleteBtn:hover {
@@ -197,6 +198,14 @@
 
   .iconBtn:hover {
     color: #60a5fa;
+  }
+
+  .editBtn:hover {
+    color: #fbbf24;
+  }
+
+  .deleteBtn:hover {
+    color: #f87171;
   }
 
   .centerMessage {

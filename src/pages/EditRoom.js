@@ -1,33 +1,41 @@
-import React, { useState } from "react";
-import styles from "../styles/AddRoom.module.scss";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import styles from "../styles/AddRoom.module.scss"; // Re-using styles
+import { useNavigate, useParams } from "react-router-dom";
 import { roomsApi } from "../api/roomsApi";
 import { motion } from "framer-motion";
 import { useAppContext } from "../contexts/AppContext";
 import CustomDropdown from "../components/CustomDropdown";
+import LoadingFallback from "../components/LoadingFallback";
+import InfoMessage from "../components/InfoMessage";
+import { IoWarningOutline } from "react-icons/io5";
 
 const AMENITIES = ["Wi-Fi", "TV", "AC", "Mini-bar", "Balcony", "Kitchenette"];
 const FLOORS = ["Ground", "1st Floor", "2nd Floor"];
 const TYPES = ["Standard Room", "Deluxe Suite", "Family Room", "Penthouse"];
 const STATUS = ["Available", "Occupied", "Cleaning"];
 
-const AddRoom = () => {
+const EditRoom = () => {
   const { theme } = useAppContext();
   const navigate = useNavigate();
-  const [form, setForm] = useState({
-    roomNumber: "",
-    type: TYPES[0],
-    floor: FLOORS[0],
-    status: STATUS[0],
-    amenities: [],
-    photo: "",
-    description: "",
-    price: "",
-    beds: 1,
-    bathrooms: 1,
-  });
+  const { roomId } = useParams();
+  const [form, setForm] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchRoom = async () => {
+      try {
+        const roomData = await roomsApi.getRoom(roomId);
+        setForm(roomData);
+      } catch (err) {
+        setError("Failed to fetch room details.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRoom();
+  }, [roomId]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -51,20 +59,22 @@ const AddRoom = () => {
     e.preventDefault();
     setSaving(true);
     setError("");
-    if (!form.roomNumber.trim()) {
-      setError("Room number is required.");
-      setSaving(false);
-      return;
-    }
     try {
-      await roomsApi.addRoom(form);
-      navigate("/rooms");
+      await roomsApi.updateRoom(roomId, form);
+      navigate(`/rooms/${roomId}`);
     } catch (err) {
-      setError("Failed to add room.");
+      setError("Failed to update room.");
     } finally {
       setSaving(false);
     }
   };
+
+  if (loading) return <LoadingFallback />;
+  if (error)
+    return (
+      <InfoMessage icon={IoWarningOutline} title="Error" message={error} />
+    );
+  if (!form) return null;
 
   return (
     <div className={styles.bgWrap} data-theme={theme}>
@@ -75,7 +85,7 @@ const AddRoom = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className={styles.header}>Add Room</h1>
+        <h1 className={styles.header}>Edit Room</h1>
         <form
           className={styles.form}
           onSubmit={handleSubmit}
@@ -207,19 +217,18 @@ const AddRoom = () => {
           {error && <div className={styles.errorMsg}>{error}</div>}
           <div className={styles.formActions}>
             <button
-              className={styles.backBtn}
-              onClick={() => navigate("/rooms")}
               type="button"
+              className={styles.backBtn}
+              onClick={() => navigate(`/rooms/${roomId}`)}
             >
-              Back
+              Cancel
             </button>
-
             <button
               type="submit"
               className={styles.saveButton}
               disabled={saving}
             >
-              {saving ? "Saving..." : "Save"}
+              {saving ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </form>
@@ -228,4 +237,4 @@ const AddRoom = () => {
   );
 };
 
-export default AddRoom;
+export default EditRoom;
