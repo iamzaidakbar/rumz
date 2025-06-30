@@ -11,6 +11,7 @@ import {
   IoPencilOutline,
 } from "react-icons/io5";
 import { motion } from "framer-motion";
+import CustomButton from "../components/CustomButton";
 
 const BookingDetail = () => {
   const { theme } = useAppContext();
@@ -88,15 +89,20 @@ const BookingDetail = () => {
           <p>View and manage booking details</p>
         </div>
         <div className={styles.headerActions}>
-          <button
+          <CustomButton
+            variant="primary"
             className={styles.editBtn}
             onClick={() => navigate(`/bookings/${bookingId}/edit`)}
           >
             <IoPencilOutline /> Edit
-          </button>
-          <button className={styles.backBtn} onClick={() => navigate(-1)}>
+          </CustomButton>
+          <CustomButton
+            variant="secondary"
+            className={styles.backBtn}
+            onClick={() => navigate(-1)}
+          >
             <IoArrowBackOutline /> Back
-          </button>
+          </CustomButton>
         </div>
       </div>
 

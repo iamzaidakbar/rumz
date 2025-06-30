@@ -7,6 +7,7 @@ import { bookingsApi } from "../api/bookingsApi";
 import { cloudinaryApi } from "../api/cloudinaryApi";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import CustomDropdown from "../components/CustomDropdown";
+import CustomButton from "../components/CustomButton";
 
 const AddBooking = () => {
   const { theme } = useAppContext();
@@ -230,9 +231,23 @@ const AddBooking = () => {
     >
       <div className={styles.header}>
         <h1>Add Booking</h1>
+        <div className={styles.headerActions}>
+          <CustomButton
+            type="submit"
+            variant="primary"
+            className={styles.saveBtn}
+            disabled={isUploading}
+            form="add-booking-form"
+          >
+            {isUploading ? "Saving..." : "Save Booking"}
+          </CustomButton>
+        </div>
       </div>
-
-      <form onSubmit={handleSubmit} className={styles.form}>
+      <form
+        id="add-booking-form"
+        onSubmit={handleSubmit}
+        className={styles.form}
+      >
         {/* Guest Information Card */}
         <div className={styles.card}>
           <h2>Guest Information</h2>
@@ -661,24 +676,6 @@ const AddBooking = () => {
               />
             </div>
           </div>
-        </div>
-        <div className={styles.footer}>
-          <button
-            type="button"
-            onClick={() => navigate("/bookings")}
-            className={styles.backBtn}
-            disabled={isUploading}
-          >
-            Back
-          </button>
-
-          <button
-            type="submit"
-            className={styles.saveBtn}
-            disabled={isUploading}
-          >
-            {isUploading ? "Saving..." : "Save Booking"}
-          </button>
         </div>
       </form>
     </motion.div>
