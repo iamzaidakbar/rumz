@@ -1,0 +1,171 @@
+/* AddBooking.module.scss */
+
+.page {
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  p {
+    font-size: 1.1rem;
+    color: #6b7280;
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 1rem;
+  }
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &.fullWidth {
+    grid-column: 1 / -1;
+  }
+
+  label {
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    outline: none;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    &:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+  }
+
+  textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+}
+
+.uploadBox {
+  grid-column: 1 / -1;
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+
+  &:hover {
+    border-color: #3b82f6;
+    background-color: #f9fafb;
+  }
+
+  .uploadIcon {
+    font-size: 3rem;
+    color: #6b7280;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    margin: 0.25rem 0;
+  }
+
+  .uploadBtn {
+    margin-top: 1rem;
+    padding: 0.6rem 1.2rem;
+  }
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.saveBtn {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.9rem 2rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  &:hover {
+    background-color: #2563eb;
+  }
+}
+
+/* Dark Theme */
+.page[data-theme="dark"] {
+  .header p {
+    color: #9ca3af;
+  }
+  .card {
+    background: #1f2937;
+    h2 {
+      border-bottom-color: #374151;
+    }
+  }
+  .formGroup {
+    input,
+    select,
+    textarea {
+      background: #374151;
+      border-color: #4b5563;
+      color: #f3f4f6;
+      &:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+      }
+    }
+  }
+  .uploadBox {
+    border-color: #4b5563;
+    &:hover {
+      border-color: #60a5fa;
+      background-color: #374151;
+    }
+    .uploadIcon {
+      color: #9ca3af;
+    }
+  }
+}

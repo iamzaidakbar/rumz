@@ -65,6 +65,8 @@ const Rooms = () => {
     fetchRooms();
   }, []);
 
+  console.log(rooms);
+
   const handleDelete = async (room) => {
     if (!room) return;
     try {
@@ -111,7 +113,7 @@ const Rooms = () => {
         searchPlaceholder="Search rooms..."
         renderers={{
           status: (val) => getStatusPill(val),
-          amenities: (val) => (Array.isArray(val) ? val.join(", ") : ""),
+          Amenities: (val) => (Array.isArray(val) ? val.join(", ") : ""),
         }}
         actions={(row, openDialog) => (
           <div className={styles.actionBtns}>
