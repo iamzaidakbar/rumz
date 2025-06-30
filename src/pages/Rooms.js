@@ -107,6 +107,8 @@ const Rooms = () => {
       <DataTable
         columns={columns}
         data={filteredData}
+        search={true}
+        searchPlaceholder="Search rooms..."
         renderers={{
           status: (val) => getStatusPill(val),
           amenities: (val) => (Array.isArray(val) ? val.join(", ") : ""),
@@ -134,9 +136,7 @@ const Rooms = () => {
           icon: IoBedOutline,
           title: "No Rooms Found",
           message:
-            floor === "All"
-              ? "There are currently no rooms available."
-              : "No rooms found for the selected floor. Try a different one.",
+            "No rooms found matching your criteria. Try adjusting your filters or search term.",
         }}
         deleteDialogInfo={{
           title: "Delete Room",

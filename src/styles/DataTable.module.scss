@@ -5,7 +5,6 @@
 .tabs {
   display: flex;
   gap: 2.2rem;
-  margin-bottom: 1.2rem;
 }
 .tabs button {
   background: none;
@@ -17,18 +16,34 @@
   cursor: pointer;
   transition: color 0.2s, border-bottom 0.2s;
 }
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
 .tabs .activeTab {
   color: #000;
   border-bottom: 2.5px solid #000;
   background: none;
 }
+.searchWrapper {
+  display: flex;
+  align-items: center;
+  width: 40%;
+}
+.searchIcon {
+  margin-right: -1.8rem;
+  transition: color 0.2s;
+  z-index: 9;
+}
 .searchBar {
   margin-bottom: 1.2rem;
   width: 100%;
 }
-.searchBar input {
+input {
   width: 100%;
-  padding: 0.85rem 1.2rem;
+  padding: 0.85rem 1.2rem 0.85rem 2rem;
   border-radius: 10px;
   border: 1.5px solid #e0eaff;
   background: #fff;

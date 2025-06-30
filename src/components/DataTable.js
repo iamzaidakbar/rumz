@@ -11,7 +11,6 @@ const DataTable = ({
   data = [],
   search = false,
   searchPlaceholder = "Search...",
-  onSearch,
   tabs = [],
   activeTab,
   onTabChange,
@@ -29,15 +28,23 @@ const DataTable = ({
 
   const sortedData = useMemo(() => {
     let filtered = data;
+
     if (search && searchValue) {
-      filtered = data.filter((row) =>
-        columns.some((col) =>
-          String(row[col.accessor] || "")
+      filtered = filtered.filter((row) =>
+        columns.some((col) => {
+          let value;
+          if (typeof col.accessor === "function") {
+            value = col.accessor(row);
+          } else {
+            value = row[col.accessor];
+          }
+          return String(value || "")
             .toLowerCase()
-            .includes(searchValue.toLowerCase())
-        )
+            .includes(searchValue.toLowerCase());
+        })
       );
     }
+
     if (sortField) {
       filtered = [...filtered].sort((a, b) => {
         const aVal = a[sortField];
@@ -74,10 +81,6 @@ const DataTable = ({
     closeDeleteDialog();
   };
 
-  if (sortedData.length === 0) {
-    return <InfoMessage {...noDataInfo} />;
-  }
-
   return (
     <div className={styles.dataTableWrap} data-theme={theme}>
       <div className={styles.toolbar}>
@@ -102,75 +105,80 @@ const DataTable = ({
               type="text"
               placeholder={searchPlaceholder}
               value={searchValue}
-              onChange={(e) => {
-                setSearchValue(e.target.value);
-                if (onSearch) onSearch(e.target.value);
-              }}
+              onChange={(e) => setSearchValue(e.target.value)}
               aria-label="Search"
             />
           </div>
         )}
       </div>
-      <div className={styles.tableOuter}>
-        <table className={styles.dataTable}>
-          <thead>
-            <tr>
-              {columns.map((col) => (
-                <th
-                  key={col.accessor}
-                  onClick={() => handleSort(col.accessor)}
-                  className={col.sortable !== false ? styles.sortable : ""}
-                  aria-sort={sortField === col.accessor ? sortDir : undefined}
-                  tabIndex={col.sortable !== false ? 0 : -1}
-                >
-                  {col.header}
-                  {sortField === col.accessor && (
-                    <span className={styles.sortArrow}>
-                      {sortDir === "asc" ? "▲" : "▼"}
-                    </span>
-                  )}
-                </th>
-              ))}
-              {actions && <th className={styles.actionsHeader}>Actions</th>}
-            </tr>
-          </thead>
-          <AnimatePresence component="tbody">
-            <tbody>
-              {sortedData.map((row, i) => (
-                <motion.tr
-                  key={row.id || i}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 12 }}
-                  transition={{ duration: 0.25, delay: i * 0.03 }}
-                >
-                  {columns.map((col) => {
-                    let value;
-                    if (typeof col.accessor === "function") {
-                      value = col.accessor(row);
-                    } else {
-                      value = row[col.accessor];
-                    }
 
-                    const renderedValue = col.header
-                      ? renderers[col.header]
-                        ? renderers[col.header](value)
-                        : value
-                      : value;
+      {sortedData.length > 0 ? (
+        <div className={styles.tableOuter}>
+          <table className={styles.dataTable}>
+            <thead>
+              <tr>
+                {columns.map((col) => (
+                  <th
+                    key={col.accessor.toString()}
+                    onClick={() => handleSort(col.accessor)}
+                    className={col.sortable !== false ? styles.sortable : ""}
+                    aria-sort={sortField === col.accessor ? sortDir : undefined}
+                    tabIndex={col.sortable !== false ? 0 : -1}
+                  >
+                    {col.header}
+                    {sortField === col.accessor && (
+                      <span className={styles.sortArrow}>
+                        {sortDir === "asc" ? "▲" : "▼"}
+                      </span>
+                    )}
+                  </th>
+                ))}
+                {actions && <th className={styles.actionsHeader}>Actions</th>}
+              </tr>
+            </thead>
+            <AnimatePresence>
+              <tbody>
+                {sortedData.map((row, i) => (
+                  <motion.tr
+                    key={row.id || i}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 12 }}
+                    transition={{ duration: 0.25, delay: i * 0.03 }}
+                  >
+                    {columns.map((col) => {
+                      let value;
+                      if (typeof col.accessor === "function") {
+                        value = col.accessor(row);
+                      } else {
+                        value = row[col.accessor];
+                      }
 
-                    return <td key={col.accessor}>{renderedValue}</td>;
-                  })}
-                  {actions && (
-                    <td className={styles.actionsCell}>
-                      {actions(row, openDeleteDialog)}
-                    </td>
-                  )}
-                </motion.tr>
-              ))}
-            </tbody>
-          </AnimatePresence>
-        </table>
-      </div>
+                      const renderedValue = col.header
+                        ? renderers[col.header]
+                          ? renderers[col.header](value)
+                          : value
+                        : value;
+
+                      return (
+                        <td key={col.accessor.toString()}>{renderedValue}</td>
+                      );
+                    })}
+                    {actions && (
+                      <td className={styles.actionsCell}>
+                        {actions(row, openDeleteDialog)}
+                      </td>
+                    )}
+                  </motion.tr>
+                ))}
+              </tbody>
+            </AnimatePresence>
+          </table>
+        </div>
+      ) : (
+        <InfoMessage {...noDataInfo} />
+      )}
+
       {deleteDialogInfo && (
         <ConfirmDialog
           isOpen={dialogState.isOpen}

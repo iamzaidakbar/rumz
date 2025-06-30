@@ -12,7 +12,6 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { bookingsApi } from "../api/bookingsApi";
 import LoadingFallback from "../components/LoadingFallback";
-import ConfirmDialog from "../components/ConfirmDialog";
 import InfoMessage from "../components/InfoMessage";
 import { MdOutlineEdit } from "react-icons/md";
 
@@ -174,7 +173,8 @@ const Booking = () => {
         noDataInfo={{
           icon: IoCalendarOutline,
           title: "No Bookings Found",
-          message: "There are no bookings matching the current filter.",
+          message:
+            "No bookings found matching your criteria. Try adjusting your filters or search term.",
         }}
         deleteDialogInfo={{
           title: "Delete Booking",
