@@ -1,8 +1,7 @@
 .page {
   background-color: #fff;
   color: #1f2937;
-  min-height: 100vh;
-  padding: 1.5rem 2rem;
+  padding: 0 2rem;
 }
 
 .header {
@@ -79,6 +78,8 @@
 .detailsContainer {
   background-color: #ffffff;
   border-radius: 8px;
+  height: calc(100vh - 200px);
+  overflow-y: auto;
 }
 
 .section {
