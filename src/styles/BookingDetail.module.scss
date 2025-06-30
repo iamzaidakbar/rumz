@@ -2,6 +2,7 @@
   background-color: #fff;
   color: #1f2937;
   min-height: 100vh;
+  padding: 1.5rem 2rem;
 }
 
 .header {
@@ -81,7 +82,7 @@
 }
 
 .section {
-  padding: 2rem;
+  padding: 2rem 0;
   border-bottom: 1px solid #e5e7eb;
 
   &:last-child {

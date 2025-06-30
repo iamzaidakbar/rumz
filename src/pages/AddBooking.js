@@ -5,9 +5,10 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { bookingsApi } from "../api/bookingsApi";
 import { cloudinaryApi } from "../api/cloudinaryApi";
-import { IoCloudUploadOutline } from "react-icons/io5";
+import { IoArrowBackOutline, IoCloudUploadOutline } from "react-icons/io5";
 import CustomDropdown from "../components/CustomDropdown";
 import CustomButton from "../components/CustomButton";
+import { CiSaveDown1 } from "react-icons/ci";
 
 const AddBooking = () => {
   const { theme } = useAppContext();
@@ -233,13 +234,21 @@ const AddBooking = () => {
         <h1>Add Booking</h1>
         <div className={styles.headerActions}>
           <CustomButton
+            variant="secondary"
+            className={styles.backBtn}
+            type="button"
+            onClick={() => navigate(-1)}
+          >
+            <IoArrowBackOutline /> Back
+          </CustomButton>
+          <CustomButton
             type="submit"
             variant="primary"
             className={styles.saveBtn}
             disabled={isUploading}
             form="add-booking-form"
           >
-            {isUploading ? "Saving..." : "Save Booking"}
+            <CiSaveDown1 /> {isUploading ? "Saving..." : "Save Booking"}
           </CustomButton>
         </div>
       </div>

@@ -11,9 +11,11 @@ import { useAppContext } from "../contexts/AppContext";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { bookingsApi } from "../api/bookingsApi";
+import CustomButton from "../components/CustomButton";
 import LoadingFallback from "../components/LoadingFallback";
 import InfoMessage from "../components/InfoMessage";
 import { MdOutlineEdit } from "react-icons/md";
+import { IoMdAdd } from "react-icons/io";
 
 const TABS = ["All", "Confirmed", "Pending", "Cancelled"];
 
@@ -124,12 +126,13 @@ const Booking = () => {
     >
       <div className={styles.headerRow}>
         <h1 className={styles.header}>Bookings</h1>
-        <button
+        <CustomButton
+          variant="primary"
           className={styles.newBookingBtn}
           onClick={() => navigate("/bookings/add")}
         >
-          + New Booking
-        </button>
+          <IoMdAdd /> New Booking
+        </CustomButton>
       </div>
       <p className={styles.subtitle}>
         Review and manage all guest reservations.

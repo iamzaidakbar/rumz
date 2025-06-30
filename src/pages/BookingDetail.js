@@ -90,18 +90,18 @@ const BookingDetail = () => {
         </div>
         <div className={styles.headerActions}>
           <CustomButton
-            variant="primary"
-            className={styles.editBtn}
-            onClick={() => navigate(`/bookings/${bookingId}/edit`)}
-          >
-            <IoPencilOutline /> Edit
-          </CustomButton>
-          <CustomButton
             variant="secondary"
             className={styles.backBtn}
             onClick={() => navigate(-1)}
           >
             <IoArrowBackOutline /> Back
+          </CustomButton>
+          <CustomButton
+            variant="primary"
+            className={styles.editBtn}
+            onClick={() => navigate(`/bookings/${bookingId}/edit`)}
+          >
+            <IoPencilOutline /> Edit
           </CustomButton>
         </div>
       </div>
