@@ -6,8 +6,10 @@
 }
 
 .header {
-  text-align: start;
-  margin-bottom: 2.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
   h1 {
     font-size: 2.5rem;
     font-weight: 700;
@@ -17,6 +19,12 @@
     font-size: 1.1rem;
     color: #6b7280;
   }
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .form {
@@ -117,15 +125,28 @@
   display: flex;
   justify-content: flex-end;
   margin-top: 1rem;
+  gap: 1rem;
+}
+
+.backBtn {
+  background-color: #fff;
+  color: #1f2937;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border: 1px solid #6b7280 !important;
 }
 
 .saveBtn {
   background-color: #3b82f6;
   color: white;
   border: none;
-  padding: 0.9rem 2rem;
+  padding: 0.8rem 1rem;
   border-radius: 8px;
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;

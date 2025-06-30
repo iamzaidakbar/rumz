@@ -664,6 +664,15 @@ const AddBooking = () => {
         </div>
         <div className={styles.footer}>
           <button
+            type="button"
+            onClick={() => navigate("/bookings")}
+            className={styles.backBtn}
+            disabled={isUploading}
+          >
+            Back
+          </button>
+
+          <button
             type="submit"
             className={styles.saveBtn}
             disabled={isUploading}

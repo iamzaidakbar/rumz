@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
 import { bookingsApi } from "../api/bookingsApi";
 import { cloudinaryApi } from "../api/cloudinaryApi";
-import { IoCloudUploadOutline } from "react-icons/io5";
+import { IoCloudUploadOutline, IoArrowBackOutline } from "react-icons/io5";
 import CustomDropdown from "../components/CustomDropdown";
 import LoadingFallback from "../components/LoadingFallback";
 
@@ -185,6 +185,15 @@ const EditBooking = () => {
     >
       <div className={styles.header}>
         <h1>Edit Booking</h1>
+        <div className={styles.headerActions}>
+          <button
+            className={styles.backBtn}
+            type="button"
+            onClick={() => navigate(-1)}
+          >
+            <IoArrowBackOutline /> Back
+          </button>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className={styles.form}>
