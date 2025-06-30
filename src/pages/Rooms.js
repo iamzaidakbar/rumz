@@ -13,7 +13,6 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { roomsApi } from "../api/roomsApi";
 import LoadingFallback from "../components/LoadingFallback";
-import ConfirmDialog from "../components/ConfirmDialog";
 import InfoMessage from "../components/InfoMessage";
 
 const TABS = ["All", "Ground", "1st Floor", "2nd Floor"];
@@ -46,10 +45,6 @@ const Rooms = () => {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [dialogState, setDialogState] = useState({
-    isOpen: false,
-    roomId: null,
-  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -70,28 +65,14 @@ const Rooms = () => {
     fetchRooms();
   }, []);
 
-  const openDeleteDialog = (roomId) => {
-    setDialogState({ isOpen: true, roomId });
-  };
-
-  const closeDeleteDialog = () => {
-    setDialogState({ isOpen: false, roomId: null });
-  };
-
-  const handleDelete = async () => {
-    const { roomId } = dialogState;
-    if (!roomId) return;
-
+  const handleDelete = async (room) => {
+    if (!room) return;
     try {
-      await roomsApi.deleteRoom(roomId);
-      setRooms((prevRooms) => prevRooms.filter((room) => room.id !== roomId));
-      // In a real app, show a success toast here
+      await roomsApi.deleteRoom(room.id);
+      setRooms((prevRooms) => prevRooms.filter((r) => r.id !== room.id));
     } catch (err) {
       setError("Failed to delete room.");
       console.error(err);
-      // In a real app, show an error toast here
-    } finally {
-      closeDeleteDialog();
     }
   };
 
@@ -100,15 +81,11 @@ const Rooms = () => {
     return rooms.filter((r) => r.floor === floor);
   }, [floor, rooms]);
 
-  if (loading) {
-    return <LoadingFallback />;
-  }
-
-  if (error) {
+  if (loading) return <LoadingFallback />;
+  if (error)
     return (
       <InfoMessage icon={IoWarningOutline} title="Error" message={error} />
     );
-  }
 
   return (
     <motion.div
@@ -127,65 +104,50 @@ const Rooms = () => {
           + Add Room
         </button>
       </div>
-      <div className={styles.tabs}>
-        {TABS.map((tab) => (
-          <button
-            key={tab}
-            className={floor === tab ? styles.activeTab : ""}
-            onClick={() => setFloor(tab)}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
-      {filteredData.length > 0 ? (
-        <DataTable
-          columns={columns}
-          data={filteredData}
-          renderers={{
-            status: (val) => getStatusPill(val),
-            amenities: (val) => (Array.isArray(val) ? val.join(", ") : ""),
-          }}
-          actions={(row) => (
-            <div className={styles.actionBtns}>
-              <IoEyeOutline
-                size={20}
-                className={styles.iconBtn}
-                onClick={() => navigate(`/rooms/${row.id}`)}
-              />
-              <MdOutlineEdit
-                size={20}
-                className={`${styles.iconBtn} ${styles.editBtn}`}
-                onClick={() => navigate(`/rooms/${row.id}/edit`)}
-              />
-              <IoTrashOutline
-                size={20}
-                className={`${styles.iconBtn} ${styles.deleteBtn}`}
-                onClick={() => openDeleteDialog(row.id)}
-              />
-            </div>
-          )}
-        />
-      ) : (
-        <InfoMessage
-          icon={IoBedOutline}
-          title="No Rooms Found"
-          message={
+      <DataTable
+        columns={columns}
+        data={filteredData}
+        renderers={{
+          status: (val) => getStatusPill(val),
+          amenities: (val) => (Array.isArray(val) ? val.join(", ") : ""),
+        }}
+        actions={(row, openDialog) => (
+          <div className={styles.actionBtns}>
+            <IoEyeOutline
+              size={20}
+              className={styles.iconBtn}
+              onClick={() => navigate(`/rooms/${row.id}`)}
+            />
+            <MdOutlineEdit
+              size={20}
+              className={`${styles.iconBtn} ${styles.editBtn}`}
+              onClick={() => navigate(`/rooms/${row.id}/edit`)}
+            />
+            <IoTrashOutline
+              size={20}
+              className={`${styles.iconBtn} ${styles.deleteBtn}`}
+              onClick={() => openDialog(row)}
+            />
+          </div>
+        )}
+        noDataInfo={{
+          icon: IoBedOutline,
+          title: "No Rooms Found",
+          message:
             floor === "All"
               ? "There are currently no rooms available."
-              : "No rooms found for the selected floor. Try a different one."
-          }
-        />
-      )}
-      <ConfirmDialog
-        isOpen={dialogState.isOpen}
-        onClose={closeDeleteDialog}
-        onConfirm={handleDelete}
-        title="Delete Room"
-      >
-        Are you sure you want to permanently delete this room? This action
-        cannot be undone.
-      </ConfirmDialog>
+              : "No rooms found for the selected floor. Try a different one.",
+        }}
+        deleteDialogInfo={{
+          title: "Delete Room",
+          message:
+            "Are you sure you want to permanently delete this room? This action cannot be undone.",
+        }}
+        onConfirmDelete={handleDelete}
+        tabs={TABS}
+        activeTab={floor}
+        onTabChange={setFloor}
+      />
     </motion.div>
   );
 };

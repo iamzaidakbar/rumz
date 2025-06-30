@@ -2,6 +2,9 @@ import React, { useState, useMemo } from "react";
 import { useAppContext } from "../contexts/AppContext";
 import styles from "../styles/DataTable.module.scss";
 import { motion, AnimatePresence } from "framer-motion";
+import { IoSearchOutline } from "react-icons/io5";
+import InfoMessage from "./InfoMessage";
+import ConfirmDialog from "./ConfirmDialog";
 
 const DataTable = ({
   columns = [],
@@ -14,11 +17,15 @@ const DataTable = ({
   onTabChange,
   renderers = {},
   actions,
+  noDataInfo,
+  onConfirmDelete,
+  deleteDialogInfo,
 }) => {
   const [sortField, setSortField] = useState(null);
   const [sortDir, setSortDir] = useState("asc");
   const [searchValue, setSearchValue] = useState("");
   const { theme } = useAppContext();
+  const [dialogState, setDialogState] = useState({ isOpen: false, item: null });
 
   const sortedData = useMemo(() => {
     let filtered = data;
@@ -52,36 +59,58 @@ const DataTable = ({
     }
   };
 
+  const openDeleteDialog = (item) => {
+    setDialogState({ isOpen: true, item });
+  };
+
+  const closeDeleteDialog = () => {
+    setDialogState({ isOpen: false, item: null });
+  };
+
+  const handleConfirm = () => {
+    if (onConfirmDelete && dialogState.item) {
+      onConfirmDelete(dialogState.item);
+    }
+    closeDeleteDialog();
+  };
+
+  if (sortedData.length === 0) {
+    return <InfoMessage {...noDataInfo} />;
+  }
+
   return (
     <div className={styles.dataTableWrap} data-theme={theme}>
-      {tabs.length > 0 && (
-        <div className={styles.tabs}>
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              className={activeTab === tab ? styles.activeTab : ""}
-              onClick={() => onTabChange(tab)}
-              type="button"
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-      )}
-      {search && (
-        <div className={styles.searchBar}>
-          <input
-            type="text"
-            placeholder={searchPlaceholder}
-            value={searchValue}
-            onChange={(e) => {
-              setSearchValue(e.target.value);
-              if (onSearch) onSearch(e.target.value);
-            }}
-            aria-label="Search"
-          />
-        </div>
-      )}
+      <div className={styles.toolbar}>
+        {tabs.length > 0 && (
+          <div className={styles.tabs}>
+            {tabs.map((tab) => (
+              <button
+                key={tab}
+                className={activeTab === tab ? styles.activeTab : ""}
+                onClick={() => onTabChange(tab)}
+                type="button"
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+        )}
+        {search && (
+          <div className={styles.searchWrapper}>
+            <IoSearchOutline className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder={searchPlaceholder}
+              value={searchValue}
+              onChange={(e) => {
+                setSearchValue(e.target.value);
+                if (onSearch) onSearch(e.target.value);
+              }}
+              aria-label="Search"
+            />
+          </div>
+        )}
+      </div>
       <div className={styles.tableOuter}>
         <table className={styles.dataTable}>
           <thead>
@@ -102,7 +131,7 @@ const DataTable = ({
                   )}
                 </th>
               ))}
-              {actions && <th>Actions</th>}
+              {actions && <th className={styles.actionsHeader}>Actions</th>}
             </tr>
           </thead>
           <AnimatePresence component="tbody">
@@ -131,13 +160,27 @@ const DataTable = ({
 
                     return <td key={col.accessor}>{renderedValue}</td>;
                   })}
-                  {actions && <td>{actions(row)}</td>}
+                  {actions && (
+                    <td className={styles.actionsCell}>
+                      {actions(row, openDeleteDialog)}
+                    </td>
+                  )}
                 </motion.tr>
               ))}
             </tbody>
           </AnimatePresence>
         </table>
       </div>
+      {deleteDialogInfo && (
+        <ConfirmDialog
+          isOpen={dialogState.isOpen}
+          onClose={closeDeleteDialog}
+          onConfirm={handleConfirm}
+          title={deleteDialogInfo.title}
+        >
+          {deleteDialogInfo.message}
+        </ConfirmDialog>
+      )}
     </div>
   );
 };

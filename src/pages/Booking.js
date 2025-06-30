@@ -47,7 +47,6 @@ const Booking = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [dialogState, setDialogState] = useState({ isOpen: false, id: null });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -66,19 +65,17 @@ const Booking = () => {
     fetchBookings();
   }, []);
 
-  const openDeleteDialog = (id) => setDialogState({ isOpen: true, id });
-  const closeDeleteDialog = () => setDialogState({ isOpen: false, id: null });
-
-  const handleDelete = async () => {
-    const { id } = dialogState;
-    if (!id) return;
+  const handleDelete = async (booking) => {
+    if (!booking) return;
     try {
-      await bookingsApi.deleteBooking(id);
-      setBookings((prev) => prev.filter((b) => b.booking_reference_id !== id));
+      await bookingsApi.deleteBooking(booking.booking_reference_id);
+      setBookings((prev) =>
+        prev.filter(
+          (b) => b.booking_reference_id !== booking.booking_reference_id
+        )
+      );
     } catch (err) {
       setError("Failed to delete booking.");
-    } finally {
-      closeDeleteDialog();
     }
   };
 
@@ -138,61 +135,53 @@ const Booking = () => {
       <p className={styles.subtitle}>
         Review and manage all guest reservations.
       </p>
-      {filteredData.length > 0 ? (
-        <DataTable
-          columns={columns}
-          data={filteredData}
-          search
-          searchPlaceholder="Search by guest, ID, or room type"
-          tabs={TABS}
-          activeTab={tab}
-          onTabChange={setTab}
-          renderers={{
-            "Booking Status": (val) => getBookingStatusPill(val),
-            "Payment Status": (val) => getPaymentStatusPill(val),
-          }}
-          actions={(row) => (
-            <div className={styles.actionBtns}>
-              <button
-                className={styles.iconBtn}
-                onClick={() =>
-                  navigate(`/bookings/${row.booking_reference_id}`)
-                }
-              >
-                <IoEyeOutline size={20} />
-              </button>
-              <button
-                className={styles.iconBtn}
-                onClick={() =>
-                  navigate(`/bookings/${row.booking_reference_id}/edit`)
-                }
-              >
-                <MdOutlineEdit size={20} />
-              </button>
-              <button
-                className={`${styles.iconBtn} ${styles.deleteBtn}`}
-                onClick={() => openDeleteDialog(row.booking_reference_id)}
-              >
-                <IoTrashOutline size={20} />
-              </button>
-            </div>
-          )}
-        />
-      ) : (
-        <InfoMessage
-          icon={IoCalendarOutline}
-          title="No Bookings Found"
-          message="There are no bookings matching the current filter."
-        />
-      )}
-      <ConfirmDialog
-        isOpen={dialogState.isOpen}
-        onClose={closeDeleteDialog}
-        onConfirm={handleDelete}
-        title="Delete Booking"
-      >
-        Are you sure you want to permanently delete this booking?
-      </ConfirmDialog>
+      <DataTable
+        columns={columns}
+        data={filteredData}
+        search
+        searchPlaceholder="Search by guest, ID, or room type"
+        tabs={TABS}
+        activeTab={tab}
+        onTabChange={setTab}
+        renderers={{
+          "Booking Status": (val) => getBookingStatusPill(val),
+          "Payment Status": (val) => getPaymentStatusPill(val),
+        }}
+        actions={(row, openDialog) => (
+          <div className={styles.actionBtns}>
+            <button
+              className={styles.iconBtn}
+              onClick={() => navigate(`/bookings/${row.booking_reference_id}`)}
+            >
+              <IoEyeOutline size={20} />
+            </button>
+            <button
+              className={styles.iconBtn}
+              onClick={() =>
+                navigate(`/bookings/${row.booking_reference_id}/edit`)
+              }
+            >
+              <MdOutlineEdit size={20} />
+            </button>
+            <button
+              className={`${styles.iconBtn} ${styles.deleteBtn}`}
+              onClick={() => openDialog(row)}
+            >
+              <IoTrashOutline size={20} />
+            </button>
+          </div>
+        )}
+        noDataInfo={{
+          icon: IoCalendarOutline,
+          title: "No Bookings Found",
+          message: "There are no bookings matching the current filter.",
+        }}
+        deleteDialogInfo={{
+          title: "Delete Booking",
+          message: "Are you sure you want to permanently delete this booking?",
+        }}
+        onConfirmDelete={handleDelete}
+      />
     </motion.div>
   );
 };
