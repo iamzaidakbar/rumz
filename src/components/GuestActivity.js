@@ -1,55 +1,76 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styles from "../styles/GuestActivity.module.scss";
-import { bookings } from "../data/bookings";
 import { useAppContext } from "../contexts/AppContext";
+import { bookingsApi } from "../api/bookingsApi";
 
 const GuestActivity = () => {
   const { theme } = useAppContext();
-  const today = new Date();
-  const recentCheckins = bookings
-    .filter((b) => {
-      const checkInDate = new Date(b.checkIn);
-      const diffDays = (today - checkInDate) / (1000 * 60 * 60 * 24);
-      return diffDays >= 0 && diffDays < 2;
-    })
-    .slice(0, 5);
+  const [recentGuests, setRecentGuests] = useState([]);
+  const [upcomingGuests, setUpcomingGuests] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const upcomingCheckouts = bookings
-    .filter((b) => {
-      const checkOutDate = new Date(b.checkOut);
-      const diffDays = (checkOutDate - today) / (1000 * 60 * 60 * 24);
-      return diffDays >= 0 && diffDays < 2;
-    })
-    .slice(0, 5);
+  useEffect(() => {
+    const fetchBookings = async () => {
+      setLoading(true);
+      const bookings = await bookingsApi.getBookings();
+      const today = new Date();
+      // Recent Guests: checked in within last 2 days (including today)
+      const recent = bookings
+        .filter((b) => {
+          const checkIn = new Date(b.booking_details?.check_in_date);
+          const diff = (today - checkIn) / (1000 * 60 * 60 * 24);
+          return diff >= 0 && diff < 2;
+        })
+        .slice(0, 5);
+      // Upcoming Guests: check-in in next 2 days
+      const upcoming = bookings
+        .filter((b) => {
+          const checkIn = new Date(b.booking_details?.check_in_date);
+          const diff = (checkIn - today) / (1000 * 60 * 60 * 24);
+          return diff >= 0 && diff < 2;
+        })
+        .slice(0, 5);
+      setRecentGuests(recent);
+      setUpcomingGuests(upcoming);
+      setLoading(false);
+    };
+    fetchBookings();
+  }, []);
 
   return (
     <div className={styles.guestActivity} data-theme={theme}>
       <div className={styles.activitySection}>
-        <h3 className={styles.sectionTitle}>Recent Check-ins</h3>
-        {recentCheckins.length > 0 ? (
+        <h3 className={styles.sectionTitle}>Recent Guests</h3>
+        {loading ? (
+          <p className={styles.emptyMessage}>Loading...</p>
+        ) : recentGuests.length > 0 ? (
           <ul className={styles.activityList}>
-            {recentCheckins.map((b) => (
-              <li key={b.id}>
-                <span>{b.guestName}</span> in <span>{b.roomType}</span>
+            {recentGuests.map((b, i) => (
+              <li key={b.booking_reference_id || i}>
+                <span>{b.guest_info?.full_name || "-"}</span> in{" "}
+                <span>{b.booking_details?.room_type || "-"}</span>
               </li>
             ))}
           </ul>
         ) : (
-          <p className={styles.emptyMessage}>No recent check-ins.</p>
+          <p className={styles.emptyMessage}>No recent guests.</p>
         )}
       </div>
       <div className={styles.activitySection}>
-        <h3 className={styles.sectionTitle}>Upcoming Check-outs</h3>
-        {upcomingCheckouts.length > 0 ? (
+        <h3 className={styles.sectionTitle}>Upcoming Guests</h3>
+        {loading ? (
+          <p className={styles.emptyMessage}>Loading...</p>
+        ) : upcomingGuests.length > 0 ? (
           <ul className={styles.activityList}>
-            {upcomingCheckouts.map((b) => (
-              <li key={b.id}>
-                <span>{b.guestName}</span> from <span>{b.roomType}</span>
+            {upcomingGuests.map((b, i) => (
+              <li key={b.booking_reference_id || i}>
+                <span>{b.guest_info?.full_name || "-"}</span> in{" "}
+                <span>{b.booking_details?.room_type || "-"}</span>
               </li>
             ))}
           </ul>
         ) : (
-          <p className={styles.emptyMessage}>No upcoming check-outs.</p>
+          <p className={styles.emptyMessage}>No upcoming guests.</p>
         )}
       </div>
     </div>

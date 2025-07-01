@@ -20,6 +20,7 @@ export const guestsApi = {
       }, 300);
     });
   },
+
   async addGuest(guest) {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -31,6 +32,7 @@ export const guestsApi = {
       }, 300);
     });
   },
+
   async updateGuest(id, updates) {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -41,6 +43,7 @@ export const guestsApi = {
       }, 300);
     });
   },
+
   async deleteGuest(id) {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -51,6 +54,7 @@ export const guestsApi = {
       }, 300);
     });
   },
+
   async getGuest(id) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
