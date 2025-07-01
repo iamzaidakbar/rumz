@@ -1,209 +1,170 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useAppContext } from "../contexts/AppContext";
 import styles from "../styles/Calendar.module.scss";
-import { bookings } from "../data/dashboardData";
-import { motion, AnimatePresence } from "framer-motion";
-import { BiSolidLeftArrow } from "react-icons/bi";
-import { BiSolidRightArrow } from "react-icons/bi";
-
-const months = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
-function getBookingsForDay(year, month, day) {
-  const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(
-    day
-  ).padStart(2, "0")}`;
-  return bookings.filter((b) => b.date === dateStr);
-}
-
-function renderMonth(month, year, selectedDay, setSelectedDay, setPopupInfo) {
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const weeks = [];
-  let day = 1 - firstDay;
-  for (let w = 0; w < 6; w++) {
-    const week = [];
-    for (let d = 0; d < 7; d++, day++) {
-      if (day < 1 || day > daysInMonth) {
-        week.push(<td key={d}></td>);
-      } else {
-        const currentDay = day;
-        const dayBookings = getBookingsForDay(year, month, currentDay);
-        week.push(
-          <td key={d}>
-            <div
-              className={
-                currentDay === selectedDay ? styles.selected : styles.day
-              }
-              onClick={() => {
-                setSelectedDay(currentDay);
-                setPopupInfo(
-                  dayBookings.length > 0
-                    ? { day: currentDay, month, year, bookings: dayBookings }
-                    : null
-                );
-              }}
-              tabIndex={0}
-              aria-label={`Day ${currentDay}${
-                dayBookings.length > 0 ? ", has bookings" : ""
-              }`}
-            >
-              {currentDay}
-              {dayBookings.length > 0 && <span className={styles.bookingDot} />}
-            </div>
-          </td>
-        );
-      }
-    }
-    weeks.push(<tr key={w}>{week}</tr>);
-  }
-  return weeks;
-}
+import FullCalendar from "@fullcalendar/react";
+import multiMonthPlugin from "@fullcalendar/multimonth";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import { bookingsApi } from "../api/bookingsApi";
+import Tippy from "@tippyjs/react";
+import "tippy.js/dist/tippy.css";
 
 const Calendar = () => {
   const { theme } = useAppContext();
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [month, setMonth] = useState(6); // July (0-indexed)
-  const [year, setYear] = useState(2024);
-  const [selectedDay, setSelectedDay] = useState(null);
-  const [popupInfo, setPopupInfo] = useState(null);
+  const [events, setEvents] = useState([]);
 
-  // Select current date on mount or when month/year changes
   useEffect(() => {
-    let initialDay = null;
-    if (
-      currentDate.getFullYear() === year &&
-      currentDate.getMonth() === month
-    ) {
-      initialDay = currentDate.getDate();
-    } else {
-      initialDay = 1;
-    }
-    setSelectedDay(initialDay);
-    const dayBookings = getBookingsForDay(year, month, initialDay);
-    setPopupInfo({ day: initialDay, month, year, bookings: dayBookings });
-    // eslint-disable-next-line
-  }, [month, year]);
+    bookingsApi.getBookings().then((data) => {
+      const mapped = data.map((b) => {
+        // Compose room info: prefer room_ids, fallback to roomType
+        let roomInfo = "";
+        if (
+          b.booking_details?.room_ids &&
+          b.booking_details.room_ids.length > 0
+        ) {
+          roomInfo = b.booking_details.room_ids.join(", ");
+        } else if (b.booking_details?.room_type) {
+          roomInfo = b.booking_details.room_type;
+        } else if (b.roomType) {
+          roomInfo = b.roomType;
+        }
+        const title = `${
+          b.guest_info?.full_name ||
+          b.guestName ||
+          b.booking_reference_id ||
+          "Booking"
+        }${roomInfo ? ` (${roomInfo})` : ""}`;
+        return {
+          title,
+          start: b.booking_details?.check_in_date || b.checkIn,
+          end: b.booking_details?.check_out_date || b.checkOut,
+          allDay: true,
+          extendedProps: {
+            guest: b.guest_info || { name: b.guestName },
+            booking: b,
+          },
+        };
+      });
+      setEvents(mapped);
+    });
+  }, []);
 
-  function prevMonth() {
-    if (month === 0) {
-      setMonth(11);
-      setYear((y) => y - 1);
-    } else {
-      setMonth((m) => m - 1);
-    }
-  }
-  function nextMonth() {
-    if (month === 11) {
-      setMonth(0);
-      setYear((y) => y + 1);
-    } else {
-      setMonth((m) => m + 1);
-    }
-  }
+  // Tooltip state
+  const [tooltip, setTooltip] = useState({
+    visible: false,
+    content: "",
+    x: 0,
+    y: 0,
+  });
 
-  const bookingsByDate = bookings.reduce((acc, booking) => {
-    // ... existing code ...
-  }, {});
+  // Helper to render guest details
+  const renderGuestDetails = (guest, booking) => {
+    if (!guest) return null;
+    return (
+      <div style={{ minWidth: 200 }}>
+        <div>
+          <strong>Name:</strong> {guest.full_name || guest.name}
+        </div>
+        {guest.email && (
+          <div>
+            <strong>Email:</strong> {guest.email}
+          </div>
+        )}
+        {guest.phone && (
+          <div>
+            <strong>Phone:</strong> {guest.phone}
+          </div>
+        )}
+        {booking?.booking_reference_id && (
+          <div>
+            <strong>Booking Ref:</strong> {booking.booking_reference_id}
+          </div>
+        )}
+        {booking?.booking_details?.room_ids && (
+          <div>
+            <strong>Rooms:</strong>{" "}
+            {booking.booking_details.room_ids.join(", ")}
+          </div>
+        )}
+        {booking?.booking_details?.room_type && (
+          <div>
+            <strong>Room Type:</strong> {booking.booking_details.room_type}
+          </div>
+        )}
+        {booking?.booking_details?.check_in_date && (
+          <div>
+            <strong>Check-in:</strong> {booking.booking_details.check_in_date}
+          </div>
+        )}
+        {booking?.booking_details?.check_out_date && (
+          <div>
+            <strong>Check-out:</strong> {booking.booking_details.check_out_date}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Event handlers for tooltip
+  const handleEventMouseEnter = (info) => {
+    const { guest, booking } = info.event.extendedProps;
+    setTooltip({
+      visible: true,
+      content: renderGuestDetails(guest, booking),
+      x: info.jsEvent.clientX,
+      y: info.jsEvent.clientY,
+    });
+  };
+  const handleEventMouseLeave = () => {
+    setTooltip({ ...tooltip, visible: false });
+  };
 
   return (
-    <div className={styles.calendarWrap} data-theme={theme}>
-      <div className={styles.monthBlock}>
-        <div className={styles.monthHeader}>
-          <button onClick={prevMonth} aria-label="Previous Month">
-            <BiSolidLeftArrow />
-          </button>
-          <span>
-            {months[month]} {year}
-          </span>
-          <button onClick={nextMonth} aria-label="Next Month">
-            <BiSolidRightArrow />
-          </button>
-        </div>
-        <table className={styles.calendar}>
-          <thead>
-            <tr>
-              {["S", "M", "T", "W", "T", "F", "S"].map((d) => (
-                <th key={d}>{d}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {renderMonth(
-              month,
-              year,
-              selectedDay,
-              (day) => {
-                setSelectedDay(day);
-                const dayBookings = getBookingsForDay(year, month, day);
-                setPopupInfo({ day, month, year, bookings: dayBookings });
-              },
-              setPopupInfo
-            )}
-          </tbody>
-        </table>
-      </div>
-      <AnimatePresence>
-        {popupInfo ? (
-          <motion.div
-            className={styles.bookingPopup}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            transition={{ duration: 0.2 }}
-            tabIndex={0}
-            aria-label={`Bookings for ${popupInfo.day} ${
-              months[popupInfo.month]
-            } ${popupInfo.year}`}
-          >
-            <div className={styles.popupHeader}>
-              Bookings for {popupInfo.day} {months[popupInfo.month]}{" "}
-              {popupInfo.year}
-              <button onClick={() => setPopupInfo(null)} aria-label="Close">
-                ×
-              </button>
-            </div>
-            <ul className={styles.popupList}>
-              {popupInfo.bookings.length > 0 ? (
-                popupInfo.bookings.map((b, i) => (
-                  <li key={i} className={styles.bookingItem}>
-                    <b>{b.guest}</b> — {b.room}
-                  </li>
-                ))
-              ) : (
-                <li className={styles.noBooking}>No bookings for this day.</li>
-              )}
-            </ul>
-          </motion.div>
-        ) : (
-          <motion.div
-            className={styles.bookingPopup}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            transition={{ duration: 0.2 }}
-            tabIndex={0}
-            aria-label="No day selected"
-          >
-            <div className={styles.popupHeader}>Bookings</div>
-            <div className={styles.noBooking}>
-              No Nookings! Select another date to view bookings.
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <div style={{ position: "relative" }}>
+      <FullCalendar
+        plugins={[multiMonthPlugin, dayGridPlugin, timeGridPlugin]}
+        initialView="dayGridMonth"
+        duration={{ years: 1 }}
+        multiMonthMaxColumns={3}
+        headerToolbar={{
+          left: "prev,next today",
+          center: "title",
+          right: "timeGridWeek,dayGridMonth,multiMonthYear",
+        }}
+        views={{
+          timeGridWeek: { buttonText: "Week" },
+          dayGridMonth: { buttonText: "Month" },
+          multiMonthYear: { buttonText: "Year" },
+        }}
+        events={events}
+        eventMouseEnter={handleEventMouseEnter}
+        eventMouseLeave={handleEventMouseLeave}
+      />
+      {tooltip.visible && (
+        <Tippy
+          content={tooltip.content}
+          visible={true}
+          interactive={true}
+          placement="right"
+          getReferenceClientRect={() => ({
+            width: 0,
+            height: 0,
+            top: tooltip.y,
+            bottom: tooltip.y,
+            left: tooltip.x,
+            right: tooltip.x,
+          })}
+        >
+          <span
+            style={{
+              position: "fixed",
+              left: tooltip.x,
+              top: tooltip.y,
+              pointerEvents: "none",
+            }}
+          />
+        </Tippy>
+      )}
     </div>
   );
 };

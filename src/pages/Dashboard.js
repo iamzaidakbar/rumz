@@ -172,6 +172,17 @@ const Dashboard = () => {
           <GuestActivity />
         </motion.div>
         <motion.div
+          className={styles.gridItemWide}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7, duration: 0.5 }}
+        >
+          <div className={styles.calendarWrapper}>
+            <h2 className={styles.chartTitle}>Booking Calendar</h2>
+            <Calendar />
+          </div>
+        </motion.div>
+        <motion.div
           className={styles.gridItem}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -184,6 +195,7 @@ const Dashboard = () => {
             </Suspense>
           </div>
         </motion.div>
+
         <motion.div
           className={styles.gridItem}
           initial={{ opacity: 0, y: 20 }}
@@ -195,17 +207,6 @@ const Dashboard = () => {
             <Suspense fallback={<LoadingFallback />}>
               <PieChart data={roomTypeData} />
             </Suspense>
-          </div>
-        </motion.div>
-        <motion.div
-          className={styles.gridItemWide}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7, duration: 0.5 }}
-        >
-          <div className={styles.calendarWrapper}>
-            <h2 className={styles.chartTitle}>Booking Calendar</h2>
-            <Calendar />
           </div>
         </motion.div>
       </div>
