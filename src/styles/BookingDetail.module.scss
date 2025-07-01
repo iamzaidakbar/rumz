@@ -44,26 +44,6 @@
   gap: 1rem;
 }
 
-.backBtn,
-.editBtn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  color: #1f2937;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-
-  &:hover {
-    background-color: #f9fafb;
-    border-color: #d1d5db;
-  }
-}
-
 .editBtn {
   background-color: var(--primary-color);
   color: #fff;

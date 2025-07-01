@@ -14,6 +14,8 @@ import { useNavigate } from "react-router-dom";
 import { roomsApi } from "../api/roomsApi";
 import LoadingFallback from "../components/LoadingFallback";
 import InfoMessage from "../components/InfoMessage";
+import CustomButton from "../components/CustomButton";
+import { IoMdAdd } from "react-icons/io";
 
 const TABS = ["All", "Ground", "1st Floor", "2nd Floor"];
 
@@ -97,12 +99,14 @@ const Rooms = () => {
     >
       <div className={styles.headerRow}>
         <h1 className={styles.header}>Rooms & Suites</h1>
-        <button
+
+        <CustomButton
+          variant="primary"
           className={styles.addRoomBtn}
           onClick={() => navigate("/rooms/add")}
         >
-          + Add Room
-        </button>
+          <IoMdAdd /> New Room
+        </CustomButton>
       </div>
       <DataTable
         columns={columns}

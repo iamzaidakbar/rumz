@@ -5,8 +5,14 @@ import { useAppContext } from "../contexts/AppContext";
 import styles from "../styles/RoomDetail.module.scss";
 import LoadingFallback from "../components/LoadingFallback";
 import InfoMessage from "../components/InfoMessage";
-import { IoWarningOutline, IoArrowBackOutline } from "react-icons/io5";
+import {
+  IoWarningOutline,
+  IoArrowBackOutline,
+  IoPencilOutline,
+} from "react-icons/io5";
 import { motion } from "framer-motion";
+import CustomButton from "../components/CustomButton";
+import { MdOutlineEdit } from "react-icons/md";
 
 const getStatusPill = (status) => {
   const statusMap = {
@@ -64,12 +70,30 @@ const RoomDetail = () => {
         transition={{ duration: 0.5, ease: "easeOut" }}
       >
         <div className={styles.header}>
-          <div className={styles.breadcrumbs}>
-            <Link to="/rooms">Rooms</Link> / <span>Room {room.roomNumber}</span>
+          <div>
+            <div className={styles.breadcrumbs}>
+              <Link to="/rooms">Rooms</Link> /{" "}
+              <span>Room {room.roomNumber}</span>
+            </div>
+            <h1>Room Details</h1>
+            <p>View and manage room details</p>
           </div>
-          <button className={styles.backBtn} onClick={() => navigate(-1)}>
-            <IoArrowBackOutline /> Back
-          </button>
+          <div className={styles.headerActions}>
+            <CustomButton
+              variant="secondary"
+              className={styles.backBtn}
+              onClick={() => navigate(-1)}
+            >
+              <IoArrowBackOutline /> Back
+            </CustomButton>
+            <CustomButton
+              variant="primary"
+              className={styles.editBtn}
+              onClick={() => navigate(`/rooms/${roomId}/edit`)}
+            >
+              <IoPencilOutline /> Edit
+            </CustomButton>
+          </div>
         </div>
 
         <div className={styles.imageWrapper}>
@@ -125,15 +149,6 @@ const RoomDetail = () => {
               <span className={styles.label}>Nightly Rate</span>
               <span className={styles.value}>${room.price}</span>
             </div>
-          </div>
-
-          <div className={styles.actions}>
-            <button
-              className={styles.editBtn}
-              onClick={() => navigate(`/rooms/${roomId}/edit`)}
-            >
-              Edit Room
-            </button>
           </div>
         </div>
       </motion.div>

@@ -5,6 +5,9 @@ import { roomsApi } from "../api/roomsApi";
 import { motion } from "framer-motion";
 import { useAppContext } from "../contexts/AppContext";
 import CustomDropdown from "../components/CustomDropdown";
+import CustomButton from "../components/CustomButton";
+import { IoArrowBackOutline } from "react-icons/io5";
+import { CiSaveDown1 } from "react-icons/ci";
 
 const AMENITIES = ["Wi-Fi", "TV", "AC", "Mini-bar", "Balcony", "Kitchenette"];
 const FLOORS = ["Ground", "1st Floor", "2nd Floor"];
@@ -75,32 +78,62 @@ const AddRoom = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className={styles.header}>Add Room</h1>
+        <div className={styles.header}>
+          <h1>Add Room</h1>
+          <div className={styles.headerActions}>
+            <CustomButton
+              variant="secondary"
+              className={styles.backBtn}
+              type="button"
+              onClick={() => navigate(-1)}
+            >
+              <IoArrowBackOutline /> Back
+            </CustomButton>
+            <CustomButton
+              type="submit"
+              variant="primary"
+              className={styles.saveBtn}
+              disabled={saving}
+              form="add-booking-form"
+            >
+              <CiSaveDown1 /> {saving ? "Saving..." : "Save Booking"}
+            </CustomButton>
+          </div>
+        </div>
+
         <form
           className={styles.form}
           onSubmit={handleSubmit}
           autoComplete="off"
         >
-          <div className={styles.inputGroup}>
-            <label htmlFor="roomNumber">Room Number</label>
-            <input
-              type="text"
-              id="roomNumber"
-              name="roomNumber"
-              value={form.roomNumber}
-              onChange={handleChange}
-              placeholder="Enter room number"
-              required
-            />
-          </div>
-          <div className={styles.inputGroup}>
-            <label htmlFor="type">Room Type</label>
-            <CustomDropdown
-              options={TYPES}
-              value={form.type}
-              onChange={handleDropdownChange("type")}
-              placeholder="Select a room type"
-            />
+          <div
+            style={{
+              display: "flex",
+              gap: "1rem",
+              width: "100%",
+            }}
+          >
+            <div style={{ width: "100%" }} className={styles.inputGroup}>
+              <label htmlFor="roomNumber">Room Number</label>
+              <input
+                type="text"
+                id="roomNumber"
+                name="roomNumber"
+                value={form.roomNumber}
+                onChange={handleChange}
+                placeholder="Enter room number"
+                required
+              />
+            </div>
+            <div style={{ width: "100%" }} className={styles.inputGroup}>
+              <label htmlFor="type">Room Type</label>
+              <CustomDropdown
+                options={TYPES}
+                value={form.type}
+                onChange={handleDropdownChange("type")}
+                placeholder="Select a room type"
+              />
+            </div>
           </div>
           <div className={styles.inputGroup}>
             <label htmlFor="description">Description</label>
@@ -205,23 +238,6 @@ const AddRoom = () => {
             </div>
           </div>
           {error && <div className={styles.errorMsg}>{error}</div>}
-          <div className={styles.formActions}>
-            <button
-              className={styles.backBtn}
-              onClick={() => navigate("/rooms")}
-              type="button"
-            >
-              Back
-            </button>
-
-            <button
-              type="submit"
-              className={styles.saveButton}
-              disabled={saving}
-            >
-              {saving ? "Saving..." : "Save"}
-            </button>
-          </div>
         </form>
       </motion.div>
     </div>

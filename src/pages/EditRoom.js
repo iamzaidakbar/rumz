@@ -7,7 +7,8 @@ import { useAppContext } from "../contexts/AppContext";
 import CustomDropdown from "../components/CustomDropdown";
 import LoadingFallback from "../components/LoadingFallback";
 import InfoMessage from "../components/InfoMessage";
-import { IoWarningOutline } from "react-icons/io5";
+import { IoArrowBackOutline, IoWarningOutline } from "react-icons/io5";
+import CustomButton from "../components/CustomButton";
 
 const AMENITIES = ["Wi-Fi", "TV", "AC", "Mini-bar", "Balcony", "Kitchenette"];
 const FLOORS = ["Ground", "1st Floor", "2nd Floor"];
@@ -85,7 +86,28 @@ const EditRoom = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className={styles.header}>Edit Room</h1>
+        <div className={styles.header}>
+          <h1>Edit Room</h1>
+          <div className={styles.headerActions}>
+            <CustomButton
+              variant="secondary"
+              className={styles.backBtn}
+              type="button"
+              onClick={() => navigate(-1)}
+            >
+              <IoArrowBackOutline /> Back
+            </CustomButton>
+            <CustomButton
+              type="submit"
+              variant="primary"
+              className={styles.saveBtn}
+              disabled={saving}
+              form="edit-booking-form"
+            >
+              {saving ? "Saving..." : "Save Changes"}
+            </CustomButton>
+          </div>
+        </div>
         <form
           className={styles.form}
           onSubmit={handleSubmit}
@@ -215,22 +237,6 @@ const EditRoom = () => {
             </div>
           </div>
           {error && <div className={styles.errorMsg}>{error}</div>}
-          <div className={styles.formActions}>
-            <button
-              type="button"
-              className={styles.backBtn}
-              onClick={() => navigate(`/rooms/${roomId}`)}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className={styles.saveButton}
-              disabled={saving}
-            >
-              {saving ? "Saving..." : "Save Changes"}
-            </button>
-          </div>
         </form>
       </motion.div>
     </div>

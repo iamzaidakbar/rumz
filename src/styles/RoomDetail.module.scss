@@ -2,50 +2,53 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  padding: 0 2rem;
 }
 
 .card {
   width: 100%;
-  max-width: 80%;
   background: #fff;
-  border-radius: 18px;
   overflow: hidden;
 }
 
 .header {
-  padding: 1rem 0;
+  margin-bottom: 2rem;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+
+  .breadcrumbs {
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+
+    a {
+      color: #6b7280;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    span {
+      color: #1f2937;
+    }
+  }
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  p {
+    color: #6b7280;
+  }
 }
 
-.breadcrumbs {
-  color: #6b7280;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-.breadcrumbs a {
-  color: #4b5563;
-  text-decoration: none;
-  cursor: pointer;
-}
-.breadcrumbs a:hover {
-  text-decoration: underline;
-}
-.breadcrumbs span {
-  color: #111827;
-}
-
-.backBtn {
-  background: none;
-  border: none;
-  color: #4b5563;
-  font-weight: 600;
+.headerActions {
   display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  cursor: pointer;
-  padding: 0.5rem;
+  gap: 1rem;
 }
 
 .imageWrapper {
@@ -160,8 +163,9 @@
 }
 
 .actions {
-  margin-top: 2.5rem;
-  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .editBtn {
@@ -185,6 +189,9 @@
 }
 .pageWrapper[data-theme="dark"] .card {
   background: #17191c;
+}
+.pageWrapper[data-theme="dark"] .header h1 {
+  color: #f3f4f6;
 }
 .pageWrapper[data-theme="dark"] .breadcrumbs {
   color: #9ca3af;
