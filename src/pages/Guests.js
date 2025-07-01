@@ -43,9 +43,11 @@ const Guests = () => {
   const [guestBookings, setGuestBookings] = useState([]);
   const [showViewModal, setShowViewModal] = useState(false);
   const [viewLoading, setViewLoading] = useState(false);
+  const [bookings, setBookings] = useState([]);
 
   useEffect(() => {
     fetchGuests();
+    bookingsApi.getBookings().then(setBookings);
   }, []);
 
   const fetchGuests = async () => {
@@ -86,7 +88,12 @@ const Guests = () => {
     setViewLoading(true);
     setShowViewModal(true);
     try {
-      const bookings = await bookingsApi.getBookingsForGuest(guest.phone);
+      const allBookings = await bookingsApi.getBookings();
+      const bookings = allBookings.filter(
+        (b) =>
+          (guest.email && b.guest_info.email === guest.email) ||
+          (guest.phone && b.guest_info.phone_number === guest.phone)
+      );
       setGuestBookings(bookings);
     } catch (err) {
       setGuestBookings([]);
@@ -105,22 +112,51 @@ const Guests = () => {
     </span>
   );
 
+  const getUniqueGuests = (guests) => {
+    const seen = new Set();
+    return guests.filter((g) => {
+      const key = g.email || g.phone;
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  };
+
   const filteredData = useMemo(() => {
+    let filtered = guests;
     if (tab === "Current Guests")
-      return guests.filter((g) => g.status === "Active");
+      filtered = guests.filter((g) => g.status === "Active");
     if (tab === "Past Guests")
-      return guests.filter((g) => g.status === "Inactive");
-    return guests;
+      filtered = guests.filter((g) => g.status === "Inactive");
+    return getUniqueGuests(filtered);
   }, [tab, guests]);
 
   const mappedGuests = useMemo(
     () =>
-      guests.map((g) => ({
-        ...g,
-        email: g.email || g.contact, // fallback if not present
-        phone: g.phone || g.contact, // fallback if not present
-      })),
-    [guests]
+      guests.map((g) => {
+        let email =
+          g.email ||
+          (g.contact && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(g.contact)
+            ? g.contact
+            : "");
+        let phone =
+          g.phone ||
+          (g.contact && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(g.contact)
+            ? g.contact
+            : "");
+        const bookingCount = bookings.filter(
+          (b) =>
+            (email && b.guest_info.email === email) ||
+            (phone && b.guest_info.phone_number === phone)
+        ).length;
+        return {
+          ...g,
+          email,
+          phone,
+          bookings: bookingCount,
+        };
+      }),
+    [guests, bookings]
   );
 
   if (loading) return null;
