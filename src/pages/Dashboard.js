@@ -178,7 +178,7 @@ const Dashboard = () => {
           transition={{ delay: 0.7, duration: 0.5 }}
         >
           <div className={styles.calendarWrapper}>
-            <h2 className={styles.chartTitle}>Booking Calendar</h2>
+            <h2 className={styles.chartTitle}>Scheduled Bookings</h2>
             <Calendar />
           </div>
         </motion.div>
