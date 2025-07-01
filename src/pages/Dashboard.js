@@ -3,7 +3,6 @@ import styles from "../styles/Dashboard.module.scss";
 import MetricCard from "../components/MetricCard";
 import QuickActions from "../components/QuickActions";
 import Calendar from "../components/Calendar";
-import { revenueTrend, roomTypeData } from "../data/dashboardData";
 import { motion } from "framer-motion";
 import LoadingFallback from "../components/LoadingFallback";
 import OngoingBookings from "../components/OngoingBookings";
@@ -19,6 +18,8 @@ const Dashboard = () => {
   const { theme } = useAppContext();
   const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [revenueTrend, setRevenueTrend] = useState([]);
+  const [roomTypeData, setRoomTypeData] = useState([]);
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -28,6 +29,49 @@ const Dashboard = () => {
           bookingsApi.getBookings(),
           roomsApi.getRooms(),
         ]);
+        // Only consider bookings with payment_info.amount and payment_status Paid
+        const paidBookings = bookings.filter(
+          (b) => b.payment_info && b.payment_info.payment_status === "Paid"
+        );
+        // Group by month (YYYY-MM) and sum revenue
+        const monthMap = {};
+        paidBookings.forEach((b) => {
+          const dateStr =
+            b.booking_details?.check_in_date || b.timestamps?.created_at;
+          if (!dateStr) return;
+          const date = new Date(dateStr);
+          const month = date.toLocaleString("default", { month: "short" });
+          const year = date.getFullYear();
+          const key = `${month} ${year}`;
+          const amt = Number(b.payment_info.amount || 0);
+          if (!monthMap[key]) monthMap[key] = 0;
+          monthMap[key] += isNaN(amt) ? 0 : amt;
+        });
+        // Convert to array sorted by date
+        const trendArr = Object.entries(monthMap)
+          .map(([name, revenue]) => ({ name, revenue }))
+          .sort((a, b) => {
+            // Sort by year then month
+            const [ma, ya] = a.name.split(" ");
+            const [mb, yb] = b.name.split(" ");
+            const months = [
+              "Jan",
+              "Feb",
+              "Mar",
+              "Apr",
+              "May",
+              "Jun",
+              "Jul",
+              "Aug",
+              "Sep",
+              "Oct",
+              "Nov",
+              "Dec",
+            ];
+            if (ya !== yb) return Number(ya) - Number(yb);
+            return months.indexOf(ma) - months.indexOf(mb);
+          });
+        setRevenueTrend(trendArr);
         // Total Revenue: sum of all booking payment_info.amount (as number)
         const totalRevenue = bookings.reduce((sum, b) => {
           const amt = Number(b.payment_info?.amount || 0);
@@ -56,6 +100,19 @@ const Dashboard = () => {
           { label: "Available Rooms", value: availableRooms },
           { label: "Total Bookings", value: totalBookings },
         ]);
+        // Room Popularity: count bookings by room type
+        const typeMap = {};
+        bookings.forEach((b) => {
+          const type = b.booking_details?.room_type || b.roomType;
+          if (!type) return;
+          if (!typeMap[type]) typeMap[type] = 0;
+          typeMap[type] += 1;
+        });
+        const typeArr = Object.entries(typeMap).map(([name, value]) => ({
+          name,
+          value,
+        }));
+        setRoomTypeData(typeArr);
       } finally {
         setLoading(false);
       }
