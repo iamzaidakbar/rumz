@@ -1,5 +1,5 @@
-const CLOUD_NAME = "dzpzi0pk2";
-const UPLOAD_PRESET = "rumz_upload";
+const CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+const UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
 
 export const cloudinaryApi = {
   async uploadImages(files) {
