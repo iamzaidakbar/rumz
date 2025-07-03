@@ -14,6 +14,7 @@ import Booking from "./pages/Booking";
 import Guests from "./pages/Guests";
 import Rooms from "./pages/Rooms";
 import AddRoom from "./pages/AddRoom";
+import SignUp from "./pages/SignUp";
 
 // Lazy load pages for code splitting
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -23,26 +24,40 @@ const Owner = lazy(() => import("./pages/Owner"));
 function App() {
   return (
     <AppProvider>
-      <Layout>
-        <Suspense fallback={<LoadingFallback />}>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/rooms" element={<Rooms />} />
-            <Route path="/rooms/add" element={<AddRoom />} />
-            <Route path="/booking" element={<Booking />} />
-            <Route path="/guests" element={<Guests />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/owner" element={<Owner />} />
-            <Route path="/rooms/:roomId" element={<RoomDetail />} />
-            <Route path="/rooms/:roomId/edit" element={<EditRoom />} />
-            <Route path="/bookings" element={<Booking />} />
-            <Route path="/bookings/add" element={<AddBooking />} />
-            <Route path="bookings/:bookingId" element={<BookingDetail />} />
-            <Route path="bookings/:bookingId/edit" element={<EditBooking />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
-      </Layout>
+      <Suspense fallback={<LoadingFallback />}>
+        <Routes>
+          <Route path="/signup" element={<SignUp />} />
+          <Route
+            path="/*"
+            element={
+              <Layout>
+                <Routes>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/rooms" element={<Rooms />} />
+                  <Route path="/rooms/add" element={<AddRoom />} />
+                  <Route path="/booking" element={<Booking />} />
+                  <Route path="/guests" element={<Guests />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/owner" element={<Owner />} />
+                  <Route path="/rooms/:roomId" element={<RoomDetail />} />
+                  <Route path="/rooms/:roomId/edit" element={<EditRoom />} />
+                  <Route path="/bookings" element={<Booking />} />
+                  <Route path="/bookings/add" element={<AddBooking />} />
+                  <Route
+                    path="bookings/:bookingId"
+                    element={<BookingDetail />}
+                  />
+                  <Route
+                    path="bookings/:bookingId/edit"
+                    element={<EditBooking />}
+                  />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Layout>
+            }
+          />
+        </Routes>
+      </Suspense>
     </AppProvider>
   );
 }
