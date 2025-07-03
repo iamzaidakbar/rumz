@@ -10,7 +10,7 @@ const Layout = ({ children }) => {
 
   return (
     <div className={styles.layout} data-theme={theme}>
-      <Topbar />
+      {/* <Topbar /> */}
       <Sidebar />
       <main className={styles.mainContent}>{children}</main>
     </div>

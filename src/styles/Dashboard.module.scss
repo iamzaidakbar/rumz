@@ -1,16 +1,15 @@
 @use "./App.module.scss" as *;
 
 .page {
-  padding: 1.5rem 2rem;
+  padding: 0 2rem;
   background-color: white;
-  min-height: 100vh;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2.5rem;
 
   h1 {
     font-size: 2rem;

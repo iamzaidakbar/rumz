@@ -1,6 +1,5 @@
 import React, { useState, useRef } from "react";
 import styles from "../styles/Layout.module.scss";
-import { IoPersonCircleOutline } from "react-icons/io5";
 import { FaCircleUser } from "react-icons/fa6";
 
 const Topbar = () => {
