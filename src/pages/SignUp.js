@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   MDBBtn,
   MDBContainer,
@@ -42,6 +42,14 @@ const SignUp = () => {
   const [logoError, setLogoError] = useState("");
   const fileInputRef = useRef();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const hotel = localStorage.getItem("hotel");
+    if (token && hotel) {
+      navigate("/", { replace: true });
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
