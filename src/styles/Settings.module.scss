@@ -1,9 +1,8 @@
 @use "./App.module.scss" as *;
 
 .page {
-  padding: 1.5rem 2rem;
+  padding: 0 2rem;
   background-color: white;
-  min-height: 100vh;
 }
 
 .header {
@@ -14,7 +13,6 @@
 }
 
 .form {
-  max-width: 800px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -89,6 +87,34 @@
   font-weight: 600;
 }
 
+.logoutButton {
+  background-color: #e53935;
+  color: #fff;
+  border: none;
+  padding: 0.8rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-left: auto;
+
+  &:hover {
+    background-color: #b71c1c;
+  }
+}
+
+.disabledInput {
+  background-color: #f3f4f6 !important;
+  color: #9ca3af !important;
+  cursor: not-allowed !important;
+  opacity: 1 !important;
+}
+
+.page[data-theme="dark"] .disabledInput {
+  background-color: #23272f !important;
+  color: #6b7280 !important;
+}
+
 /* Dark Theme */
 .page[data-theme="dark"] {
   background-color: #17191c;
@@ -133,5 +159,13 @@
 
   .saveMessage {
     color: #34d399;
+  }
+
+  .logoutButton {
+    background-color: #ef4444;
+    color: #fff;
+    &:hover {
+      background-color: #b91c1c;
+    }
   }
 }

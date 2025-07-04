@@ -1,22 +1,36 @@
-import React, { createContext, useState, useContext } from "react";
-import { ownerDetails as initialOwnerDetails } from "../data/owner";
+import React, { createContext, useState, useContext, useEffect } from "react";
 
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
+  // Load hotel from localStorage if present
+  const getInitialHotel = () => {
+    try {
+      const hotel = localStorage.getItem("hotel");
+      if (hotel) return JSON.parse(hotel);
+    } catch {}
+    return null;
+  };
+
+  const [appData, setAppData] = useState(getInitialHotel());
   const [theme, setTheme] = useState("light");
-  const [appData, setAppData] = useState(initialOwnerDetails);
+
+  useEffect(() => {
+    // Keep appData in sync with localStorage changes (e.g., login/logout)
+    const handleStorage = () => {
+      const hotel = localStorage.getItem("hotel");
+      setAppData(hotel ? JSON.parse(hotel) : null);
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
 
   const toggleTheme = () => {
     setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
   };
 
-  const updateAppData = (newDetails) => {
-    setAppData(newDetails);
-  };
-
   return (
-    <AppContext.Provider value={{ theme, toggleTheme, appData, updateAppData }}>
+    <AppContext.Provider value={{ theme, toggleTheme, appData, setAppData }}>
       {children}
     </AppContext.Provider>
   );

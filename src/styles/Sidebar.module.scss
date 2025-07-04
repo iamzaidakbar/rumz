@@ -16,7 +16,6 @@
 }
 
 .logo {
-  margin-bottom: 2.5rem;
   padding: 0 0.5rem;
 
   h1 {
@@ -24,6 +23,41 @@
     font-weight: 800;
     color: #111827;
   }
+}
+
+.logoSection {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.hotelLogo {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #f3f4f6;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.logoPlaceholder {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hotelName {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .nav {
@@ -130,5 +164,15 @@
   .settingsLink.active {
     background-color: #2563eb;
     color: #fff;
+  }
+
+  .hotelName {
+    color: #f9fafb;
+  }
+  .hotelLogo {
+    background: #23272f;
+  }
+  .logoPlaceholder {
+    background: #23272f;
   }
 }

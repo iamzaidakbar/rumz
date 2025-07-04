@@ -14,12 +14,26 @@ import {
 } from "react-icons/io5";
 
 const Sidebar = () => {
-  const { theme, toggleTheme, appData } = useAppContext();
+  const { theme, appData } = useAppContext();
 
   return (
     <aside className={styles.sidebar} data-theme={theme}>
-      <div className={styles.logo}>
-        <h1>{appData.hotelName}</h1>
+      <div className={styles.logoSection}>
+        {appData?.hotelLogo ? (
+          <img
+            src={appData.hotelLogo}
+            alt={appData.hotelname || "Hotel Logo"}
+            className={styles.hotelLogo}
+            width={48}
+            height={48}
+            style={{ borderRadius: 8, objectFit: "cover" }}
+          />
+        ) : (
+          <div className={styles.logoPlaceholder} />
+        )}
+        <span className={styles.hotelName}>
+          {appData?.hotelname || "Hotel"}
+        </span>
       </div>
       <nav className={styles.nav}>
         <NavLink
@@ -59,10 +73,6 @@ const Sidebar = () => {
         </NavLink>
       </nav>
       <div className={styles.footer}>
-        <button onClick={toggleTheme} className={styles.themeToggle}>
-          {theme === "light" ? <IoMoonOutline /> : <IoSunnyOutline />}
-          <span>{theme === "light" ? "Dark Mode" : "Light Mode"}</span>
-        </button>
         <NavLink
           to="/settings"
           className={({ isActive }) =>

@@ -1,12 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
-  MDBBtn,
   MDBContainer,
   MDBRow,
   MDBCol,
   MDBCard,
   MDBCardBody,
-  MDBInput,
   MDBCardHeader,
 } from "mdb-react-ui-kit";
 import { cloudinaryApi } from "../api/cloudinaryApi";
@@ -16,6 +14,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "../styles/SignUp.module.scss";
 import "mdb-react-ui-kit/dist/css/mdb.min.css";
 import { useNavigate } from "react-router-dom";
+import HotelAuthForm from "../components/HotelAuthForm";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 
@@ -199,263 +198,23 @@ const SignUp = () => {
               </MDBCardHeader>
 
               <MDBCardBody className="p-5">
-                <form onSubmit={handleSubmit} autoComplete="off">
-                  <MDBRow>
-                    <MDBCol md="6">
-                      <MDBInput
-                        wrapperClass="mb-4"
-                        label="Hotel Registration No"
-                        id="hotelRegNo"
-                        name="hotelRegNo"
-                        type="text"
-                        value={form.hotelRegNo}
-                        onChange={handleChange}
-                        required
-                      />
-                    </MDBCol>
-                    <MDBCol md="6">
-                      <MDBInput
-                        wrapperClass="mb-4"
-                        label="Hotel Name"
-                        id="hotelname"
-                        name="hotelname"
-                        type="text"
-                        value={form.hotelname}
-                        onChange={handleChange}
-                        required
-                      />
-                    </MDBCol>
-                  </MDBRow>
-
-                  <MDBRow>
-                    <MDBCol md="6">
-                      <MDBInput
-                        wrapperClass="mb-4"
-                        label="Full Name"
-                        id="fullname"
-                        name="fullname"
-                        type="text"
-                        value={form.fullname}
-                        onChange={handleChange}
-                        required
-                      />
-                    </MDBCol>
-                    <MDBCol md="6">
-                      <MDBInput
-                        wrapperClass="mb-4"
-                        label="Email"
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={form.email}
-                        onChange={handleChange}
-                        required
-                      />
-                    </MDBCol>
-                  </MDBRow>
-                  <MDBRow>
-                    <MDBCol md="6">
-                      <MDBInput
-                        wrapperClass="mb-4"
-                        label="Hotel Location"
-                        id="hotelLocation"
-                        name="hotelLocation"
-                        type="text"
-                        value={form.hotelLocation}
-                        onChange={handleChange}
-                        required
-                      />
-                    </MDBCol>
-                    <MDBCol md="6">
-                      <MDBInput
-                        wrapperClass="mb-4"
-                        label="Password"
-                        id="password"
-                        name="password"
-                        type="password"
-                        value={form.password}
-                        onChange={handleChange}
-                        required
-                      />
-                    </MDBCol>
-                  </MDBRow>
-
-                  <MDBRow>
-                    <MDBCol md="6">
-                      <MDBInput
-                        wrapperClass="mb-4"
-                        label="Phone Number"
-                        id="number"
-                        name="number"
-                        type="text"
-                        value={form.number}
-                        onChange={handleChange}
-                        required
-                      />
-                    </MDBCol>
-                    <MDBCol md="6">
-                      <MDBInput
-                        wrapperClass="mb-4"
-                        label="Address"
-                        id="address"
-                        name="address"
-                        type="text"
-                        value={form.address}
-                        onChange={handleChange}
-                        required
-                      />
-                    </MDBCol>
-                  </MDBRow>
-                  <MDBRow>
-                    <MDBCol md="6">
-                      <MDBInput
-                        wrapperClass="mb-4"
-                        label="Hotel Manager Name"
-                        id="hotelManager"
-                        name="hotelManager"
-                        type="text"
-                        value={form.hotelManager}
-                        onChange={handleChange}
-                        required
-                      />
-                    </MDBCol>
-                    <MDBCol md="6">
-                      <MDBInput
-                        wrapperClass="mb-4"
-                        label="Hotel Manager Number"
-                        id="hotelManagerNumber"
-                        name="hotelManagerNumber"
-                        type="text"
-                        value={form.hotelManagerNumber}
-                        onChange={handleChange}
-                        required
-                      />
-                    </MDBCol>
-                  </MDBRow>
-
-                  <MDBRow>
-                    <MDBCol md="6">
-                      <div
-                        style={{
-                          border: "1px dashed #517fa4",
-                          borderRadius: 10,
-                          padding: 16,
-                          textAlign: "center",
-                          background: "#f8fafc",
-                          color: "#243949",
-                          fontFamily: "Montserrat, Arial, sans-serif",
-                          fontWeight: 500,
-                          cursor: logoUploading ? "not-allowed" : "pointer",
-                          marginBottom: 16,
-                          position: "relative",
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          transition: "border 0.2s, background 0.2s",
-                          maxWidth: "100%",
-                        }}
-                        onDrop={handleLogoDrop}
-                        onDragOver={handleDragOver}
-                        onClick={logoUploading ? undefined : handleLogoClick}
-                      >
-                        <input
-                          type="file"
-                          accept="image/*"
-                          style={{ display: "none" }}
-                          ref={fileInputRef}
-                          onChange={handleLogoSelect}
-                          disabled={logoUploading}
-                        />
-                        {logoUploading ? (
-                          <span>Uploading...</span>
-                        ) : (
-                          <>
-                            <span style={{ fontSize: 10 }}>
-                              Drag & Drop or Click to Upload Hotel Logo
-                            </span>
-                            <span style={{ fontSize: 10, color: "#517fa4" }}>
-                              (Max size: 2MB, JPG/PNG)
-                            </span>
-                          </>
-                        )}
-                        {logoError && (
-                          <div
-                            style={{
-                              color: "#e53935",
-                              fontSize: 13,
-                              marginTop: 6,
-                            }}
-                          >
-                            {logoError}
-                          </div>
-                        )}
-                      </div>
-                    </MDBCol>
-                    <MDBCol
-                      md="6"
-                      className="d-flex flex-column align-items-start justify-content-center"
-                    >
-                      {form.hotelLogo && !logoUploading && (
-                        <>
-                          <img
-                            src={form.hotelLogo}
-                            alt="Hotel Logo Preview"
-                            style={{
-                              maxWidth: 120,
-                              maxHeight: 120,
-                              borderRadius: 10,
-                              marginBottom: 8,
-                              objectFit: "cover",
-                              boxShadow: "0 2px 8px rgba(36,57,73,0.08)",
-                              display: "block",
-                            }}
-                          />
-                          <span className="d-flex align-items-center gap-2 mb-4">
-                            <button
-                              type="button"
-                              onClick={handleRemoveLogo}
-                              style={{
-                                background: "#fff",
-                                color: "#222",
-                                border: "none",
-                                borderRadius: 6,
-                                padding: "2px 6px",
-                                fontSize: 10,
-                                fontWeight: 500,
-                                cursor: "pointer",
-                              }}
-                            >
-                              Cancel
-                            </button>
-                            <span
-                              style={{ fontSize: 10, color: "rgb(42 155 9)" }}
-                            >
-                              Uploaded!
-                            </span>
-                          </span>
-                        </>
-                      )}
-                    </MDBCol>
-                  </MDBRow>
-
-                  {error && (
-                    <div className="text-danger mb-3 text-center">{error}</div>
-                  )}
-                  {success && (
-                    <div className="text-success mb-3 text-center">
-                      Registration successful! Redirecting...
-                    </div>
-                  )}
-                  <MDBBtn
-                    className="w-100 my-2 mb-4"
-                    size="md"
-                    type="submit"
-                    disabled={loading}
-                  >
-                    {loading ? "Registering..." : "Register Hotel"}
-                  </MDBBtn>
-                </form>
+                <HotelAuthForm
+                  mode="signup"
+                  form={form}
+                  onChange={handleChange}
+                  onSubmit={handleSubmit}
+                  loading={loading}
+                  error={error}
+                  success={success}
+                  logoUploading={logoUploading}
+                  logoError={logoError}
+                  onLogoDrop={handleLogoDrop}
+                  onLogoSelect={handleLogoSelect}
+                  onLogoClick={handleLogoClick}
+                  onDragOver={handleDragOver}
+                  fileInputRef={fileInputRef}
+                  onRemoveLogo={handleRemoveLogo}
+                />
               </MDBCardBody>
             </MDBCard>
           </MDBCol>
