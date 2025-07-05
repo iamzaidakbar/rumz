@@ -9,7 +9,6 @@ import { IoArrowBackOutline, IoCloudUploadOutline } from "react-icons/io5";
 import CustomDropdown from "../components/CustomDropdown";
 import CustomButton from "../components/CustomButton";
 import { CiSaveDown1 } from "react-icons/ci";
-import { guestsApi } from "../api/guestsApi";
 import { useRooms } from "../hooks/useRooms";
 
 const AddBooking = () => {
@@ -64,8 +63,6 @@ const AddBooking = () => {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  const [guestBookings, setGuestBookings] = useState([]);
-  const [guestBookingLoading, setGuestBookingLoading] = useState(false);
   const { rooms, loading: roomsLoading, error: roomsError } = useRooms();
 
   const handleInputChange = useCallback((section, field, value) => {
@@ -206,39 +203,21 @@ const AddBooking = () => {
     setIsUploading(true);
 
     try {
-      // Add guest if not exists, otherwise increment bookings
-      const guests = await guestsApi.getGuests();
-      const guestIndex = guests.findIndex(
-        (g) =>
-          g.contact === formData.guest_info.phone_number ||
-          g.contact === formData.guest_info.email
-      );
-      if (guestIndex === -1) {
-        await guestsApi.addGuest({
-          name: formData.guest_info.full_name,
-          email: formData.guest_info.email,
-          phone: formData.guest_info.phone_number,
-          bookings: 1,
-          status: "Active",
-        });
-      } else {
-        const guest = guests[guestIndex];
-        await guestsApi.updateGuest(guest.id, {
-          ...guest,
-          bookings: (guest.bookings || 0) + 1,
-        });
-      }
-
       let uploadedImageUrls = [];
       if (idProofImages.length > 0) {
         uploadedImageUrls = await cloudinaryApi.uploadImages(idProofImages);
       }
 
+      const now = new Date().toISOString();
       const finalFormData = {
         ...formData,
         id_proof: {
           ...formData.id_proof,
           id_images: uploadedImageUrls,
+        },
+        timestamps: {
+          created_at: now,
+          updated_at: now,
         },
       };
 
@@ -251,29 +230,6 @@ const AddBooking = () => {
       setIsUploading(false);
     }
   };
-
-  // Fetch guest bookings when phone or email changes
-  useEffect(() => {
-    const fetchGuestBookings = async () => {
-      const contact =
-        formData.guest_info.phone_number || formData.guest_info.email;
-      if (!contact) {
-        setGuestBookings([]);
-        return;
-      }
-      setGuestBookingLoading(true);
-      try {
-        const bookings = await bookingsApi.getBookingsForGuest(contact);
-        setGuestBookings(bookings);
-      } catch {
-        setGuestBookings([]);
-      } finally {
-        setGuestBookingLoading(false);
-      }
-    };
-    fetchGuestBookings();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData.guest_info.phone_number, formData.guest_info.email]);
 
   return (
     <motion.div
@@ -312,23 +268,6 @@ const AddBooking = () => {
       >
         {/* Guest Information Card */}
         <div className={styles.card}>
-          <h2>Guest Information</h2>
-          {/* Show previous bookings if any */}
-          {guestBookingLoading ? (
-            <p>Loading previous bookings...</p>
-          ) : guestBookings.length > 0 ? (
-            <div className={styles.guestBookingsInfo}>
-              <strong>Previous Bookings:</strong>
-              <ul>
-                {guestBookings.map((b) => (
-                  <li key={b.booking_reference_id}>
-                    {b.booking_details.check_in_date} to{" "}
-                    {b.booking_details.check_out_date}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
           <div className={styles.formGrid}>
             <div className={styles.formGroup}>
               <label>Full Name</label>

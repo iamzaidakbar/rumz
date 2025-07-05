@@ -67,8 +67,8 @@ const BookingDetail = () => {
 
   const DetailRow = ({ label, value }) => (
     <div className={styles.detailRow}>
-      <span className={styles.detailLabel}>{label}</span>
-      <span className={styles.detailValue}>{value}</span>
+      <span className={styles.detailLabel}>{label ? label : "NA"}</span>
+      <span className={styles.detailValue}>{value ? value : "NA"}</span>
     </div>
   );
 
@@ -217,11 +217,11 @@ const BookingDetail = () => {
           <h2>Timestamps</h2>
           <DetailRow
             label="Created At"
-            value={formatTimestamp(booking.timestamps.created_at)}
+            value={formatTimestamp(booking?.timestamps?.created_at)}
           />
           <DetailRow
             label="Updated At"
-            value={formatTimestamp(booking.timestamps.updated_at)}
+            value={formatTimestamp(booking?.timestamps?.updated_at)}
           />
         </div>
       </div>

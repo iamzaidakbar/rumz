@@ -171,12 +171,17 @@ const EditBooking = () => {
       }
 
       const finalImageUrls = [...existingImageUrls, ...newImageUrls];
+      const now = new Date().toISOString();
 
       const finalFormData = {
         ...formData,
         id_proof: {
           ...formData.id_proof,
           id_images: finalImageUrls,
+        },
+        timestamps: {
+          ...(formData.timestamps || {}),
+          updated_at: now,
         },
       };
 

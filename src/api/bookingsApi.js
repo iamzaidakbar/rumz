@@ -150,25 +150,12 @@ export const bookingsApi = {
   async addBooking(bookingData) {
     try {
       validateBookingData(bookingData);
-
       await delay(DELAY_MS);
-
-      const bookings = await getStoredBookings();
-      const enrichedBookingDetails = await enrichBookingWithRoomNumbers(
-        bookingData
+      // Use real API
+      const response = await apiRequest(() =>
+        apiClient.post("/api/booking", bookingData)
       );
-
-      const newBooking = {
-        ...bookingData,
-        booking_reference_id: generateBookingId(),
-        booking_details: enrichedBookingDetails,
-        timestamps: createTimestamps(),
-      };
-
-      bookings.push(newBooking);
-      saveBookingsToStorage(bookings);
-
-      return newBooking;
+      return response.booking || response;
     } catch (error) {
       console.error("Error adding booking:", error);
       throw error;
