@@ -1,9 +1,10 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useRef, useEffect } from "react";
 import HotelAuthForm from "../components/HotelAuthForm";
-import { hotelsApi } from "../api/hotelsApi";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import { useForm } from "../hooks/useForm";
 import {
   MDBContainer,
   MDBRow,
@@ -21,12 +22,12 @@ const initialForm = {
 };
 
 const SignIn = () => {
-  const [form, setForm] = useState(initialForm);
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
+  const { formData, errors, isSubmitting, setIsSubmitting, handleChange } =
+    useForm(initialForm);
+  const { login } = useAuth();
   const fileInputRef = useRef();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -36,38 +37,24 @@ const SignIn = () => {
     }
   }, [navigate]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-    setSuccess(false);
+    setIsSubmitting(true);
+
     try {
-      // For login, only send hotelRegNo and password
-      const response = await hotelsApi.loginHotel({
-        hotelRegNo: form.hotelRegNo,
-        password: form.password,
+      await login({
+        hotelRegNo: formData.hotelRegNo,
+        password: formData.password,
       });
-      if (response && response.token && response.hotel) {
-        localStorage.setItem("token", response.token);
-        localStorage.setItem("hotel", JSON.stringify(response.hotel));
-      }
-      setSuccess(true);
-      toast.success("Login successful! Redirecting...", {
-        position: "top-center",
-      });
-      setTimeout(() => navigate("/"), 1500);
-    } catch (err) {
-      setError(err.message);
-      toast.error(err.message || "Failed to login", {
-        position: "top-center",
-      });
+
+      // Redirect to intended page or dashboard
+      const from = location.state?.from?.pathname || "/";
+      navigate(from, { replace: true });
+    } catch (error) {
+      // Error is already handled by useAuth hook
+      console.error("Login error:", error);
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -108,12 +95,12 @@ const SignIn = () => {
               <MDBCardBody className="p-5">
                 <HotelAuthForm
                   mode="login"
-                  form={form}
+                  form={formData}
                   onChange={handleChange}
                   onSubmit={handleSubmit}
-                  loading={loading}
-                  error={error}
-                  success={success}
+                  loading={isSubmitting}
+                  error={Object.values(errors).join(", ")}
+                  success={false}
                   // The following props are not used in login mode
                   logoUploading={false}
                   logoError={""}

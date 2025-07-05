@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import styles from "../styles/Settings.module.scss";
 import { useAppContext } from "../contexts/AppContext";
+import { useAuth } from "../hooks/useAuth";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import CustomButton from "../components/CustomButton";
@@ -10,11 +10,11 @@ import { hotelsApi } from "../api/hotelsApi";
 
 // Settings page for application preferences
 const Settings = () => {
-  const { theme, toggleTheme, appData, setAppData } = useAppContext();
+  const { theme, toggleTheme, appData } = useAppContext();
+  const { logout } = useAuth();
   const [formData, setFormData] = useState(appData || {});
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     setFormData(appData || {});
@@ -29,11 +29,9 @@ const Settings = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
       const hotelRegNo = formData.hotelRegNo;
       const updateData = { ...formData };
-      await hotelsApi.updateHotel(hotelRegNo, updateData, token);
-      setAppData(updateData);
+      await hotelsApi.updateHotel(hotelRegNo, updateData);
       localStorage.setItem("hotel", JSON.stringify(updateData));
       toast.success("Hotel details updated!", { position: "top-center" });
       setEditMode(false);
@@ -47,14 +45,16 @@ const Settings = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("hotel");
-    toast.success("Logged out successfully!", { position: "top-center" });
-    setTimeout(() => navigate("/signin", { replace: true }), 1000);
+    logout();
   };
 
   const handleEdit = () => {
     setEditMode(true);
+  };
+
+  const handleCancel = () => {
+    setEditMode(false);
+    setFormData(appData || {}); // Reset to original data
   };
 
   return (
@@ -83,16 +83,17 @@ const Settings = () => {
             </CustomButton>
           </div>
         </div>
+
         {/* Hotel Details Section */}
         <form
           onSubmit={(e) => e.preventDefault()}
           className={styles.formSection}
         >
           <h2 className={styles.sectionTitle}>Hotel Details</h2>
+
           {/* Hotel Logo */}
           <div className={styles.inputGroup}>
             <label htmlFor="hotelLogo">Hotel Logo</label>
-
             <img
               src={formData?.hotelLogo}
               alt="Hotel Logo"
@@ -100,6 +101,7 @@ const Settings = () => {
               height={"auto"}
             />
           </div>
+
           {/* Hotel Reg No */}
           <div className={styles.inputGroup}>
             <label htmlFor="hotelRegNo">Hotel Reg No</label>
@@ -113,6 +115,7 @@ const Settings = () => {
               className={styles.disabledInput}
             />
           </div>
+
           {/* Hotel Name */}
           <div className={styles.inputGroup}>
             <label htmlFor="hotelname">Hotel Name</label>
@@ -126,6 +129,7 @@ const Settings = () => {
               className={!editMode ? styles.disabledInput : ""}
             />
           </div>
+
           {/* Hotel Location */}
           <div className={styles.inputGroup}>
             <label htmlFor="hotelLocation">Hotel Location</label>
@@ -139,6 +143,7 @@ const Settings = () => {
               className={!editMode ? styles.disabledInput : ""}
             />
           </div>
+
           {/* Hotel Manager */}
           <div className={styles.inputGroup}>
             <label htmlFor="hotelManager">Hotel Manager</label>
@@ -152,6 +157,7 @@ const Settings = () => {
               className={!editMode ? styles.disabledInput : ""}
             />
           </div>
+
           {/* Hotel Manager Number */}
           <div className={styles.inputGroup}>
             <label htmlFor="hotelManagerNumber">Hotel Manager's No</label>
@@ -165,6 +171,7 @@ const Settings = () => {
               className={!editMode ? styles.disabledInput : ""}
             />
           </div>
+
           <div className={styles.formActions}>
             {editMode && (
               <CustomButton
@@ -172,9 +179,7 @@ const Settings = () => {
                 type="button"
                 className={styles.saveButton}
                 disabled={loading}
-                onClick={() => {
-                  setEditMode(false);
-                }}
+                onClick={handleCancel}
               >
                 Cancel
               </CustomButton>
@@ -231,6 +236,7 @@ const Settings = () => {
             />
           </div>
         </div>
+
         {/* Logout Section */}
         <div className={styles.formSection}>
           <h2 className={styles.sectionTitle}>Account</h2>

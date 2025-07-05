@@ -1,71 +1,17 @@
-import axios from "axios";
-
-const BASE_URL = process.env.REACT_APP_BACKEND_URL;
+import apiClient, { apiRequest } from "./apiClient";
 
 export const hotelsApi = {
   async registerHotel(hotelData) {
-    try {
-      const response = await axios.post(`${BASE_URL}/api/signin`, hotelData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      return response.data;
-    } catch (error) {
-      // Axios error handling
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        throw new Error(error.response.data.message);
-      }
-      throw new Error(error.message || "Something went wrong");
-    }
+    return apiRequest(() => apiClient.post("/api/signin", hotelData));
   },
 
   async loginHotel(loginData) {
-    try {
-      const response = await axios.post(`${BASE_URL}/api/login`, loginData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      return response.data;
-    } catch (error) {
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        throw new Error(error.response.data.message);
-      }
-      throw new Error(error.message || "Something went wrong");
-    }
+    return apiRequest(() => apiClient.post("/api/login", loginData));
   },
 
-  async updateHotel(hotelRegNo, updateData, token) {
-    try {
-      const response = await axios.put(
-        `${BASE_URL}/api/hotel/${hotelRegNo}`,
-        updateData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      return response.data;
-    } catch (error) {
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        throw new Error(error.response.data.message);
-      }
-      throw new Error(error.message || "Something went wrong");
-    }
+  async updateHotel(hotelRegNo, updateData) {
+    return apiRequest(() =>
+      apiClient.put(`/api/hotel/${hotelRegNo}`, updateData)
+    );
   },
 };
