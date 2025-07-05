@@ -6,6 +6,7 @@ import {
   IoTrashOutline,
   IoWarningOutline,
   IoCalendarOutline,
+  IoCloseOutline,
 } from "react-icons/io5";
 import { useAppContext } from "../contexts/AppContext";
 import { motion } from "framer-motion";
@@ -14,8 +15,10 @@ import { bookingsApi } from "../api/bookingsApi";
 import CustomButton from "../components/CustomButton";
 import LoadingFallback from "../components/LoadingFallback";
 import InfoMessage from "../components/InfoMessage";
+import ConfirmDialog from "../components/ConfirmDialog";
 import { MdOutlineEdit } from "react-icons/md";
 import { IoMdAdd } from "react-icons/io";
+import CustomDropdown from "../components/CustomDropdown";
 
 const TABS = ["All", "Confirmed", "Pending", "Cancelled"];
 
@@ -48,6 +51,10 @@ const Booking = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [bookingToCancel, setBookingToCancel] = useState(null);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [cancelPaymentStatus, setCancelPaymentStatus] = useState("Refunded"); // default to Refunded
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -80,6 +87,92 @@ const Booking = () => {
     }
   };
 
+  const handleCancelBooking = async (booking) => {
+    if (!booking) return;
+    try {
+      // Use the dedicated cancel API endpoint
+      const cancelledBooking = await bookingsApi.cancelBooking(
+        booking.booking_reference_id
+      );
+
+      // Update local state with the response from API
+      setBookings((prev) =>
+        prev.map((b) =>
+          b.booking_reference_id === booking.booking_reference_id
+            ? cancelledBooking
+            : b
+        )
+      );
+    } catch (err) {
+      setError("Failed to cancel booking.");
+      console.error("Error cancelling booking:", err);
+    }
+  };
+
+  const openCancelDialog = (booking) => {
+    setBookingToCancel(booking);
+    setCancelPaymentStatus(booking.payment_info.payment_status || "Refunded");
+    setShowCancelDialog(true);
+  };
+
+  const handleConfirmCancel = async () => {
+    if (!bookingToCancel) return;
+
+    setIsCancelling(true);
+    try {
+      // Prepare update data
+      const updateData = {
+        status: {
+          ...bookingToCancel.status,
+          booking_status: "Cancelled",
+        },
+        payment_info: {
+          ...bookingToCancel.payment_info,
+          payment_status: cancelPaymentStatus,
+        },
+      };
+
+      // Use the updateBooking API to update both status and payment status
+      const updatedBooking = await bookingsApi.updateBooking(
+        bookingToCancel.booking_reference_id,
+        updateData
+      );
+
+      // Update local state with the response from API
+      setBookings((prev) =>
+        prev.map((b) =>
+          b.booking_reference_id === bookingToCancel.booking_reference_id
+            ? updatedBooking
+            : b
+        )
+      );
+
+      setShowCancelDialog(false);
+      setBookingToCancel(null);
+    } catch (err) {
+      setError("Failed to cancel booking.");
+      console.error("Error cancelling booking:", err);
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
+  const handleCloseCancelDialog = () => {
+    setShowCancelDialog(false);
+    setBookingToCancel(null);
+  };
+
+  // Check if booking is ongoing or upcoming (not past)
+  const isBookingActive = (booking) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to start of day
+
+    const checkOutDate = new Date(booking.booking_details.check_out_date);
+    checkOutDate.setHours(0, 0, 0, 0);
+
+    return checkOutDate >= today;
+  };
+
   function getBookingStatusPill(status) {
     const colorMap = {
       Confirmed: styles.confirmed,
@@ -97,6 +190,7 @@ const Booking = () => {
     const colorMap = {
       Paid: styles.paid,
       Pending: styles.pendingPayment,
+      Refunded: styles.refunded,
     };
     return (
       <span className={`${styles.statusPill} ${colorMap[status]}`}>
@@ -154,6 +248,7 @@ const Booking = () => {
             <button
               className={styles.iconBtn}
               onClick={() => navigate(`/bookings/${row.booking_reference_id}`)}
+              title="View Details"
             >
               <IoEyeOutline size={20} />
             </button>
@@ -162,12 +257,24 @@ const Booking = () => {
               onClick={() =>
                 navigate(`/bookings/${row.booking_reference_id}/edit`)
               }
+              title="Edit Booking"
             >
               <MdOutlineEdit size={20} />
             </button>
+            {isBookingActive(row) &&
+              row.status.booking_status !== "Cancelled" && (
+                <button
+                  className={`${styles.iconBtn} ${styles.cancelBtn}`}
+                  onClick={() => openCancelDialog(row)}
+                  title="Cancel Booking"
+                >
+                  <IoCloseOutline size={20} />
+                </button>
+              )}
             <button
               className={`${styles.iconBtn} ${styles.deleteBtn}`}
               onClick={() => openDialog(row)}
+              title="Delete Booking"
             >
               <IoTrashOutline size={20} />
             </button>
@@ -185,6 +292,52 @@ const Booking = () => {
         }}
         onConfirmDelete={handleDelete}
       />
+
+      {/* Cancel Booking Confirmation Dialog */}
+      {showCancelDialog && bookingToCancel && (
+        <ConfirmDialog
+          isOpen={showCancelDialog}
+          onClose={handleCloseCancelDialog}
+          title="Cancel Booking"
+          message={`Are you sure you want to cancel the booking for ${bookingToCancel.guest_info.full_name}?`}
+          confirmText="Cancel Booking"
+          cancelText="Keep Booking"
+          onConfirm={handleConfirmCancel}
+          onCancel={handleCloseCancelDialog}
+          isLoading={isCancelling}
+          variant="warning"
+        >
+          <div
+            style={{
+              marginTop: "1rem",
+              padding: "1rem",
+              backgroundColor: "#fef3c7",
+              borderRadius: "8px",
+              border: "1px solid #f59e0b",
+            }}
+          >
+            <p
+              style={{
+                margin: "0 0 1rem 0",
+                fontWeight: "600",
+                color: "#92400e",
+              }}
+            >
+              Payment Status
+            </p>
+            <p style={{ margin: "0 0 1rem 0", color: "#92400e" }}>
+              Please select the payment status you want to set for this
+              cancelled booking:
+            </p>
+            <CustomDropdown
+              options={["Paid", "Pending", "Refunded"]}
+              value={cancelPaymentStatus}
+              onChange={setCancelPaymentStatus}
+              disabled={isCancelling}
+            />
+          </div>
+        </ConfirmDialog>
+      )}
     </motion.div>
   );
 };

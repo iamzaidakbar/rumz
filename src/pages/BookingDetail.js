@@ -92,7 +92,7 @@ const BookingDetail = () => {
           <CustomButton
             variant="secondary"
             className={styles.backBtn}
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/bookings")}
           >
             <IoArrowBackOutline /> Back
           </CustomButton>

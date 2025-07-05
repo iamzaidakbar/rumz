@@ -72,6 +72,10 @@
   background-color: #fef3c7;
   color: #92400e;
 }
+.refunded {
+  background-color: #e0f2fe;
+  color: #0e7490;
+}
 
 .viewBtn {
   background: none;
@@ -118,6 +122,10 @@
   color: #ef4444;
 }
 
+.cancelBtn:hover {
+  color: #f59e0b;
+}
+
 /* Dark Theme */
 .page[data-theme="dark"] {
   background-color: #17191c;
@@ -162,6 +170,11 @@
     color: #fde68a;
   }
 
+  .refunded {
+    background-color: #164e63;
+    color: #a5f3fc;
+  }
+
   .viewBtn {
     color: #9ca3af;
     &:hover {
@@ -181,6 +194,10 @@
 
   .deleteBtn:hover {
     color: #f87171;
+  }
+
+  .cancelBtn:hover {
+    color: #fbbf24;
   }
 }
 

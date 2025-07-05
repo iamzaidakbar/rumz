@@ -36,12 +36,19 @@ const EditBooking = () => {
         setExistingImageUrls(bookingData.id_proof.id_images || []);
       } catch (error) {
         console.error("Failed to fetch booking:", error);
+        // Handle specific error cases
+        if (error.message.includes("not found")) {
+          alert("Booking not found. Please check the booking ID.");
+          navigate("/bookings");
+        } else {
+          alert(`Failed to load booking: ${error.message}`);
+        }
       } finally {
         setLoading(false);
       }
     };
     fetchBooking();
-  }, [bookingId]);
+  }, [bookingId, navigate]);
 
   const handleInputChange = useCallback((section, field, value) => {
     setFormData((prev) => ({
@@ -165,10 +172,23 @@ const EditBooking = () => {
         },
       };
 
-      await bookingsApi.updateBooking(bookingId, finalFormData);
-      navigate(`/bookings/${bookingId}`);
+      const updatedBooking = await bookingsApi.updateBooking(
+        bookingId,
+        finalFormData
+      );
+      console.log("Booking updated successfully:", updatedBooking);
+
+      // Navigate to booking detail page with success message
+      navigate(`/bookings/${bookingId}`, {
+        state: {
+          message: "Booking updated successfully!",
+          type: "success",
+        },
+      });
     } catch (error) {
       console.error("Failed to update booking:", error);
+      // You could add a toast notification here for better UX
+      alert(`Failed to update booking: ${error.message}`);
     } finally {
       setIsUploading(false);
     }
@@ -552,7 +572,7 @@ const EditBooking = () => {
             <div className={styles.formGroup}>
               <label>Payment Status</label>
               <CustomDropdown
-                options={["Paid", "Pending"]}
+                options={["Paid", "Pending", "Refunded"]}
                 value={formData.payment_info.payment_status}
                 onChange={(option) =>
                   handleInputChange("payment_info", "payment_status", option)
