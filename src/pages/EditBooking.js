@@ -9,6 +9,7 @@ import { IoCloudUploadOutline, IoArrowBackOutline } from "react-icons/io5";
 import CustomDropdown from "../components/CustomDropdown";
 import LoadingFallback from "../components/LoadingFallback";
 import CustomButton from "../components/CustomButton";
+import { useRooms } from "../hooks/useRooms";
 
 const EditBooking = () => {
   const { theme } = useAppContext();
@@ -21,10 +22,11 @@ const EditBooking = () => {
   const [idProofImagePreviews, setIdProofImagePreviews] = useState([]);
   const [existingImageUrls, setExistingImageUrls] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
-  const [roomIdsInputValue, setRoomIdsInputValue] = useState("");
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+
+  const { rooms, loading: roomsLoading, error: roomsError } = useRooms();
 
   useEffect(() => {
     const fetchBooking = async () => {
@@ -32,7 +34,7 @@ const EditBooking = () => {
         setLoading(true);
         const bookingData = await bookingsApi.getBooking(bookingId);
         setFormData(bookingData);
-        setRoomIdsInputValue(bookingData.booking_details.room_ids.join(", "));
+        // setRoomIdsInputValue(bookingData.booking_details.room_ids.join(", ")); // Removed as per edit hint
         setExistingImageUrls(bookingData.id_proof.id_images || []);
       } catch (error) {
         console.error("Failed to fetch booking:", error);
@@ -103,14 +105,20 @@ const EditBooking = () => {
     setExistingImageUrls((prev) => prev.filter((url) => url !== urlToRemove));
   };
 
-  const handleRoomIdsChange = (e) => {
-    const textValue = e.target.value;
-    setRoomIdsInputValue(textValue);
-    const ids = textValue
-      .split(",")
-      .map((id) => id.trim())
-      .filter((id) => id);
-    handleInputChange("booking_details", "room_ids", ids);
+  const handleRoomSelect = (selectedRoomIds) => {
+    // selectedRoomIds: array of room IDs
+    const selectedRooms = rooms.filter((room) =>
+      selectedRoomIds.includes(room.id)
+    );
+    const roomNos = selectedRooms.map((room) => room.roomNumber);
+    setFormData((prev) => ({
+      ...prev,
+      booking_details: {
+        ...prev.booking_details,
+        room_ids: selectedRoomIds,
+        room_nos: roomNos,
+      },
+    }));
   };
 
   const handleCloseCamera = useCallback(() => {
@@ -451,14 +459,24 @@ const EditBooking = () => {
           <h2>Booking Details</h2>
           <div className={styles.formGrid}>
             <div className={styles.formGroup}>
-              <label>Room No.s</label>
-              <input
-                type="text"
-                placeholder="Enter room No's (comma separated)"
-                value={roomIdsInputValue}
-                onChange={handleRoomIdsChange}
-                required
-              />
+              <label>Room No(s)</label>
+              {roomsLoading ? (
+                <div>Loading rooms...</div>
+              ) : roomsError ? (
+                <div style={{ color: "#b91c1c" }}>{roomsError}</div>
+              ) : (
+                <CustomDropdown
+                  options={rooms.map((room) => ({
+                    label: room.roomNumber,
+                    value: room.id,
+                  }))}
+                  value={formData.booking_details.room_ids}
+                  onChange={handleRoomSelect}
+                  multiple
+                  placeholder="Select room(s)"
+                  disabled={roomsLoading}
+                />
+              )}
             </div>
             <div className={styles.formGroup}>
               <label>Room Type</label>

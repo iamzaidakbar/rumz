@@ -1,3 +1,5 @@
+import apiClient, { apiRequest } from "./apiClient";
+
 const STORAGE_KEY = "rumz_rooms";
 
 function getInitialRooms() {
@@ -12,13 +14,19 @@ function saveRooms(rooms) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(rooms));
 }
 
+export async function fetchRooms() {
+  try {
+    const response = await apiRequest(() => apiClient.get("/api/room"));
+    return response.rooms || [];
+  } catch (error) {
+    console.error("Failed to fetch rooms:", error);
+    throw error;
+  }
+}
+
 export const roomsApi = {
   async getRooms() {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(getInitialRooms());
-      }, 300);
-    });
+    return fetchRooms();
   },
   async getRoom(id) {
     return new Promise((resolve, reject) => {
