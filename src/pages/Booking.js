@@ -9,6 +9,7 @@ import {
   IoCloseOutline,
 } from "react-icons/io5";
 import { useAppContext } from "../contexts/AppContext";
+import { useToast } from "../contexts/ToastContext";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { bookingsApi } from "../api/bookingsApi";
@@ -47,6 +48,7 @@ const columns = [
 
 const Booking = () => {
   const { theme } = useAppContext();
+  const { success, error: showError, warning } = useToast();
   const [tab, setTab] = useState("All");
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -82,8 +84,18 @@ const Booking = () => {
           (b) => b.booking_reference_id !== booking.booking_reference_id
         )
       );
+      success(
+        "Booking Deleted Successfully!",
+        `Booking for ${booking.guest_info.full_name} has been permanently deleted.`,
+        { duration: 6000 }
+      );
     } catch (err) {
-      setError("Failed to delete booking.");
+      console.error("Error deleting booking:", err);
+      showError(
+        "Failed to Delete Booking",
+        "There was an error deleting the booking. Please try again or contact support.",
+        { duration: 8000 }
+      );
     }
   };
 
@@ -125,11 +137,21 @@ const Booking = () => {
         )
       );
 
+      warning(
+        "Booking Cancelled",
+        `Booking for ${bookingToCancel.guest_info.full_name} has been cancelled. Payment status updated to ${cancelPaymentStatus}.`,
+        { duration: 7000 }
+      );
+
       setShowCancelDialog(false);
       setBookingToCancel(null);
     } catch (err) {
-      setError("Failed to cancel booking.");
       console.error("Error cancelling booking:", err);
+      showError(
+        "Failed to Cancel Booking",
+        "There was an error cancelling the booking. Please try again or contact support.",
+        { duration: 8000 }
+      );
     } finally {
       setIsCancelling(false);
     }

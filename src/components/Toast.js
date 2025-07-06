@@ -26,7 +26,7 @@ const Toast = ({
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(false);
-      setTimeout(() => onClose(id), 300);
+      setTimeout(() => onClose(id), 200);
     }, duration);
 
     const progressTimer = setInterval(() => {
@@ -44,7 +44,7 @@ const Toast = ({
 
   const handleClose = () => {
     setIsVisible(false);
-    setTimeout(() => onClose(id), 300);
+    setTimeout(() => onClose(id), 200);
   };
 
   const getIcon = () => {
@@ -82,37 +82,43 @@ const Toast = ({
     return `${baseStyles} ${typeStyles[type] || typeStyles.info}`;
   };
 
+  // Optimized animation variants for snappy performance
+  const slideInVariants = {
+    initial: {
+      opacity: 0,
+      x: position.includes("right") ? 50 : -50,
+      y: position.includes("top") ? -20 : 20,
+      scale: 0.95,
+    },
+    animate: {
+      opacity: 1,
+      x: 0,
+      y: 0,
+      scale: 1,
+    },
+    exit: {
+      opacity: 0,
+      x: position.includes("right") ? 50 : -50,
+      y: position.includes("top") ? -20 : 20,
+      scale: 0.95,
+    },
+  };
+
   return (
     <motion.div
       className={getToastStyles()}
       data-theme={theme}
-      initial={{
-        opacity: 0,
-        x: position.includes("right") ? 300 : -300,
-        y: position.includes("top") ? -20 : 20,
-        scale: 0.8,
-      }}
-      animate={{
-        opacity: 1,
-        x: 0,
-        y: 0,
-        scale: 1,
-      }}
-      exit={{
-        opacity: 0,
-        x: position.includes("right") ? 300 : -300,
-        y: position.includes("top") ? -20 : 20,
-        scale: 0.8,
-      }}
+      variants={slideInVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
       transition={{
-        type: "spring",
-        stiffness: 300,
-        damping: 30,
+        duration: 0.3,
+        ease: [0.25, 0.46, 0.45, 0.94], // Custom easing for snappy feel
       }}
       whileHover={{
         scale: 1.02,
-        boxShadow:
-          "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+        transition: { duration: 0.2 },
       }}
       layout
     >

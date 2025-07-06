@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import styles from "../styles/AddBooking.module.scss";
 import { useAppContext } from "../contexts/AppContext";
+import { useToast } from "../contexts/ToastContext";
 import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
 import { bookingsApi } from "../api/bookingsApi";
@@ -14,6 +15,7 @@ import LoadingFallback from "../components/LoadingFallback";
 
 const EditBooking = () => {
   const { theme } = useAppContext();
+  const { success, error: showError } = useToast();
   const navigate = useNavigate();
   const { bookingId } = useParams();
   const { rooms, loading: roomsLoading, error: roomsError } = useRooms();
@@ -46,7 +48,11 @@ const EditBooking = () => {
         setIdProofImagePreviews(bookingData.id_proof.id_images || []);
         setFormReady(true);
       } catch (error) {
-        alert("Failed to fetch booking.");
+        showError(
+          "Failed to Load Booking",
+          "Unable to fetch booking details. Please try again or contact support.",
+          { duration: 8000 }
+        );
         navigate("/bookings");
       } finally {
         setLoading(false);
@@ -54,7 +60,7 @@ const EditBooking = () => {
     };
     fetchBooking();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bookingId, navigate]);
+  }, [bookingId, navigate, showError]);
 
   // Clean up previews on unmount
   useEffect(() => {
@@ -157,9 +163,19 @@ const EditBooking = () => {
         },
       };
       await bookingsApi.updateBooking(bookingId, finalFormData);
+      success(
+        "Booking Updated Successfully!",
+        `Booking for ${formData.guest_info.full_name} has been updated and saved.`,
+        { duration: 6000 }
+      );
       navigate(`/bookings/${bookingId}`);
     } catch (error) {
-      alert("Failed to update booking. Please try again.");
+      console.error("Error updating booking:", error);
+      showError(
+        "Failed to Update Booking",
+        "There was an error updating the booking. Please check your information and try again.",
+        { duration: 8000 }
+      );
     } finally {
       setIsUploading(false);
     }
