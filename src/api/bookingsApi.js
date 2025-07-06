@@ -210,17 +210,12 @@ export const bookingsApi = {
 
       await delay(DELAY_MS);
 
-      const bookings = await getStoredBookings();
-      const initialLength = bookings.length;
-      const filteredBookings = bookings.filter(
-        (b) => b.booking_reference_id !== id
+      // Use real API to delete booking
+      const response = await apiRequest(() =>
+        apiClient.delete(`/api/booking/${id}`)
       );
+      console.log(`Booking ${id} deleted via API:`, response);
 
-      if (filteredBookings.length === initialLength) {
-        throw new Error(`Booking with ID ${id} not found`);
-      }
-
-      saveBookingsToStorage(filteredBookings);
       return true;
     } catch (error) {
       console.error(`Error deleting booking ${id}:`, error);

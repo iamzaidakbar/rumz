@@ -32,7 +32,7 @@ const columns = [
   },
   {
     header: "Room(s)",
-    accessor: (row) => row.booking_details.room_ids?.join(", "),
+    accessor: (row) => row.booking_details.room_nos?.join(", "),
   },
   {
     header: "Guests",
@@ -84,28 +84,6 @@ const Booking = () => {
       );
     } catch (err) {
       setError("Failed to delete booking.");
-    }
-  };
-
-  const handleCancelBooking = async (booking) => {
-    if (!booking) return;
-    try {
-      // Use the dedicated cancel API endpoint
-      const cancelledBooking = await bookingsApi.cancelBooking(
-        booking.booking_reference_id
-      );
-
-      // Update local state with the response from API
-      setBookings((prev) =>
-        prev.map((b) =>
-          b.booking_reference_id === booking.booking_reference_id
-            ? cancelledBooking
-            : b
-        )
-      );
-    } catch (err) {
-      setError("Failed to cancel booking.");
-      console.error("Error cancelling booking:", err);
     }
   };
 
@@ -261,6 +239,13 @@ const Booking = () => {
             >
               <MdOutlineEdit size={20} />
             </button>
+            <button
+              className={`${styles.iconBtn} ${styles.deleteBtn}`}
+              onClick={() => openDialog(row)}
+              title="Delete Booking"
+            >
+              <IoTrashOutline size={20} />
+            </button>
             {isBookingActive(row) &&
               row.status.booking_status !== "Cancelled" && (
                 <button
@@ -271,13 +256,6 @@ const Booking = () => {
                   <IoCloseOutline size={20} />
                 </button>
               )}
-            <button
-              className={`${styles.iconBtn} ${styles.deleteBtn}`}
-              onClick={() => openDialog(row)}
-              title="Delete Booking"
-            >
-              <IoTrashOutline size={20} />
-            </button>
           </div>
         )}
         noDataInfo={{
