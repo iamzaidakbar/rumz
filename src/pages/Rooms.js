@@ -11,7 +11,7 @@ import { MdOutlineEdit } from "react-icons/md";
 import { useAppContext } from "../contexts/AppContext";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { roomsApi } from "../api/roomsApi";
+import { useRooms } from "../hooks/useRooms";
 import LoadingFallback from "../components/LoadingFallback";
 import InfoMessage from "../components/InfoMessage";
 import CustomButton from "../components/CustomButton";
@@ -44,36 +44,18 @@ const columns = [
 const Rooms = () => {
   const { theme } = useAppContext();
   const [floor, setFloor] = useState("All");
-  const [rooms, setRooms] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { rooms, loading, error, fetchRooms, deleteRoom } = useRooms();
 
   useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        setLoading(true);
-        const roomsData = await roomsApi.getRooms();
-        setRooms(roomsData);
-        setError(null);
-      } catch (err) {
-        setError("Failed to fetch rooms.");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchRooms();
-  }, []);
+  }, [fetchRooms]);
 
   const handleDelete = async (room) => {
     if (!room) return;
     try {
-      await roomsApi.deleteRoom(room.id);
-      setRooms((prevRooms) => prevRooms.filter((r) => r.id !== room.id));
+      await deleteRoom(room.id);
     } catch (err) {
-      setError("Failed to delete room.");
       console.error(err);
     }
   };

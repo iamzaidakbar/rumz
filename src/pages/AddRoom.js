@@ -1,22 +1,27 @@
 import React, { useState } from "react";
 import styles from "../styles/AddRoom.module.scss";
 import { useNavigate } from "react-router-dom";
-import { roomsApi } from "../api/roomsApi";
+import { useRooms } from "../hooks/useRooms";
 import { motion } from "framer-motion";
 import { useAppContext } from "../contexts/AppContext";
 import CustomDropdown from "../components/CustomDropdown";
 import CustomButton from "../components/CustomButton";
 import { IoArrowBackOutline } from "react-icons/io5";
 import { CiSaveDown1 } from "react-icons/ci";
+import { useToast } from "../contexts/ToastContext";
+import LogoUpload from "../components/forms/LogoUpload";
+import { cloudinaryApi } from "../api/cloudinaryApi";
 
-const AMENITIES = ["Wi-Fi", "TV", "AC", "Mini-bar", "Balcony", "Kitchenette"];
-const FLOORS = ["Ground", "1st Floor", "2nd Floor"];
+const AMENITIES = ["Wi-Fi", "TV", "AC", "Parking", "Balcony", "Room Service"];
+const FLOORS = ["1st Floor", "2nd Floor"];
 const TYPES = ["Standard Room", "Deluxe Suite", "Family Room", "Penthouse"];
-const STATUS = ["Available", "Occupied", "Cleaning"];
+const STATUS = ["Available", "Maintenance", "Reserved"];
 
 const AddRoom = () => {
   const { theme } = useAppContext();
+  const { success, error: showError } = useToast();
   const navigate = useNavigate();
+  const { addRoom } = useRooms();
   const [form, setForm] = useState({
     roomNumber: "",
     type: TYPES[0],
@@ -31,6 +36,9 @@ const AddRoom = () => {
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [photoUploading, setPhotoUploading] = useState(false);
+  const [photoError, setPhotoError] = useState("");
+  const fileInputRef = React.useRef();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -60,13 +68,59 @@ const AddRoom = () => {
       return;
     }
     try {
-      await roomsApi.addRoom(form);
+      console.log("Submitting form:", form);
+      await addRoom(form);
+      success("Room added successfully!", "Redirecting...", { duration: 3000 });
       navigate("/rooms");
     } catch (err) {
       setError("Failed to add room.");
+      showError("Failed to add room. Please try again.", "error");
     } finally {
       setSaving(false);
     }
+  };
+
+  const handlePhotoSelect = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setPhotoError("");
+    setPhotoUploading(true);
+    try {
+      const urls = await cloudinaryApi.uploadImages([file]);
+      setForm((prev) => ({ ...prev, photo: urls[0] }));
+      success("Photo uploaded!", "");
+    } catch (err) {
+      setPhotoError("Failed to upload photo.");
+      showError("Failed to upload photo.");
+    } finally {
+      setPhotoUploading(false);
+    }
+  };
+
+  const handlePhotoDrop = async (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    setPhotoError("");
+    setPhotoUploading(true);
+    try {
+      const urls = await cloudinaryApi.uploadImages([file]);
+      setForm((prev) => ({ ...prev, photo: urls[0] }));
+      success("Photo uploaded!", "");
+    } catch (err) {
+      setPhotoError("Failed to upload photo.");
+      showError("Failed to upload photo.");
+    } finally {
+      setPhotoUploading(false);
+    }
+  };
+
+  const handlePhotoClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleRemovePhoto = () => {
+    setForm((prev) => ({ ...prev, photo: "" }));
   };
 
   return (
@@ -94,7 +148,7 @@ const AddRoom = () => {
               variant="primary"
               className={styles.saveBtn}
               disabled={saving}
-              form="add-booking-form"
+              form="add-room-form"
             >
               <CiSaveDown1 /> {saving ? "Saving..." : "Save Booking"}
             </CustomButton>
@@ -103,6 +157,7 @@ const AddRoom = () => {
 
         <form
           className={styles.form}
+          id="add-room-form"
           onSubmit={handleSubmit}
           autoComplete="off"
         >
@@ -214,14 +269,18 @@ const AddRoom = () => {
           </div>
           <div className={styles.inputGroupRow}>
             <div className={styles.inputGroup}>
-              <label htmlFor="photo">Photo URL (optional)</label>
-              <input
-                type="url"
-                id="photo"
-                name="photo"
-                value={form.photo}
-                onChange={handleChange}
-                placeholder="https://..."
+              {/* Photo Upload */}
+              <LogoUpload
+                logoUploading={photoUploading}
+                logoError={photoError}
+                onLogoDrop={handlePhotoDrop}
+                onLogoSelect={handlePhotoSelect}
+                onLogoClick={handlePhotoClick}
+                onDragOver={(e) => e.preventDefault()}
+                fileInputRef={fileInputRef}
+                onRemoveLogo={handleRemovePhoto}
+                hotelLogo={form.photo}
+                label="Room Photo"
               />
             </div>
             <div className={styles.inputGroup}>

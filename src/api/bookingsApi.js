@@ -11,7 +11,6 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const getStoredBookings = async () => {
   try {
     const response = await apiRequest(() => apiClient.get("/api/booking"));
-    console.log("Bookings fetched from API:", response);
     return response.bookings || [];
   } catch (error) {
     console.error("Error fetching bookings from API:", error);
@@ -129,7 +128,6 @@ export const bookingsApi = {
       const response = await apiRequest(() =>
         apiClient.get(`/api/booking/${id}`)
       );
-      console.log(`Booking ${id} fetched from API:`, response);
 
       if (!response) {
         throw new Error(`Booking with ID ${id} not found`);
@@ -184,7 +182,6 @@ export const bookingsApi = {
       const response = await apiRequest(() =>
         apiClient.put(`/api/booking/${id}`, updates)
       );
-      console.log(`Booking ${id} updated via API:`, response);
 
       if (!response) {
         throw new Error(`Failed to update booking ${id}`);
@@ -214,7 +211,6 @@ export const bookingsApi = {
       const response = await apiRequest(() =>
         apiClient.delete(`/api/booking/${id}`)
       );
-      console.log(`Booking ${id} deleted via API:`, response);
 
       return true;
     } catch (error) {
@@ -290,7 +286,6 @@ export const bookingsApi = {
       const response = await apiRequest(() =>
         apiClient.patch(`/api/booking/${id}/cancel`)
       );
-      console.log(`Booking ${id} cancelled via API:`, response);
 
       if (!response) {
         throw new Error(`Failed to cancel booking ${id}`);

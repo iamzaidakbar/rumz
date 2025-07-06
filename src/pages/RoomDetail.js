@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { roomsApi } from "../api/roomsApi";
+import { useRooms } from "../hooks/useRooms";
 import { useAppContext } from "../contexts/AppContext";
 import styles from "../styles/RoomDetail.module.scss";
 import LoadingFallback from "../components/LoadingFallback";
@@ -31,6 +31,7 @@ const RoomDetail = () => {
   const { roomId } = useParams();
   const { theme } = useAppContext();
   const navigate = useNavigate();
+  const { getRoom } = useRooms();
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -39,7 +40,7 @@ const RoomDetail = () => {
     const fetchRoom = async () => {
       try {
         setLoading(true);
-        const roomData = await roomsApi.getRoom(roomId);
+        const roomData = await getRoom(roomId);
         setRoom(roomData);
       } catch (err) {
         setError("Could not find the requested room.");
@@ -49,7 +50,7 @@ const RoomDetail = () => {
       }
     };
     fetchRoom();
-  }, [roomId]);
+  }, [roomId, getRoom]);
 
   if (loading) return <LoadingFallback />;
 

@@ -39,8 +39,6 @@ const BookingDetail = () => {
     }
   }, [bookingId]);
 
-  console.log("Booking Detail:", booking);
-
   const formatTimestamp = (isoString) => {
     if (!isoString) return "N/A";
     const date = new Date(isoString);

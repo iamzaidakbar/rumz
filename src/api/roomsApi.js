@@ -1,75 +1,96 @@
 import apiClient, { apiRequest } from "./apiClient";
 
-const STORAGE_KEY = "rumz_rooms";
+const API_BASE = "/api/room";
 
-function getInitialRooms() {
-  try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    if (data) return JSON.parse(data);
-  } catch {}
-  return [];
-}
-
-function saveRooms(rooms) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(rooms));
-}
-
-export async function fetchRooms() {
-  try {
-    const response = await apiRequest(() => apiClient.get("/api/room"));
-    return response.rooms || [];
-  } catch (error) {
-    console.error("Failed to fetch rooms:", error);
-    throw error;
-  }
-}
-
+/**
+ * Room API for CRUD operations
+ */
 export const roomsApi = {
+  /**
+   * Get all rooms
+   * @returns {Promise<Array>} Array of rooms
+   */
   async getRooms() {
-    return fetchRooms();
+    try {
+      const response = await apiRequest(() => apiClient.get(API_BASE));
+      return response.rooms || response;
+    } catch (error) {
+      console.error("Error fetching rooms:", error);
+      throw new Error("Failed to fetch rooms");
+    }
   },
+
+  /**
+   * Get a single room by ID
+   * @param {string} id - Room ID
+   * @returns {Promise<Object>} Room object
+   */
   async getRoom(id) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const rooms = getInitialRooms();
-        const room = rooms.find((r) => r.id === id);
-        if (room) {
-          resolve(room);
-        } else {
-          reject(new Error("Room not found"));
-        }
-      }, 300);
-    });
+    try {
+      if (!id) throw new Error("Room ID is required");
+      const response = await apiRequest(() =>
+        apiClient.get(`${API_BASE}/${id}`)
+      );
+      return response.room || response;
+    } catch (error) {
+      console.error(`Error fetching room ${id}:`, error);
+      throw error;
+    }
   },
+
+  /**
+   * Create a new room
+   * @param {Object} room - Room data
+   * @returns {Promise<Object>} Created room
+   */
   async addRoom(room) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const rooms = getInitialRooms();
-        const newRoom = { ...room, id: `R${Date.now()}` };
-        rooms.push(newRoom);
-        saveRooms(rooms);
-        resolve(newRoom);
-      }, 300);
-    });
+    try {
+      if (!room) throw new Error("Room data is required");
+      const response = await apiRequest(() => apiClient.post(API_BASE, room));
+      return response.room || response;
+    } catch (error) {
+      console.error("Error adding room:", error);
+      throw error;
+    }
   },
+
+  /**
+   * Update an existing room
+   * @param {string} id - Room ID
+   * @param {Object} updates - Updated room data
+   * @returns {Promise<Object>} Updated room
+   */
   async updateRoom(id, updates) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        let rooms = getInitialRooms();
-        rooms = rooms.map((r) => (r.id === id ? { ...r, ...updates } : r));
-        saveRooms(rooms);
-        resolve(rooms.find((r) => r.id === id));
-      }, 300);
-    });
+    try {
+      if (!id) throw new Error("Room ID is required");
+      if (!updates || typeof updates !== "object")
+        throw new Error("Updates object is required");
+      const payload = { ...updates };
+      if (payload.roomNumber) payload.room_number = payload.roomNumber;
+      delete payload.roomNumber;
+      const response = await apiRequest(() =>
+        apiClient.put(`${API_BASE}/${id}`, payload)
+      );
+      return response.room || response;
+    } catch (error) {
+      console.error(`Error updating room ${id}:`, error);
+      throw error;
+    }
   },
+
+  /**
+   * Delete a room
+   * @param {string} id - Room ID
+   * @returns {Promise<boolean>} Success status
+   */
   async deleteRoom(id) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        let rooms = getInitialRooms();
-        rooms = rooms.filter((r) => r.id !== id);
-        saveRooms(rooms);
-        resolve(true);
-      }, 300);
-    });
+    try {
+      if (!id) throw new Error("Room ID is required");
+      await apiRequest(() => apiClient.delete(`${API_BASE}/${id}`));
+      return true;
+    } catch (error) {
+      console.error(`Error deleting room ${id}:`, error);
+      throw error;
+    }
   },
 };

@@ -11,12 +11,13 @@ const LogoUpload = ({
   fileInputRef,
   onRemoveLogo,
   hotelLogo,
+  label,
 }) => {
   return (
     <MDBRow>
       <MDBCol md="12">
         <div className="mb-4">
-          <label className="form-label">Hotel Logo</label>
+          <label className="form-label">{label}</label>
           <div
             className={`border rounded p-3 text-center ${
               logoUploading ? "opacity-50" : ""

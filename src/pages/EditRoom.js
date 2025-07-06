@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "../styles/AddRoom.module.scss"; // Re-using styles
 import { useNavigate, useParams } from "react-router-dom";
-import { roomsApi } from "../api/roomsApi";
+import { useRooms } from "../hooks/useRooms";
 import { motion } from "framer-motion";
 import { useAppContext } from "../contexts/AppContext";
 import CustomDropdown from "../components/CustomDropdown";
@@ -9,6 +9,9 @@ import LoadingFallback from "../components/LoadingFallback";
 import InfoMessage from "../components/InfoMessage";
 import { IoArrowBackOutline, IoWarningOutline } from "react-icons/io5";
 import CustomButton from "../components/CustomButton";
+import { useToast } from "../contexts/ToastContext";
+import LogoUpload from "../components/forms/LogoUpload";
+import { cloudinaryApi } from "../api/cloudinaryApi";
 
 const AMENITIES = ["Wi-Fi", "TV", "AC", "Mini-bar", "Balcony", "Kitchenette"];
 const FLOORS = ["Ground", "1st Floor", "2nd Floor"];
@@ -17,17 +20,22 @@ const STATUS = ["Available", "Occupied", "Cleaning"];
 
 const EditRoom = () => {
   const { theme } = useAppContext();
+  const { success, error: showError } = useToast();
   const navigate = useNavigate();
   const { roomId } = useParams();
+  const { getRoom, updateRoom } = useRooms();
   const [form, setForm] = useState(null);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [photoUploading, setPhotoUploading] = useState(false);
+  const [photoError, setPhotoError] = useState("");
+  const fileInputRef = React.useRef();
 
   useEffect(() => {
     const fetchRoom = async () => {
       try {
-        const roomData = await roomsApi.getRoom(roomId);
+        const roomData = await getRoom(roomId);
         setForm(roomData);
       } catch (err) {
         setError("Failed to fetch room details.");
@@ -36,7 +44,7 @@ const EditRoom = () => {
       }
     };
     fetchRoom();
-  }, [roomId]);
+  }, [roomId, getRoom]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -61,13 +69,58 @@ const EditRoom = () => {
     setSaving(true);
     setError("");
     try {
-      await roomsApi.updateRoom(roomId, form);
+      await updateRoom(roomId, form);
+      success("Room updated successfully!", "success");
       navigate(`/rooms/${roomId}`);
     } catch (err) {
       setError("Failed to update room.");
+      showError("Failed to update room. Please try again.", "error");
     } finally {
       setSaving(false);
     }
+  };
+
+  const handlePhotoSelect = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setPhotoError("");
+    setPhotoUploading(true);
+    try {
+      const urls = await cloudinaryApi.uploadImages([file]);
+      setForm((prev) => ({ ...prev, photo: urls[0] }));
+      success("Photo uploaded!", "success");
+    } catch (err) {
+      setPhotoError("Failed to upload photo.");
+      showError("Failed to upload photo.", "error");
+    } finally {
+      setPhotoUploading(false);
+    }
+  };
+
+  const handlePhotoDrop = async (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    setPhotoError("");
+    setPhotoUploading(true);
+    try {
+      const urls = await cloudinaryApi.uploadImages([file]);
+      setForm((prev) => ({ ...prev, photo: urls[0] }));
+      success("Photo uploaded!", "success");
+    } catch (err) {
+      setPhotoError("Failed to upload photo.");
+      showError("Failed to upload photo.", "error");
+    } finally {
+      setPhotoUploading(false);
+    }
+  };
+
+  const handlePhotoClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleRemovePhoto = () => {
+    setForm((prev) => ({ ...prev, photo: "" }));
   };
 
   if (loading) return <LoadingFallback />;
@@ -102,7 +155,7 @@ const EditRoom = () => {
               variant="primary"
               className={styles.saveBtn}
               disabled={saving}
-              form="edit-booking-form"
+              form="edit-room-form"
             >
               {saving ? "Saving..." : "Save Changes"}
             </CustomButton>
@@ -110,6 +163,7 @@ const EditRoom = () => {
         </div>
         <form
           className={styles.form}
+          id="edit-room-form"
           onSubmit={handleSubmit}
           autoComplete="off"
         >
@@ -213,14 +267,18 @@ const EditRoom = () => {
           </div>
           <div className={styles.inputGroupRow}>
             <div className={styles.inputGroup}>
-              <label htmlFor="photo">Photo URL (optional)</label>
-              <input
-                type="url"
-                id="photo"
-                name="photo"
-                value={form.photo}
-                onChange={handleChange}
-                placeholder="https://..."
+              {/* Photo Upload */}
+              <LogoUpload
+                logoUploading={photoUploading}
+                logoError={photoError}
+                onLogoDrop={handlePhotoDrop}
+                onLogoSelect={handlePhotoSelect}
+                onLogoClick={handlePhotoClick}
+                onDragOver={(e) => e.preventDefault()}
+                fileInputRef={fileInputRef}
+                onRemoveLogo={handleRemovePhoto}
+                hotelLogo={form.photo}
+                label="Room Photo"
               />
             </div>
             <div className={styles.inputGroup}>

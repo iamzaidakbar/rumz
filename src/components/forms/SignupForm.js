@@ -171,6 +171,7 @@ const SignupForm = ({
         fileInputRef={fileInputRef}
         onRemoveLogo={onRemoveLogo}
         hotelLogo={form.hotelLogo}
+        label="Hotel Logo"
       />
 
       {error && <div className="text-danger mb-3 text-center">{error}</div>}

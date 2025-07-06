@@ -1,21 +1,21 @@
-import React, { Suspense, useEffect, useState } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import styles from "../styles/Dashboard.module.scss";
-import MetricCard from "../components/MetricCard";
-import QuickActions from "../components/QuickActions";
-import Calendar from "../components/Calendar";
 import { motion } from "framer-motion";
-import LoadingFallback from "../components/LoadingFallback";
-import OngoingBookings from "../components/OngoingBookings";
-import GuestActivity from "../components/GuestActivity";
 import { useAppContext } from "../contexts/AppContext";
 import { bookingsApi } from "../api/bookingsApi";
-import { roomsApi } from "../api/roomsApi";
-
-const TrendChart = React.lazy(() => import("../components/TrendChart"));
-const PieChart = React.lazy(() => import("../components/PieChart"));
+import { useRooms } from "../hooks/useRooms";
+import LoadingFallback from "../components/LoadingFallback";
+import MetricCard from "../components/MetricCard";
+import QuickActions from "../components/QuickActions";
+import OngoingBookings from "../components/OngoingBookings";
+import GuestActivity from "../components/GuestActivity";
+import Calendar from "../components/Calendar";
+import TrendChart from "../components/TrendChart";
+import PieChart from "../components/PieChart";
 
 const Dashboard = () => {
   const { theme } = useAppContext();
+  const { rooms, fetchRooms } = useRooms();
   const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [revenueTrend, setRevenueTrend] = useState([]);
@@ -25,10 +25,7 @@ const Dashboard = () => {
     const fetchMetrics = async () => {
       setLoading(true);
       try {
-        const [bookings, rooms] = await Promise.all([
-          bookingsApi.getBookings(),
-          roomsApi.getRooms(),
-        ]);
+        const [bookings] = await Promise.all([bookingsApi.getBookings()]);
         // Only consider bookings with payment_info.amount and payment_status Paid
         const paidBookings = bookings.filter(
           (b) => b.payment_info && b.payment_info.payment_status === "Paid"
@@ -117,8 +114,15 @@ const Dashboard = () => {
         setLoading(false);
       }
     };
-    fetchMetrics();
-  }, []);
+
+    // Fetch rooms first, then metrics
+    const loadData = async () => {
+      await fetchRooms();
+      await fetchMetrics();
+    };
+
+    loadData();
+  }, [fetchRooms]);
 
   return (
     <motion.div
