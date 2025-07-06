@@ -16,28 +16,19 @@ import LoadingFallback from "../components/LoadingFallback";
 import InfoMessage from "../components/InfoMessage";
 import CustomButton from "../components/CustomButton";
 import { IoMdAdd } from "react-icons/io";
+import StatusPill from "../components/StatusPill";
 
 const TABS = ["All", "Ground", "1st Floor", "2nd Floor"];
-
-const getStatusPill = (status) => {
-  const statusMap = {
-    Available: styles.available,
-    Occupied: styles.occupied,
-    Cleaning: styles.cleaning,
-  };
-  return (
-    <span className={`${styles.statusPill} ${statusMap[status]}`}>
-      {status}
-    </span>
-  );
-};
 
 const columns = [
   { header: "Room", accessor: "roomNumber" },
   { header: "Room Type", accessor: "type" },
   { header: "Floor", accessor: "floor" },
   { header: "Amenities", accessor: "amenities" },
-  { header: "Status", accessor: "status" },
+  {
+    header: "Status",
+    accessor: (row) => <StatusPill status={row.status} type="room" />,
+  },
 ];
 
 // Rooms page for managing room details
@@ -96,7 +87,6 @@ const Rooms = () => {
         search={true}
         searchPlaceholder="Search rooms..."
         renderers={{
-          status: (val) => getStatusPill(val),
           Amenities: (val) => (Array.isArray(val) ? val.join(", ") : ""),
         }}
         actions={(row, openDialog) => (

@@ -20,6 +20,7 @@ import ConfirmDialog from "../components/ConfirmDialog";
 import { MdOutlineEdit } from "react-icons/md";
 import { IoMdAdd } from "react-icons/io";
 import CustomDropdown from "../components/CustomDropdown";
+import StatusPill from "../components/StatusPill";
 
 const TABS = ["All", "Confirmed", "Pending", "Cancelled"];
 
@@ -41,9 +42,16 @@ const columns = [
   },
   {
     header: "Payment Status",
-    accessor: (row) => row.payment_info.payment_status,
+    accessor: (row) => (
+      <StatusPill status={row.payment_info.payment_status} type="payment" />
+    ),
   },
-  { header: "Booking Status", accessor: (row) => row.status.booking_status },
+  {
+    header: "Booking Status",
+    accessor: (row) => (
+      <StatusPill status={row.status.booking_status} type="booking" />
+    ),
+  },
 ];
 
 const Booking = () => {
@@ -177,32 +185,6 @@ const Booking = () => {
     return checkOutDate >= today;
   };
 
-  function getBookingStatusPill(status) {
-    const colorMap = {
-      Confirmed: styles.confirmed,
-      Pending: styles.pending,
-      Cancelled: styles.cancelled,
-    };
-    return (
-      <span className={`${styles.statusPill} ${colorMap[status]}`}>
-        {status}
-      </span>
-    );
-  }
-
-  function getPaymentStatusPill(status) {
-    const colorMap = {
-      Paid: styles.paid,
-      Pending: styles.pendingPayment,
-      Refunded: styles.refunded,
-    };
-    return (
-      <span className={`${styles.statusPill} ${colorMap[status]}`}>
-        {status}
-      </span>
-    );
-  }
-
   const filteredData = useMemo(() => {
     if (tab === "All") return bookings;
     return bookings.filter((b) => b.status.booking_status === tab);
@@ -244,8 +226,8 @@ const Booking = () => {
         activeTab={tab}
         onTabChange={setTab}
         renderers={{
-          "Booking Status": (val) => getBookingStatusPill(val),
-          "Payment Status": (val) => getPaymentStatusPill(val),
+          "Booking Status": (val) => <StatusPill status={val} type="booking" />,
+          "Payment Status": (val) => <StatusPill status={val} type="payment" />,
         }}
         actions={(row, openDialog) => (
           <div className={styles.actionBtns}>

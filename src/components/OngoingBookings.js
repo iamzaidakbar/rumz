@@ -4,6 +4,7 @@ import styles from "../styles/OngoingBookings.module.scss";
 import DataTable from "./DataTable";
 import { useAppContext } from "../contexts/AppContext";
 import { bookingsApi } from "../api/bookingsApi";
+import StatusPill from "./StatusPill";
 
 function isOngoing(booking) {
   const today = new Date();
@@ -12,25 +13,15 @@ function isOngoing(booking) {
   return today >= checkIn && today <= checkOut;
 }
 
-const getStatusPill = (status) => {
-  const statusMap = {
-    Confirmed: styles.confirmed,
-    Pending: styles.pending,
-    Cancelled: styles.cancelled,
-  };
-  return (
-    <span className={`${styles.statusPill} ${statusMap[status]}`}>
-      {status}
-    </span>
-  );
-};
-
 const columns = [
   { header: "Guest", accessor: "guestName" },
   { header: "Check-in", accessor: "checkIn" },
   { header: "Check-out", accessor: "checkOut" },
   { header: "Room", accessor: "roomType" },
-  { header: "Status", accessor: "status" },
+  {
+    header: "Status",
+    accessor: (row) => <StatusPill status={row.status} type="booking" />,
+  },
 ];
 
 const OngoingBookings = () => {
@@ -80,7 +71,7 @@ const OngoingBookings = () => {
           columns={columns}
           data={ongoing}
           renderers={{
-            status: (val) => getStatusPill(val),
+            status: (val) => <StatusPill status={val} type="booking" />,
           }}
         />
       ) : (

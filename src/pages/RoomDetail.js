@@ -13,19 +13,7 @@ import {
 import { motion } from "framer-motion";
 import CustomButton from "../components/CustomButton";
 import { MdOutlineEdit } from "react-icons/md";
-
-const getStatusPill = (status) => {
-  const statusMap = {
-    Available: styles.available,
-    Occupied: styles.occupied,
-    Cleaning: styles.cleaning,
-  };
-  return (
-    <span className={`${styles.statusPill} ${statusMap[status]}`}>
-      {status}
-    </span>
-  );
-};
+import StatusPill from "../components/StatusPill";
 
 const RoomDetail = () => {
   const { roomId } = useParams();
@@ -126,7 +114,9 @@ const RoomDetail = () => {
             </div>
             <div className={styles.detailItem}>
               <span className={styles.label}>Status</span>
-              <span className={styles.value}>{getStatusPill(room.status)}</span>
+              <span className={styles.value}>
+                <StatusPill status={room.status} type="room" />
+              </span>
             </div>
             <div className={styles.detailItemFull}>
               <span className={styles.label}>Description</span>
