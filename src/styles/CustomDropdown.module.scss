@@ -42,7 +42,7 @@
 
 .searchInput {
   width: 100%;
-  padding: 0.7rem 0.7rem 0.7rem 2.5rem;
+  padding: 0.7rem 0.7rem 0.7rem 2.7rem !important; // increased left padding for more space
   border-radius: 6px;
   border: 1.5px solid #e5e7eb;
   background: #f9fafb;
@@ -57,7 +57,7 @@
 
 .searchIcon {
   position: absolute;
-  left: 1.5rem;
+  left: 2rem; // move icon further left
   top: 50%;
   transform: translateY(-50%);
   color: #9ca3af;

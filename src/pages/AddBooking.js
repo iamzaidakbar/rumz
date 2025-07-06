@@ -23,7 +23,7 @@ const initialBookingData = {
       city: "",
       state: "",
       pin_code: "",
-      country: "",
+      country: "India",
     },
   },
   id_proof: {
@@ -53,6 +53,10 @@ const initialBookingData = {
   },
   status: {
     booking_status: "Pending",
+  },
+  timestamps: {
+    created_at: "",
+    updated_at: "",
   },
 };
 

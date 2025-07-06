@@ -95,7 +95,11 @@ const BookingDetailsForm = ({
         <input
           type="number"
           placeholder="Enter number of rooms"
-          value={bookingDetails.number_of_rooms}
+          value={
+            bookingDetails.number_of_rooms ||
+            bookingDetails.room_ids?.length ||
+            ""
+          }
           onChange={(e) =>
             handleInputChange(
               "booking_details",

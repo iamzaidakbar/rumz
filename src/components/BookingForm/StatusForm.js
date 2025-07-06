@@ -1,4 +1,5 @@
 import React from "react";
+import CustomDropdown from "../CustomDropdown";
 import styles from "../../styles/AddBooking.module.scss";
 
 const StatusForm = ({ status, handleInputChange }) => {
@@ -41,6 +42,11 @@ const StatusForm = ({ status, handleInputChange }) => {
       : {};
   };
 
+  // Custom renderer for dropdown selected value and options
+  const renderStatusOption = (option) => (
+    <span style={getStatusStyle(option.value)}>{option.label}</span>
+  );
+
   return (
     <div className={styles.card}>
       <h2>Booking Status</h2>
@@ -48,29 +54,17 @@ const StatusForm = ({ status, handleInputChange }) => {
         <div className={styles.formGroup}>
           <label>Booking Status</label>
           <div className={styles.statusDropdownContainer}>
-            <select
+            <CustomDropdown
+              options={statusOptions}
               value={status.booking_status || ""}
-              onChange={(e) =>
-                handleInputChange("status", "booking_status", e.target.value)
+              onChange={(option) =>
+                handleInputChange("status", "booking_status", option)
               }
-              className={styles.statusSelect}
+              placeholder="Select Booking Status"
+              renderValue={renderStatusOption}
+              renderOption={renderStatusOption}
               style={{ width: "120px" }}
-            >
-              <option value="">Select Status</option>
-              {statusOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            {status.booking_status && (
-              <div
-                className={styles.statusDisplay}
-                style={getStatusStyle(status.booking_status)}
-              >
-                {status.booking_status}
-              </div>
-            )}
+            />
           </div>
         </div>
       </div>
