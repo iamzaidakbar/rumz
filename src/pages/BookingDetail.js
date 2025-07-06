@@ -207,10 +207,40 @@ const BookingDetail = () => {
 
         <div className={styles.section}>
           <h2>Status</h2>
-          <DetailRow
-            label="Booking Status"
-            value={booking.status.booking_status}
-          />
+          <div className={styles.detailRow}>
+            <span className={styles.detailLabel}>Booking Status</span>
+            <span
+              className={styles.statusPill}
+              style={{
+                backgroundColor:
+                  booking.status.booking_status === "Confirmed"
+                    ? "#dcfce7"
+                    : booking.status.booking_status === "Pending"
+                    ? "#fefce8"
+                    : booking.status.booking_status === "Cancelled"
+                    ? "#fee2e2"
+                    : "#f3f4f6",
+                color:
+                  booking.status.booking_status === "Confirmed"
+                    ? "#166534"
+                    : booking.status.booking_status === "Pending"
+                    ? "#854d0e"
+                    : booking.status.booking_status === "Cancelled"
+                    ? "#991b1b"
+                    : "#6b7280",
+                padding: "0.3rem 0.8rem",
+                borderRadius: "999px",
+                fontWeight: "600",
+                fontSize: "0.85rem",
+                textAlign: "center",
+                whiteSpace: "nowrap",
+                width: "120px",
+                display: "inline-block",
+              }}
+            >
+              {booking.status.booking_status}
+            </span>
+          </div>
         </div>
 
         <div className={styles.section}>

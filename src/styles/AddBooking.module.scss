@@ -396,3 +396,53 @@
   margin-bottom: 0.25rem;
   font-size: 0.98rem;
 }
+
+/* Status Dropdown Styles */
+.statusDropdownContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.statusSelect {
+  width: 120px !important;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  outline: none;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background-color: white;
+  color: #222;
+  cursor: pointer;
+
+  &:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+}
+
+.statusDisplay {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-align: center;
+  white-space: nowrap;
+  width: 120px;
+  margin-top: 0.5rem;
+}
+
+/* Dark theme for status dropdown */
+.page[data-theme="dark"] {
+  .statusSelect {
+    background-color: #17191c;
+    color: #f3f4f6;
+    border-color: #353945;
+
+    &:focus {
+      border-color: #3b82f6;
+    }
+  }
+}
