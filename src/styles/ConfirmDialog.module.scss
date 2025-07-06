@@ -62,24 +62,116 @@
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s, box-shadow 0.2s;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
 .cancelBtn {
   background: #fff;
   color: #374151;
   border: 1px solid #d1d5db;
-}
-.cancelBtn:hover {
-  background: #f9fafb;
+
+  &:hover:not(:disabled) {
+    background: #f9fafb;
+  }
 }
 
 .confirmBtn {
   background: #ef4444;
   color: #fff;
+
+  &:hover:not(:disabled) {
+    background: #dc2626;
+  }
 }
-.confirmBtn:hover {
-  background: #dc2626;
+
+/* Loading State */
+.loadingState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Variants */
+.delete {
+  .iconWrapper {
+    background: #fee2e2;
+  }
+
+  .icon {
+    color: #ef4444;
+  }
+
+  .confirmBtn {
+    background: #ef4444;
+
+    &:hover:not(:disabled) {
+      background: #dc2626;
+    }
+  }
+}
+
+.cancel {
+  .iconWrapper {
+    background: #fef3c7;
+  }
+
+  .icon {
+    color: #f59e0b;
+  }
+
+  .confirmBtn {
+    background: #f59e0b;
+
+    &:hover:not(:disabled) {
+      background: #d97706;
+    }
+  }
+}
+
+.warning {
+  .iconWrapper {
+    background: #fee2e2;
+  }
+
+  .icon {
+    color: #ef4444;
+  }
+
+  .confirmBtn {
+    background: #ef4444;
+
+    &:hover:not(:disabled) {
+      background: #dc2626;
+    }
+  }
 }
 
 /* Dark Theme */
@@ -109,13 +201,54 @@
   color: #f3f4f6;
   border-color: #4b5563;
 }
-.dialog[data-theme="dark"] .cancelBtn:hover {
+
+.dialog[data-theme="dark"] .cancelBtn:hover:not(:disabled) {
   background: #4b5563;
 }
 
 .dialog[data-theme="dark"] .confirmBtn {
   background: #ef4444;
 }
-.dialog[data-theme="dark"] .confirmBtn:hover {
+
+.dialog[data-theme="dark"] .confirmBtn:hover:not(:disabled) {
   background: #f87171;
+}
+
+/* Dark theme variants */
+.dialog[data-theme="dark"].delete {
+  .iconWrapper {
+    background: #3e2525;
+  }
+
+  .icon {
+    color: #f87171;
+  }
+}
+
+.dialog[data-theme="dark"].cancel {
+  .iconWrapper {
+    background: #3d2c1a;
+  }
+
+  .icon {
+    color: #fbbf24;
+  }
+
+  .confirmBtn {
+    background: #f59e0b;
+
+    &:hover:not(:disabled) {
+      background: #fbbf24;
+    }
+  }
+}
+
+.dialog[data-theme="dark"].warning {
+  .iconWrapper {
+    background: #3e2525;
+  }
+
+  .icon {
+    color: #f87171;
+  }
 }

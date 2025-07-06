@@ -19,6 +19,7 @@ const DataTable = ({
   noDataInfo,
   onConfirmDelete,
   deleteDialogInfo,
+  isDeleting = false,
 }) => {
   const [sortField, setSortField] = useState(null);
   const [sortDir, setSortDir] = useState("asc");
@@ -185,6 +186,11 @@ const DataTable = ({
           onClose={closeDeleteDialog}
           onConfirm={handleConfirm}
           title={deleteDialogInfo.title}
+          confirmText="Delete"
+          cancelText="Cancel"
+          isLoading={isDeleting}
+          loadingText="Deleting..."
+          variant="delete"
         >
           {deleteDialogInfo.message}
         </ConfirmDialog>

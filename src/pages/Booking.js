@@ -56,6 +56,7 @@ const Booking = () => {
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [bookingToCancel, setBookingToCancel] = useState(null);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [cancelPaymentStatus, setCancelPaymentStatus] = useState("Refunded"); // default to Refunded
   const navigate = useNavigate();
 
@@ -77,6 +78,7 @@ const Booking = () => {
 
   const handleDelete = async (booking) => {
     if (!booking) return;
+    setIsDeleting(true);
     try {
       await bookingsApi.deleteBooking(booking.booking_reference_id);
       setBookings((prev) =>
@@ -96,6 +98,8 @@ const Booking = () => {
         "There was an error deleting the booking. Please try again or contact support.",
         { duration: 8000 }
       );
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -291,6 +295,7 @@ const Booking = () => {
           message: "Are you sure you want to permanently delete this booking?",
         }}
         onConfirmDelete={handleDelete}
+        isDeleting={isDeleting}
       />
 
       {/* Cancel Booking Confirmation Dialog */}
@@ -299,42 +304,48 @@ const Booking = () => {
           isOpen={showCancelDialog}
           onClose={handleCloseCancelDialog}
           title="Cancel Booking"
-          message={`Are you sure you want to cancel the booking for ${bookingToCancel.guest_info.full_name}?`}
           confirmText="Cancel Booking"
           cancelText="Keep Booking"
           onConfirm={handleConfirmCancel}
           onCancel={handleCloseCancelDialog}
           isLoading={isCancelling}
-          variant="warning"
+          loadingText="Cancelling..."
+          variant="cancel"
         >
-          <div
-            style={{
-              marginTop: "1rem",
-              padding: "1rem",
-              backgroundColor: "#fef3c7",
-              borderRadius: "8px",
-              border: "1px solid #f59e0b",
-            }}
-          >
-            <p
+          <div>
+            <p>
+              Are you sure you want to cancel the booking for{" "}
+              {bookingToCancel.guest_info.full_name}?
+            </p>
+            <div
               style={{
-                margin: "0 0 1rem 0",
-                fontWeight: "600",
-                color: "#92400e",
+                marginTop: "1rem",
+                padding: "1rem",
+                backgroundColor: "#fef3c7",
+                borderRadius: "8px",
+                border: "1px solid #f59e0b",
               }}
             >
-              Payment Status
-            </p>
-            <p style={{ margin: "0 0 1rem 0", color: "#92400e" }}>
-              Please select the payment status you want to set for this
-              cancelled booking:
-            </p>
-            <CustomDropdown
-              options={["Paid", "Pending", "Refunded"]}
-              value={cancelPaymentStatus}
-              onChange={setCancelPaymentStatus}
-              disabled={isCancelling}
-            />
+              <p
+                style={{
+                  margin: "0 0 1rem 0",
+                  fontWeight: "600",
+                  color: "#92400e",
+                }}
+              >
+                Payment Status
+              </p>
+              <p style={{ margin: "0 0 1rem 0", color: "#92400e" }}>
+                Please select the payment status you want to set for this
+                cancelled booking:
+              </p>
+              <CustomDropdown
+                options={["Paid", "Pending", "Refunded"]}
+                value={cancelPaymentStatus}
+                onChange={setCancelPaymentStatus}
+                disabled={isCancelling}
+              />
+            </div>
           </div>
         </ConfirmDialog>
       )}
