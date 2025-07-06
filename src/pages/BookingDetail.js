@@ -143,7 +143,7 @@ const BookingDetail = () => {
           <h2>Booking Details</h2>
           <DetailRow
             label="Room No(s)"
-            value={booking.booking_details.room_ids?.join(", ") || "N/A"}
+            value={booking.booking_details.room_nos?.join(", ") || "N/A"}
           />
           <DetailRow
             label="Room Type"

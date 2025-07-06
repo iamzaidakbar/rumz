@@ -153,3 +153,60 @@ export const fileUtils = {
     return filename.slice(((filename.lastIndexOf(".") - 1) >>> 0) + 2);
   },
 };
+
+// Async utilities
+export const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Booking validation
+export const validateBookingData = (booking) => {
+  if (!booking) {
+    throw new Error("Booking data is required");
+  }
+  if (!booking.guest_info) {
+    throw new Error("Guest information is required");
+  }
+  if (!booking.booking_details) {
+    throw new Error("Booking details are required");
+  }
+  if (
+    !booking.booking_details.room_ids ||
+    !Array.isArray(booking.booking_details.room_ids)
+  ) {
+    throw new Error("Room IDs are required and must be an array");
+  }
+  return true;
+};
+
+// Booking enrichment
+export const enrichBookingWithRoomNumbers = async (booking, getRooms) => {
+  try {
+    const rooms = await getRooms();
+    const roomMap = new Map(rooms.map((room) => [room.id, room.roomNumber]));
+    const roomNumbers = booking.booking_details.room_ids.map(
+      (id) => roomMap.get(id) || "N/A"
+    );
+    return {
+      ...booking.booking_details,
+      room_nos: roomNumbers,
+    };
+  } catch (error) {
+    console.error("Error fetching room information:", error);
+    return {
+      ...booking.booking_details,
+      room_nos: booking.booking_details.room_ids.map(() => "N/A"),
+    };
+  }
+};
+
+// Timestamp utilities
+export const createTimestamps = () => {
+  const now = new Date().toISOString();
+  return { created_at: now, updated_at: now };
+};
+
+export const updateTimestamp = (existingTimestamps) => {
+  return {
+    ...existingTimestamps,
+    updated_at: new Date().toISOString(),
+  };
+};

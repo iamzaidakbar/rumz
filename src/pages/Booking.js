@@ -225,10 +225,6 @@ const Booking = () => {
         tabs={TABS}
         activeTab={tab}
         onTabChange={setTab}
-        renderers={{
-          "Booking Status": (val) => <StatusPill status={val} type="booking" />,
-          "Payment Status": (val) => <StatusPill status={val} type="payment" />,
-        }}
         actions={(row, openDialog) => (
           <div className={styles.actionBtns}>
             <button

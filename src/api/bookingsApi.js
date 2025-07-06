@@ -1,12 +1,18 @@
 import apiClient, { apiRequest } from "./apiClient";
 import { roomsApi } from "./roomsApi";
+import {
+  delay,
+  validateBookingData,
+  enrichBookingWithRoomNumbers,
+  createTimestamps,
+  updateTimestamp,
+} from "../utils";
 
 // Constants
 const STORAGE_KEY = "rumz_bookings";
 const DELAY_MS = 300;
 
 // Utility functions
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const getStoredBookings = async () => {
   try {
@@ -36,63 +42,6 @@ const saveBookingsToStorage = (bookings) => {
 
 const generateBookingId = () =>
   `BKNG-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
-const validateBookingData = (booking) => {
-  if (!booking) {
-    throw new Error("Booking data is required");
-  }
-
-  if (!booking.guest_info) {
-    throw new Error("Guest information is required");
-  }
-
-  if (!booking.booking_details) {
-    throw new Error("Booking details are required");
-  }
-
-  if (
-    !booking.booking_details.room_ids ||
-    !Array.isArray(booking.booking_details.room_ids)
-  ) {
-    throw new Error("Room IDs are required and must be an array");
-  }
-
-  return true;
-};
-
-const enrichBookingWithRoomNumbers = async (booking) => {
-  try {
-    const rooms = await roomsApi.getRooms();
-    const roomMap = new Map(rooms.map((room) => [room.id, room.roomNumber]));
-
-    const roomNumbers = booking.booking_details.room_ids.map(
-      (id) => roomMap.get(id) || "N/A"
-    );
-
-    return {
-      ...booking.booking_details,
-      room_nos: roomNumbers,
-    };
-  } catch (error) {
-    console.error("Error fetching room information:", error);
-    return {
-      ...booking.booking_details,
-      room_nos: booking.booking_details.room_ids.map(() => "N/A"),
-    };
-  }
-};
-
-const createTimestamps = () => {
-  const now = new Date().toISOString();
-  return { created_at: now, updated_at: now };
-};
-
-const updateTimestamp = (existingTimestamps) => {
-  return {
-    ...existingTimestamps,
-    updated_at: new Date().toISOString(),
-  };
-};
 
 // Main API object
 export const bookingsApi = {

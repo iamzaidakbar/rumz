@@ -64,7 +64,12 @@ const AddBooking = () => {
   const { theme } = useAppContext();
   const { success, error: showError } = useToast();
   const navigate = useNavigate();
-  const { rooms, loading: roomsLoading, error: roomsError } = useRooms();
+  const {
+    rooms,
+    loading: roomsLoading,
+    error: roomsError,
+    fetchRooms,
+  } = useRooms();
   const [idProofImages, setIdProofImages] = useState([]);
   const [idProofImagePreviews, setIdProofImagePreviews] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -79,6 +84,11 @@ const AddBooking = () => {
     handleRoomSelect,
     validate,
   } = useBookingForm(initialBookingData);
+
+  // Fetch rooms on component mount
+  React.useEffect(() => {
+    fetchRooms();
+  }, [fetchRooms]);
 
   // Clean up previews on unmount
   React.useEffect(() => {
