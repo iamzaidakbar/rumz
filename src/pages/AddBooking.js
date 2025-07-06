@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import styles from "../styles/AddBooking.module.scss";
 import { useAppContext } from "../contexts/AppContext";
+import { useToast } from "../contexts/ToastContext";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { bookingsApi } from "../api/bookingsApi";
@@ -57,6 +58,7 @@ const initialBookingData = {
 
 const AddBooking = () => {
   const { theme } = useAppContext();
+  const { success, error: showError } = useToast();
   const navigate = useNavigate();
   const { rooms, loading: roomsLoading, error: roomsError } = useRooms();
   const [idProofImages, setIdProofImages] = useState([]);
@@ -178,9 +180,19 @@ const AddBooking = () => {
         },
       };
       await bookingsApi.addBooking(finalFormData);
+      success(
+        "Booking Created Successfully!",
+        `Booking for ${formData.guest_info.full_name} has been created and saved.`,
+        { duration: 6000 }
+      );
       navigate("/bookings");
     } catch (error) {
-      alert("Failed to create booking. Please try again.");
+      console.error("Error creating booking:", error);
+      showError(
+        "Failed to Create Booking",
+        "There was an error creating the booking. Please check your information and try again.",
+        { duration: 8000 }
+      );
     } finally {
       setIsUploading(false);
     }
