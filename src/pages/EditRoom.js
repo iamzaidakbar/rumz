@@ -12,6 +12,7 @@ import CustomButton from "../components/CustomButton";
 import { useToast } from "../contexts/ToastContext";
 import LogoUpload from "../components/forms/LogoUpload";
 import { cloudinaryApi } from "../api/cloudinaryApi";
+import { useRoomForm } from "../hooks/useRoomForm";
 
 const AMENITIES = ["Wi-Fi", "TV", "AC", "Mini-bar", "Balcony", "Kitchenette"];
 const FLOORS = ["Ground", "1st Floor", "2nd Floor"];
@@ -24,19 +25,34 @@ const EditRoom = () => {
   const navigate = useNavigate();
   const { roomId } = useParams();
   const { getRoom, updateRoom } = useRooms();
-  const [form, setForm] = useState(null);
-  const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [photoUploading, setPhotoUploading] = useState(false);
-  const [photoError, setPhotoError] = useState("");
-  const fileInputRef = React.useRef();
+  const [initialData, setInitialData] = useState(null);
+
+  const roomForm = useRoomForm({
+    initialData: initialData || {
+      roomNumber: "",
+      type: TYPES[0],
+      floor: FLOORS[0],
+      status: STATUS[0],
+      amenities: [],
+      photo: "",
+      description: "",
+      price: "",
+      beds: 1,
+      bathrooms: 1,
+    },
+    onSuccess: success,
+    onError: showError,
+    amenitiesList: AMENITIES,
+  });
 
   useEffect(() => {
     const fetchRoom = async () => {
       try {
         const roomData = await getRoom(roomId);
-        setForm(roomData);
+        setInitialData(roomData);
+        roomForm.setForm(roomData);
       } catch (err) {
         setError("Failed to fetch room details.");
       } finally {
@@ -44,56 +60,44 @@ const EditRoom = () => {
       }
     };
     fetchRoom();
+    // eslint-disable-next-line
   }, [roomId, getRoom]);
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    if (type === "checkbox") {
-      setForm((prev) => ({
-        ...prev,
-        amenities: checked
-          ? [...prev.amenities, value]
-          : prev.amenities.filter((a) => a !== value),
-      }));
-    } else {
-      setForm((prev) => ({ ...prev, [name]: value }));
-    }
-  };
-
-  const handleDropdownChange = (name) => (value) => {
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSaving(true);
-    setError("");
+    roomForm.setSaving(true);
+    roomForm.setError("");
+    if (!roomForm.validate()) {
+      roomForm.setError("Room number and status are required.");
+      roomForm.setSaving(false);
+      return;
+    }
     try {
-      await updateRoom(roomId, form);
+      await updateRoom(roomId, roomForm.form);
       success("Room updated successfully!", "success");
       navigate(`/rooms/${roomId}`);
     } catch (err) {
-      setError("Failed to update room.");
+      roomForm.setError("Failed to update room.");
       showError("Failed to update room. Please try again.", "error");
     } finally {
-      setSaving(false);
+      roomForm.setSaving(false);
     }
   };
 
   const handlePhotoSelect = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    setPhotoError("");
-    setPhotoUploading(true);
+    roomForm.setPhotoError("");
+    roomForm.setPhotoUploading(true);
     try {
       const urls = await cloudinaryApi.uploadImages([file]);
-      setForm((prev) => ({ ...prev, photo: urls[0] }));
+      roomForm.setForm((prev) => ({ ...prev, photo: urls[0] }));
       success("Photo uploaded!", "success");
     } catch (err) {
-      setPhotoError("Failed to upload photo.");
+      roomForm.setPhotoError("Failed to upload photo.");
       showError("Failed to upload photo.", "error");
     } finally {
-      setPhotoUploading(false);
+      roomForm.setPhotoUploading(false);
     }
   };
 
@@ -101,26 +105,26 @@ const EditRoom = () => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
     if (!file) return;
-    setPhotoError("");
-    setPhotoUploading(true);
+    roomForm.setPhotoError("");
+    roomForm.setPhotoUploading(true);
     try {
       const urls = await cloudinaryApi.uploadImages([file]);
-      setForm((prev) => ({ ...prev, photo: urls[0] }));
+      roomForm.setForm((prev) => ({ ...prev, photo: urls[0] }));
       success("Photo uploaded!", "success");
     } catch (err) {
-      setPhotoError("Failed to upload photo.");
+      roomForm.setPhotoError("Failed to upload photo.");
       showError("Failed to upload photo.", "error");
     } finally {
-      setPhotoUploading(false);
+      roomForm.setPhotoUploading(false);
     }
   };
 
   const handlePhotoClick = () => {
-    fileInputRef.current?.click();
+    roomForm.fileInputRef.current?.click();
   };
 
   const handleRemovePhoto = () => {
-    setForm((prev) => ({ ...prev, photo: "" }));
+    roomForm.setForm((prev) => ({ ...prev, photo: "" }));
   };
 
   if (loading) return <LoadingFallback />;
@@ -128,7 +132,7 @@ const EditRoom = () => {
     return (
       <InfoMessage icon={IoWarningOutline} title="Error" message={error} />
     );
-  if (!form) return null;
+  if (!initialData) return null;
 
   return (
     <div className={styles.bgWrap} data-theme={theme}>
@@ -154,10 +158,10 @@ const EditRoom = () => {
               type="submit"
               variant="primary"
               className={styles.saveBtn}
-              disabled={saving}
+              disabled={roomForm.saving}
               form="edit-room-form"
             >
-              {saving ? "Saving..." : "Save Changes"}
+              {roomForm.saving ? "Saving..." : "Save Changes"}
             </CustomButton>
           </div>
         </div>
@@ -173,8 +177,8 @@ const EditRoom = () => {
               type="text"
               id="roomNumber"
               name="roomNumber"
-              value={form.roomNumber}
-              onChange={handleChange}
+              value={roomForm.form.roomNumber}
+              onChange={roomForm.handleChange}
               placeholder="Enter room number"
               required
             />
@@ -183,8 +187,8 @@ const EditRoom = () => {
             <label htmlFor="type">Room Type</label>
             <CustomDropdown
               options={TYPES}
-              value={form.type}
-              onChange={handleDropdownChange("type")}
+              value={roomForm.form.type}
+              onChange={roomForm.handleDropdownChange("type")}
               placeholder="Select a room type"
             />
           </div>
@@ -193,8 +197,8 @@ const EditRoom = () => {
             <textarea
               id="description"
               name="description"
-              value={form.description}
-              onChange={handleChange}
+              value={roomForm.form.description}
+              onChange={roomForm.handleChange}
               placeholder="Enter room description"
               rows={6}
             />
@@ -206,8 +210,8 @@ const EditRoom = () => {
                 type="number"
                 id="beds"
                 name="beds"
-                value={form.beds}
-                onChange={handleChange}
+                value={roomForm.form.beds}
+                onChange={roomForm.handleChange}
                 min={1}
               />
             </div>
@@ -217,8 +221,8 @@ const EditRoom = () => {
                 type="number"
                 id="bathrooms"
                 name="bathrooms"
-                value={form.bathrooms}
-                onChange={handleChange}
+                value={roomForm.form.bathrooms}
+                onChange={roomForm.handleChange}
                 min={1}
               />
             </div>
@@ -228,8 +232,8 @@ const EditRoom = () => {
               <label htmlFor="floor">Floor</label>
               <CustomDropdown
                 options={FLOORS}
-                value={form.floor}
-                onChange={handleDropdownChange("floor")}
+                value={roomForm.form.floor}
+                onChange={roomForm.handleDropdownChange("floor")}
                 placeholder="Select a floor"
               />
             </div>
@@ -237,8 +241,8 @@ const EditRoom = () => {
               <label htmlFor="status">Status</label>
               <CustomDropdown
                 options={STATUS}
-                value={form.status}
-                onChange={handleDropdownChange("status")}
+                value={roomForm.form.status}
+                onChange={roomForm.handleDropdownChange("status")}
                 placeholder="Select a status"
               />
             </div>
@@ -250,15 +254,15 @@ const EditRoom = () => {
                 <label
                   key={a}
                   className={`${styles.amenityLabel} ${
-                    form.amenities.includes(a) ? styles.selected : ""
+                    roomForm.form.amenities.includes(a) ? styles.selected : ""
                   }`}
                 >
                   <input
                     type="checkbox"
                     name="amenities"
                     value={a}
-                    checked={form.amenities.includes(a)}
-                    onChange={handleChange}
+                    checked={roomForm.form.amenities.includes(a)}
+                    onChange={roomForm.handleChange}
                   />
                   <span>{a}</span>
                 </label>
@@ -269,15 +273,15 @@ const EditRoom = () => {
             <div className={styles.inputGroup}>
               {/* Photo Upload */}
               <LogoUpload
-                logoUploading={photoUploading}
-                logoError={photoError}
+                logoUploading={roomForm.photoUploading}
+                logoError={roomForm.photoError}
                 onLogoDrop={handlePhotoDrop}
                 onLogoSelect={handlePhotoSelect}
                 onLogoClick={handlePhotoClick}
                 onDragOver={(e) => e.preventDefault()}
-                fileInputRef={fileInputRef}
+                fileInputRef={roomForm.fileInputRef}
                 onRemoveLogo={handleRemovePhoto}
-                hotelLogo={form.photo}
+                hotelLogo={roomForm.form.photo}
                 label="Room Photo"
               />
             </div>
@@ -287,14 +291,16 @@ const EditRoom = () => {
                 type="number"
                 id="price"
                 name="price"
-                value={form.price}
-                onChange={handleChange}
+                value={roomForm.form.price}
+                onChange={roomForm.handleChange}
                 placeholder="Enter price"
                 min={0}
               />
             </div>
           </div>
-          {error && <div className={styles.errorMsg}>{error}</div>}
+          {roomForm.error && (
+            <div className={styles.errorMsg}>{roomForm.error}</div>
+          )}
         </form>
       </motion.div>
     </div>

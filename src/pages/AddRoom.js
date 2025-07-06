@@ -11,64 +11,63 @@ import { CiSaveDown1 } from "react-icons/ci";
 import { useToast } from "../contexts/ToastContext";
 import LogoUpload from "../components/forms/LogoUpload";
 import { cloudinaryApi } from "../api/cloudinaryApi";
-
-const AMENITIES = ["Wi-Fi", "TV", "AC", "Parking", "Balcony", "Room Service"];
-const FLOORS = ["1st Floor", "2nd Floor"];
-const TYPES = ["Standard Room", "Deluxe Suite", "Family Room", "Penthouse"];
-const STATUS = ["Available", "Maintenance", "Reserved"];
+import { useRoomForm } from "../hooks/useRoomForm";
 
 const AddRoom = () => {
   const { theme } = useAppContext();
   const { success, error: showError } = useToast();
   const navigate = useNavigate();
   const { addRoom } = useRooms();
-  const [form, setForm] = useState({
-    roomNumber: "",
-    type: TYPES[0],
-    floor: FLOORS[0],
-    status: STATUS[0],
-    amenities: [],
-    photo: "",
-    description: "",
-    price: "",
-    beds: 1,
-    bathrooms: 1,
+  const AMENITIES = ["Wi-Fi", "TV", "AC", "Parking", "Balcony", "Room Service"];
+  const FLOORS = ["1st Floor", "2nd Floor"];
+  const TYPES = ["Standard Room", "Deluxe Suite", "Family Room", "Penthouse"];
+  const STATUS = ["Available", "Maintenance", "Reserved"];
+
+  const {
+    form,
+    setForm,
+    saving,
+    setSaving,
+    error,
+    setError,
+    photoUploading,
+    photoError,
+    fileInputRef,
+    handleChange,
+    handleDropdownChange,
+    handlePhotoSelect,
+    handlePhotoDrop,
+    handlePhotoClick,
+    handleRemovePhoto,
+    validate,
+  } = useRoomForm({
+    initialData: {
+      roomNumber: "",
+      type: TYPES[0],
+      floor: FLOORS[0],
+      status: STATUS[0],
+      amenities: [],
+      photo: "",
+      description: "",
+      price: "",
+      beds: 1,
+      bathrooms: 1,
+    },
+    onSuccess: success,
+    onError: showError,
+    amenitiesList: AMENITIES,
   });
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [photoUploading, setPhotoUploading] = useState(false);
-  const [photoError, setPhotoError] = useState("");
-  const fileInputRef = React.useRef();
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    if (type === "checkbox") {
-      setForm((prev) => ({
-        ...prev,
-        amenities: checked
-          ? [...prev.amenities, value]
-          : prev.amenities.filter((a) => a !== value),
-      }));
-    } else {
-      setForm((prev) => ({ ...prev, [name]: value }));
-    }
-  };
-
-  const handleDropdownChange = (name) => (value) => {
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     setError("");
-    if (!form.roomNumber.trim()) {
-      setError("Room number is required.");
+    if (!validate()) {
+      setError("Room number and status are required.");
       setSaving(false);
       return;
     }
     try {
-      console.log("Submitting form:", form);
       await addRoom(form);
       success("Room added successfully!", "Redirecting...", { duration: 3000 });
       navigate("/rooms");
@@ -78,49 +77,6 @@ const AddRoom = () => {
     } finally {
       setSaving(false);
     }
-  };
-
-  const handlePhotoSelect = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setPhotoError("");
-    setPhotoUploading(true);
-    try {
-      const urls = await cloudinaryApi.uploadImages([file]);
-      setForm((prev) => ({ ...prev, photo: urls[0] }));
-      success("Photo uploaded!", "");
-    } catch (err) {
-      setPhotoError("Failed to upload photo.");
-      showError("Failed to upload photo.");
-    } finally {
-      setPhotoUploading(false);
-    }
-  };
-
-  const handlePhotoDrop = async (e) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (!file) return;
-    setPhotoError("");
-    setPhotoUploading(true);
-    try {
-      const urls = await cloudinaryApi.uploadImages([file]);
-      setForm((prev) => ({ ...prev, photo: urls[0] }));
-      success("Photo uploaded!", "");
-    } catch (err) {
-      setPhotoError("Failed to upload photo.");
-      showError("Failed to upload photo.");
-    } finally {
-      setPhotoUploading(false);
-    }
-  };
-
-  const handlePhotoClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleRemovePhoto = () => {
-    setForm((prev) => ({ ...prev, photo: "" }));
   };
 
   return (
@@ -150,7 +106,7 @@ const AddRoom = () => {
               disabled={saving}
               form="add-room-form"
             >
-              <CiSaveDown1 /> {saving ? "Saving..." : "Save Booking"}
+              <CiSaveDown1 /> {saving ? "Add..." : "Add Room"}
             </CustomButton>
           </div>
         </div>
