@@ -6,11 +6,11 @@ export function useBookings() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchBookings = useCallback(async () => {
+  const fetchBookings = useCallback(async ({ refresh = false } = {}) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await bookingsApi.getBookings();
+      const data = await bookingsApi.getBookings({ refresh });
       setBookings(data);
     } catch (err) {
       setError("Failed to fetch bookings");
@@ -18,6 +18,12 @@ export function useBookings() {
       setLoading(false);
     }
   }, []);
+
+  // Optionally expose a refresh function
+  const refreshBookings = useCallback(
+    () => fetchBookings({ refresh: true }),
+    [fetchBookings]
+  );
 
   const addBooking = useCallback(async (bookingData) => {
     setLoading(true);
@@ -65,11 +71,11 @@ export function useBookings() {
     }
   }, []);
 
-  const getBooking = useCallback(async (id) => {
+  const getBooking = useCallback(async (id, { refresh = false } = {}) => {
     setLoading(true);
     setError(null);
     try {
-      return await bookingsApi.getBooking(id);
+      return await bookingsApi.getBooking(id, { refresh });
     } catch (err) {
       setError("Failed to fetch booking");
       throw err;
@@ -83,6 +89,7 @@ export function useBookings() {
     loading,
     error,
     fetchBookings,
+    refreshBookings,
     addBooking,
     updateBooking,
     deleteBooking,

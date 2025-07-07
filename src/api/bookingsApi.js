@@ -1,5 +1,5 @@
 import apiClient, { apiRequest } from "./apiClient";
-import { delay, validateBookingData } from "../utils";
+import { delay, validateBookingData, apiCache } from "../utils";
 
 // Constants
 const STORAGE_KEY = "rumz_bookings";
@@ -7,10 +7,17 @@ const DELAY_MS = 300;
 
 // Utility functions
 
-const getStoredBookings = async () => {
+const getStoredBookings = async ({ refresh = false } = {}) => {
+  const cacheKey = "bookingsApi:getBookings";
+  if (!refresh) {
+    const cached = apiCache.get(cacheKey);
+    if (cached) return cached;
+  }
   try {
     const response = await apiRequest(() => apiClient.get("/api/booking"));
-    return response.bookings || [];
+    const bookings = response.bookings || [];
+    apiCache.set(cacheKey, bookings);
+    return bookings;
   } catch (error) {
     console.error("Error fetching bookings from API:", error);
     // Fallback to localStorage if API fails
@@ -30,10 +37,10 @@ export const bookingsApi = {
    * Get all bookings
    * @returns {Promise<Array>} Array of bookings
    */
-  async getBookings() {
+  async getBookings({ refresh = false } = {}) {
     try {
       await delay(DELAY_MS);
-      const bookings = await getStoredBookings();
+      const bookings = await getStoredBookings({ refresh });
       return bookings;
     } catch (error) {
       console.error("Error fetching bookings:", error);
@@ -46,7 +53,12 @@ export const bookingsApi = {
    * @param {string} id - Booking reference ID
    * @returns {Promise<Object>} Booking object
    */
-  async getBooking(id) {
+  async getBooking(id, { refresh = false } = {}) {
+    const cacheKey = `bookingsApi:getBooking:${id}`;
+    if (!refresh) {
+      const cached = apiCache.get(cacheKey);
+      if (cached) return cached;
+    }
     try {
       if (!id) {
         throw new Error("Booking ID is required");
@@ -63,6 +75,7 @@ export const bookingsApi = {
         throw new Error(`Booking with ID ${id} not found`);
       }
 
+      apiCache.set(cacheKey, response.booking);
       return response.booking;
     } catch (error) {
       console.error(`Error fetching booking ${id}:`, error);

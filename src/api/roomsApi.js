@@ -1,4 +1,5 @@
 import apiClient, { apiRequest } from "./apiClient";
+import { apiCache } from "../utils";
 
 const API_BASE = "/api/room";
 
@@ -10,10 +11,17 @@ export const roomsApi = {
    * Get all rooms
    * @returns {Promise<Array>} Array of rooms
    */
-  async getRooms() {
+  async getRooms({ refresh = false } = {}) {
+    const cacheKey = "roomsApi:getRooms";
+    if (!refresh) {
+      const cached = apiCache.get(cacheKey);
+      if (cached) return cached;
+    }
     try {
       const response = await apiRequest(() => apiClient.get(API_BASE));
-      return response.rooms || response;
+      const rooms = response.rooms || response;
+      apiCache.set(cacheKey, rooms);
+      return rooms;
     } catch (error) {
       console.error("Error fetching rooms:", error);
       throw new Error("Failed to fetch rooms");
@@ -25,13 +33,20 @@ export const roomsApi = {
    * @param {string} id - Room ID
    * @returns {Promise<Object>} Room object
    */
-  async getRoom(id) {
+  async getRoom(id, { refresh = false } = {}) {
+    const cacheKey = `roomsApi:getRoom:${id}`;
+    if (!refresh) {
+      const cached = apiCache.get(cacheKey);
+      if (cached) return cached;
+    }
     try {
       if (!id) throw new Error("Room ID is required");
       const response = await apiRequest(() =>
         apiClient.get(`${API_BASE}/${id}`)
       );
-      return response.room || response;
+      const room = response.room || response;
+      apiCache.set(cacheKey, room);
+      return room;
     } catch (error) {
       console.error(`Error fetching room ${id}:`, error);
       throw error;

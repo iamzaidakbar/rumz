@@ -1,7 +1,12 @@
 import apiClient, { apiRequest } from "./apiClient";
+import { apiCache } from "../utils";
 
-export const validateToken = async (token) => {
-  return apiRequest(() =>
+export const validateToken = async (token, { refresh = false } = {}) => {
+  if (!refresh) {
+    const cached = apiCache.get(`validateToken:${token}`);
+    if (cached) return cached;
+  }
+  const result = await apiRequest(() =>
     apiClient.post(
       "/api/validate-token",
       {},
@@ -10,4 +15,6 @@ export const validateToken = async (token) => {
       }
     )
   );
+  apiCache.set(`validateToken:${token}`, result);
+  return result;
 };

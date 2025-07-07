@@ -6,11 +6,11 @@ export function useRooms() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchRooms = useCallback(async () => {
+  const fetchRooms = useCallback(async ({ refresh = false } = {}) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await roomsApi.getRooms();
+      const data = await roomsApi.getRooms({ refresh });
       setRooms(data);
     } catch (err) {
       setError("Failed to fetch rooms");
@@ -18,6 +18,12 @@ export function useRooms() {
       setLoading(false);
     }
   }, []);
+
+  // Optionally expose a refresh function
+  const refreshRooms = useCallback(
+    () => fetchRooms({ refresh: true }),
+    [fetchRooms]
+  );
 
   const addRoom = useCallback(async (roomData) => {
     setLoading(true);
@@ -63,11 +69,11 @@ export function useRooms() {
     }
   }, []);
 
-  const getRoom = useCallback(async (id) => {
+  const getRoom = useCallback(async (id, { refresh = false } = {}) => {
     setLoading(true);
     setError(null);
     try {
-      return await roomsApi.getRoom(id);
+      return await roomsApi.getRoom(id, { refresh });
     } catch (err) {
       setError("Failed to fetch room");
       throw err;
@@ -81,9 +87,10 @@ export function useRooms() {
     loading,
     error,
     fetchRooms,
+    refreshRooms,
+    getRoom,
     addRoom,
     updateRoom,
     deleteRoom,
-    getRoom,
   };
 }

@@ -210,3 +210,51 @@ export const updateTimestamp = (existingTimestamps) => {
     updated_at: new Date().toISOString(),
   };
 };
+
+// In-memory cache utility for API responses
+export const apiCache = (() => {
+  const cache = {};
+
+  /**
+   * Set a value in the cache
+   * @param {string} key
+   * @param {*} value
+   * @param {number} [ttl] - Time to live in ms (optional)
+   */
+  function set(key, value, ttl) {
+    const expires = ttl ? Date.now() + ttl : null;
+    cache[key] = { value, expires };
+  }
+
+  /**
+   * Get a value from the cache
+   * @param {string} key
+   * @returns {*} value or undefined if not found/expired
+   */
+  function get(key) {
+    const entry = cache[key];
+    if (!entry) return undefined;
+    if (entry.expires && Date.now() > entry.expires) {
+      delete cache[key];
+      return undefined;
+    }
+    return entry.value;
+  }
+
+  /**
+   * Remove a value from the cache
+   * @param {string} key
+   */
+  function remove(key) {
+    delete cache[key];
+  }
+
+  /**
+   * Clear the entire cache
+   */
+  function clear() {
+    Object.keys(cache).forEach((key) => delete cache[key]);
+  }
+
+  return { set, get, remove, clear };
+})();
