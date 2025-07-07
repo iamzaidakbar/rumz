@@ -26,7 +26,7 @@ const Toast = ({
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(false);
-      setTimeout(() => onClose(id), 200);
+      setTimeout(() => onClose(id), 250);
     }, duration);
 
     const progressTimer = setInterval(() => {
@@ -82,70 +82,66 @@ const Toast = ({
     return `${baseStyles} ${typeStyles[type] || typeStyles.info}`;
   };
 
-  // Optimized animation variants for snappy performance
+  // Enhanced animation variants for beautiful entrance/exit
   const slideInVariants = {
     initial: {
       opacity: 0,
-      x: position.includes("right") ? 50 : -50,
-      y: position.includes("top") ? -20 : 20,
-      scale: 0.95,
+      scale: 0.92,
+      y: position.includes("top") ? -30 : 30,
+      filter: "blur(8px)",
     },
     animate: {
       opacity: 1,
-      x: 0,
-      y: 0,
       scale: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: { duration: 0.32, ease: [0.25, 0.46, 0.45, 0.94] },
     },
     exit: {
       opacity: 0,
-      x: position.includes("right") ? 50 : -50,
-      y: position.includes("top") ? -20 : 20,
-      scale: 0.95,
+      scale: 0.92,
+      y: position.includes("top") ? -30 : 30,
+      filter: "blur(8px)",
+      transition: { duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] },
     },
   };
 
   return (
-    <motion.div
-      className={getToastStyles()}
-      data-theme={theme}
-      variants={slideInVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      transition={{
-        duration: 0.3,
-        ease: [0.25, 0.46, 0.45, 0.94], // Custom easing for snappy feel
-      }}
-      whileHover={{
-        scale: 1.02,
-        transition: { duration: 0.2 },
-      }}
-      layout
-    >
-      <div className={styles.content}>
-        <div className={styles.iconContainer}>{getIcon()}</div>
-
-        <div className={styles.textContainer}>
-          {title && <h4 className={styles.title}>{title}</h4>}
-          {message && <p className={styles.message}>{message}</p>}
-        </div>
-
-        <button
-          className={styles.closeButton}
-          onClick={handleClose}
-          aria-label="Close toast"
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          className={getToastStyles()}
+          data-theme={theme}
+          variants={slideInVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          layout
         >
-          <IoClose />
-        </button>
-      </div>
-
-      <div className={styles.progressContainer}>
-        <div
-          className={getProgressStyles()}
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-    </motion.div>
+          <div className={styles.content}>
+            <div className={styles.iconContainer}>{getIcon()}</div>
+            <div className={styles.textContainer}>
+              {title && <h4 className={styles.title}>{title}</h4>}
+              {message && <p className={styles.message}>{message}</p>}
+            </div>
+            <button
+              className={styles.closeButton}
+              onClick={handleClose}
+              aria-label="Close toast"
+              tabIndex={0}
+            >
+              <IoClose />
+            </button>
+          </div>
+          <div className={styles.progressContainer}>
+            <div
+              className={getProgressStyles()}
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 
