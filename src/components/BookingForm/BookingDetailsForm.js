@@ -97,7 +97,7 @@ const BookingDetailsForm = ({
           placeholder="Enter number of rooms"
           value={
             bookingDetails.number_of_rooms ||
-            bookingDetails.room_ids?.length ||
+            bookingDetails.room_nos?.length ||
             ""
           }
           onChange={(e) =>

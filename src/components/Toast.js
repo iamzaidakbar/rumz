@@ -20,7 +20,7 @@ const Toast = ({
   position = "top-right",
 }) => {
   const { theme } = useAppContext();
-  const [setIsVisible] = useState(true);
+  const [visible, setIsVisible] = useState(true);
   const [progress, setProgress] = useState(100);
 
   useEffect(() => {
