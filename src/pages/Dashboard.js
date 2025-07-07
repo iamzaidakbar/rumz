@@ -2,8 +2,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import styles from "../styles/Dashboard.module.scss";
 import { motion } from "framer-motion";
 import { useAppContext } from "../contexts/AppContext";
-import { bookingsApi } from "../api/bookingsApi";
-import { useRooms } from "../hooks/useRooms";
+import { dashboardApi } from "../api/dashboardApi";
 import LoadingFallback from "../components/LoadingFallback";
 import MetricCard from "../components/MetricCard";
 import QuickActions from "../components/QuickActions";
@@ -15,114 +14,26 @@ import PieChart from "../components/PieChart";
 
 const Dashboard = () => {
   const { theme } = useAppContext();
-  const { rooms, fetchRooms } = useRooms();
-  const [metrics, setMetrics] = useState(null);
+  const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [revenueTrend, setRevenueTrend] = useState([]);
   const [roomTypeData, setRoomTypeData] = useState([]);
 
   useEffect(() => {
-    const fetchMetrics = async () => {
+    const fetchSummary = async () => {
       setLoading(true);
       try {
-        const [bookings] = await Promise.all([bookingsApi.getBookings()]);
-        // Only consider bookings with payment_info.amount and payment_status Paid
-        const paidBookings = bookings.filter(
-          (b) => b.payment_info && b.payment_info.payment_status === "Paid"
-        );
-        // Group by month (YYYY-MM) and sum revenue
-        const monthMap = {};
-        paidBookings.forEach((b) => {
-          const dateStr =
-            b.booking_details?.check_in_date || b.timestamps?.created_at;
-          if (!dateStr) return;
-          const date = new Date(dateStr);
-          const month = date.toLocaleString("default", { month: "short" });
-          const year = date.getFullYear();
-          const key = `${month} ${year}`;
-          const amt = Number(b.payment_info.amount || 0);
-          if (!monthMap[key]) monthMap[key] = 0;
-          monthMap[key] += isNaN(amt) ? 0 : amt;
-        });
-        // Convert to array sorted by date
-        const trendArr = Object.entries(monthMap)
-          .map(([name, revenue]) => ({ name, revenue }))
-          .sort((a, b) => {
-            // Sort by year then month
-            const [ma, ya] = a.name.split(" ");
-            const [mb, yb] = b.name.split(" ");
-            const months = [
-              "Jan",
-              "Feb",
-              "Mar",
-              "Apr",
-              "May",
-              "Jun",
-              "Jul",
-              "Aug",
-              "Sep",
-              "Oct",
-              "Nov",
-              "Dec",
-            ];
-            if (ya !== yb) return Number(ya) - Number(yb);
-            return months.indexOf(ma) - months.indexOf(mb);
-          });
-        setRevenueTrend(trendArr);
-        // Total Revenue: sum of all booking payment_info.amount (as number)
-        const totalRevenue = bookings.reduce((sum, b) => {
-          const amt = Number(b.payment_info?.amount || 0);
-          return sum + (isNaN(amt) ? 0 : amt);
-        }, 0);
-        // Occupancy Rate: occupied rooms / total rooms * 100
-        const occupiedRooms = rooms.filter(
-          (r) => r.status === "Occupied"
-        ).length;
-        const occupancyRate =
-          rooms.length > 0
-            ? ((occupiedRooms / rooms.length) * 100).toFixed(1)
-            : "0";
-        // Available Rooms: rooms with status === "Available"
-        const availableRooms = rooms.filter(
-          (r) => r.status === "Available"
-        ).length;
-        // Total Bookings: bookings count
-        const totalBookings = bookings.length;
-        setMetrics([
-          {
-            label: "Total Revenue",
-            value: `₹${totalRevenue.toLocaleString()}`,
-          },
-          { label: "Occupancy Rate", value: `${occupancyRate}%` },
-          { label: "Available Rooms", value: availableRooms },
-          { label: "Total Bookings", value: totalBookings },
-        ]);
-        // Room Popularity: count bookings by room type
-        const typeMap = {};
-        bookings.forEach((b) => {
-          const type = b.booking_details?.room_type || b.roomType;
-          if (!type) return;
-          if (!typeMap[type]) typeMap[type] = 0;
-          typeMap[type] += 1;
-        });
-        const typeArr = Object.entries(typeMap).map(([name, value]) => ({
-          name,
-          value,
-        }));
-        setRoomTypeData(typeArr);
+        const summaryData = await dashboardApi.getSummary();
+        setSummary(summaryData);
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error("Dashboard summary API error:", err);
       } finally {
         setLoading(false);
       }
     };
-
-    // Fetch rooms first, then metrics
-    const loadData = async () => {
-      await fetchRooms();
-      await fetchMetrics();
-    };
-
-    loadData();
-  }, [fetchRooms]);
+    fetchSummary();
+  }, []);
 
   return (
     <motion.div
@@ -142,19 +53,30 @@ const Dashboard = () => {
         className={styles.metricsRow}
         aria-label="Key metrics overview"
       >
-        {loading || !metrics ? (
+        {loading || !summary ? (
           <LoadingFallback />
         ) : (
-          metrics.map((m, i) => (
-            <motion.div
-              key={m.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 * i, duration: 0.4 }}
-            >
-              <MetricCard label={m.label} value={m.value} change={m.change} />
-            </motion.div>
-          ))
+          <>
+            <MetricCard
+              label="Total Revenue"
+              value={`₹${summary.totalRevenue.toLocaleString()}`}
+            />
+            <MetricCard label="Total Rooms" value={summary.totalRooms} />
+            <MetricCard
+              label="Available Rooms"
+              value={summary.totalAvailableRooms}
+            />
+            <MetricCard label="Total Bookings" value={summary.totalBookings} />
+            <MetricCard label="Total Guests" value={summary.totalGuests} />
+            <MetricCard
+              label="Cancelled Bookings"
+              value={summary.totalCancelledBookings}
+            />
+            <MetricCard
+              label="Upcoming Check-ins"
+              value={summary.upcomingCheckinsCount}
+            />
+          </>
         )}
       </motion.div>
 

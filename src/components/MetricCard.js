@@ -1,37 +1,82 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useAppContext } from "../contexts/AppContext";
 import styles from "../styles/MetricCard.module.scss";
-import { motion } from "framer-motion";
+import {
+  FaRupeeSign,
+  FaBed,
+  FaDoorOpen,
+  FaClipboardList,
+  FaUserFriends,
+  FaBan,
+  FaCalendarCheck,
+} from "react-icons/fa";
 
-// MetricCard for dashboard metrics
-const MetricCard = ({ label, value, change }) => {
+const iconMap = {
+  "Total Revenue": <FaRupeeSign className={styles.icon} />,
+  "Total Rooms": <FaBed className={styles.icon} />,
+  "Available Rooms": <FaDoorOpen className={styles.icon} />,
+  "Total Bookings": <FaClipboardList className={styles.icon} />,
+  "Total Guests": <FaUserFriends className={styles.icon} />,
+  "Cancelled Bookings": <FaBan className={styles.icon} />,
+  "Upcoming Check-ins": <FaCalendarCheck className={styles.icon} />,
+};
+
+function useCountUp(value, duration = 1000) {
+  const [display, setDisplay] = useState(typeof value === "number" ? 0 : value);
+  const ref = useRef();
+
+  useEffect(() => {
+    if (typeof value !== "number") {
+      setDisplay(value);
+      return;
+    }
+    let start = 0;
+    let startTime = null;
+    function animate(ts) {
+      if (!startTime) startTime = ts;
+      const progress = Math.min((ts - startTime) / duration, 1);
+      const current = Math.floor(progress * value);
+      setDisplay(current);
+      if (progress < 1) {
+        ref.current = requestAnimationFrame(animate);
+      } else {
+        setDisplay(value);
+      }
+    }
+    ref.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(ref.current);
+  }, [value, duration]);
+  return display;
+}
+
+const MetricCard = ({ label, value }) => {
   const { theme } = useAppContext();
-  const isPositive = change && change.startsWith("+");
+  const icon = iconMap[label] || <FaClipboardList className={styles.icon} />;
+  const animatedValue = useCountUp(
+    typeof value === "string" && value.startsWith("₹")
+      ? parseInt(value.replace(/[^\d]/g, ""), 10)
+      : typeof value === "number"
+      ? value
+      : value,
+    900
+  );
+  const displayValue =
+    typeof value === "string" && value.startsWith("₹")
+      ? `₹${animatedValue.toLocaleString()}`
+      : typeof value === "number"
+      ? animatedValue.toLocaleString()
+      : value;
   return (
     <div
       className={styles.metricCard}
       data-theme={theme}
-      aria-label={`${label}: ${value}, ${isPositive ? "up" : "down"} ${Math.abs(
-        change
-      )}%`}
+      aria-label={`${label}: ${value}`}
     >
-      <div className={styles.label}>{label}</div>
-      <div className={styles.value}>
-        {typeof value === "number" && label === "Revenue"
-          ? `$${value.toLocaleString()}`
-          : value}
+      <div className={styles.iconLabelRow}>
+        <span className={styles.iconWrap}>{icon}</span>
+        <span className={styles.label}>{label}</span>
       </div>
-      {typeof change === "number" && (
-        <motion.div
-          className={isPositive ? styles.positive : styles.negative}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          aria-label={isPositive ? "Increase" : "Decrease"}
-        >
-          {isPositive ? "▲" : "▼"} {Math.abs(change)}%
-        </motion.div>
-      )}
+      <div className={styles.value}>{displayValue}</div>
     </div>
   );
 };
