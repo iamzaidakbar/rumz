@@ -20,7 +20,7 @@ const Toast = ({
   position = "top-right",
 }) => {
   const { theme } = useAppContext();
-  const [isVisible, setIsVisible] = useState(true);
+  const [setIsVisible] = useState(true);
   const [progress, setProgress] = useState(100);
 
   useEffect(() => {
@@ -40,7 +40,7 @@ const Toast = ({
       clearTimeout(timer);
       clearInterval(progressTimer);
     };
-  }, [duration, id, onClose]);
+  }, [duration, id, onClose, setIsVisible]);
 
   const handleClose = () => {
     setIsVisible(false);

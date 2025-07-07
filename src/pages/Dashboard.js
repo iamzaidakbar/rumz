@@ -122,7 +122,7 @@ const Dashboard = () => {
     };
 
     loadData();
-  }, [fetchRooms]);
+  }, [fetchRooms, rooms]);
 
   return (
     <motion.div

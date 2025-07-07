@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useAppContext } from "../contexts/AppContext";
-import styles from "../styles/Calendar.module.scss";
 import FullCalendar from "@fullcalendar/react";
 import multiMonthPlugin from "@fullcalendar/multimonth";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -10,7 +8,6 @@ import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 
 const Calendar = () => {
-  const { theme } = useAppContext();
   const [events, setEvents] = useState([]);
 
   useEffect(() => {

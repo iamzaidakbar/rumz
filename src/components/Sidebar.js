@@ -9,8 +9,6 @@ import {
   IoPeopleOutline,
   IoSettingsOutline,
   IoPersonOutline,
-  IoMoonOutline,
-  IoSunnyOutline,
 } from "react-icons/io5";
 
 const Sidebar = () => {

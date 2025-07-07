@@ -1,12 +1,5 @@
 import apiClient, { apiRequest } from "./apiClient";
-import { roomsApi } from "./roomsApi";
-import {
-  delay,
-  validateBookingData,
-  enrichBookingWithRoomNumbers,
-  createTimestamps,
-  updateTimestamp,
-} from "../utils";
+import { delay, validateBookingData } from "../utils";
 
 // Constants
 const STORAGE_KEY = "rumz_bookings";
@@ -30,18 +23,6 @@ const getStoredBookings = async () => {
     }
   }
 };
-
-const saveBookingsToStorage = (bookings) => {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(bookings));
-  } catch (error) {
-    console.error("Error saving to localStorage:", error);
-    throw new Error("Failed to save bookings to storage");
-  }
-};
-
-const generateBookingId = () =>
-  `BKNG-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
 // Main API object
 export const bookingsApi = {
@@ -157,9 +138,7 @@ export const bookingsApi = {
       await delay(DELAY_MS);
 
       // Use real API to delete booking
-      const response = await apiRequest(() =>
-        apiClient.delete(`/api/booking/${id}`)
-      );
+      await apiRequest(() => apiClient.delete(`/api/booking/${id}`));
 
       return true;
     } catch (error) {

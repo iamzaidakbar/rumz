@@ -6,13 +6,6 @@ import { useAppContext } from "../contexts/AppContext";
 import { bookingsApi } from "../api/bookingsApi";
 import StatusPill from "./StatusPill";
 
-function isOngoing(booking) {
-  const today = new Date();
-  const checkIn = new Date(booking.checkIn);
-  const checkOut = new Date(booking.checkOut);
-  return today >= checkIn && today <= checkOut;
-}
-
 const columns = [
   { header: "Guest", accessor: "guestName" },
   { header: "Check-in", accessor: "checkIn" },

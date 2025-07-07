@@ -54,7 +54,7 @@ export const VALIDATION_RULES = {
     message: "Password must be at least 6 characters",
   },
   PHONE: {
-    pattern: /^[\+]?[1-9][\d]{0,15}$/,
+    pattern: /^\+?[1-9][\d]{0,15}$/,
     message: "Please enter a valid phone number",
   },
 };

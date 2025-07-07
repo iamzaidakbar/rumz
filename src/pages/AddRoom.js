@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import styles from "../styles/AddRoom.module.scss";
 import { useNavigate } from "react-router-dom";
 import { useRooms } from "../hooks/useRooms";
@@ -10,7 +10,6 @@ import { IoArrowBackOutline } from "react-icons/io5";
 import { CiSaveDown1 } from "react-icons/ci";
 import { useToast } from "../contexts/ToastContext";
 import LogoUpload from "../components/forms/LogoUpload";
-import { cloudinaryApi } from "../api/cloudinaryApi";
 import { useRoomForm } from "../hooks/useRoomForm";
 
 const AddRoom = () => {
@@ -25,7 +24,6 @@ const AddRoom = () => {
 
   const {
     form,
-    setForm,
     saving,
     setSaving,
     error,

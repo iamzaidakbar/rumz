@@ -12,7 +12,6 @@ import {
 } from "react-icons/io5";
 import { motion } from "framer-motion";
 import CustomButton from "../components/CustomButton";
-import { MdOutlineEdit } from "react-icons/md";
 import StatusPill from "../components/StatusPill";
 
 const RoomDetail = () => {
