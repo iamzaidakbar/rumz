@@ -13,13 +13,13 @@ const Calendar = () => {
   useEffect(() => {
     bookingsApi.getBookings().then((data) => {
       const mapped = data.map((b) => {
-        // Compose room info: prefer room_ids, fallback to roomType
+        // Compose room info: prefer room_nos, fallback to roomType
         let roomInfo = "";
         if (
-          b.booking_details?.room_ids &&
-          b.booking_details.room_ids.length > 0
+          b.booking_details?.room_nos &&
+          b.booking_details.room_nos.length > 0
         ) {
-          roomInfo = b.booking_details.room_ids.join(", ");
+          roomInfo = b.booking_details.room_nos.join(", ");
         } else if (b.booking_details?.room_type) {
           roomInfo = b.booking_details.room_type;
         } else if (b.roomType) {
@@ -77,10 +77,10 @@ const Calendar = () => {
             <strong>Booking Ref:</strong> {booking.booking_reference_id}
           </div>
         )}
-        {booking?.booking_details?.room_ids && (
+        {booking?.booking_details?.room_nos && (
           <div>
             <strong>Rooms:</strong>{" "}
-            {booking.booking_details.room_ids.join(", ")}
+            {booking.booking_details.room_nos.join(", ")}
           </div>
         )}
         {booking?.booking_details?.room_type && (
