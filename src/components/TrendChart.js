@@ -45,14 +45,21 @@ const TrendChart = ({ data }) => {
     );
     return found ? found.revenue : null;
   });
+  // Color palette for light/dark
+  const isDark = theme === "dark";
+  const axisColor = isDark ? "#e5e7eb" : "#222";
+  const gridColor = isDark ? "#374151" : "#e5e7eb";
+  const tooltipBg = isDark ? "#23272f" : "#fff";
+  const tooltipText = isDark ? "#f3f4f6" : "#222";
+  const borderColor = "#36c2cf";
   const chartData = {
     labels: MONTHS,
     datasets: [
       {
         label: "",
         data: revenueByMonth,
-        borderColor: "#36c2cf",
-        backgroundColor: "#36c2cf",
+        borderColor,
+        backgroundColor: borderColor,
         fill: false,
         tension: 0.4,
         pointRadius: 3,
@@ -71,16 +78,16 @@ const TrendChart = ({ data }) => {
         labels: {
           boxWidth: 24,
           font: { size: 14, weight: 400 },
-          color: "#222",
+          color: axisColor,
         },
       },
       tooltip: {
         enabled: true,
-        backgroundColor: "#fff",
-        borderColor: "#36c2cf",
+        backgroundColor: tooltipBg,
+        borderColor: borderColor,
         borderWidth: 1,
-        titleColor: "#222",
-        bodyColor: "#222",
+        titleColor: tooltipText,
+        bodyColor: tooltipText,
         titleFont: { weight: "bold", size: 15 },
         bodyFont: { weight: "bold", size: 15 },
         callbacks: {
@@ -101,18 +108,18 @@ const TrendChart = ({ data }) => {
     },
     scales: {
       x: {
-        grid: { display: true },
+        grid: { display: true, color: gridColor },
         ticks: {
           font: { size: 13 },
-          color: "#222",
+          color: axisColor,
         },
       },
       y: {
-        grid: { display: true },
+        grid: { display: true, color: gridColor },
         beginAtZero: false,
         ticks: {
           font: { size: 13 },
-          color: "#222",
+          color: axisColor,
         },
       },
     },

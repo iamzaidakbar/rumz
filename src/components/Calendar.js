@@ -6,9 +6,11 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import { bookingsApi } from "../api/bookingsApi";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
+import { useAppContext } from "../contexts/AppContext";
 
 const Calendar = () => {
   const [events, setEvents] = useState([]);
+  const { theme } = useAppContext();
 
   useEffect(() => {
     bookingsApi.getBookings().then((data) => {
@@ -117,7 +119,13 @@ const Calendar = () => {
   };
 
   return (
-    <div style={{ position: "relative" }}>
+    <div
+      style={{
+        position: "relative",
+        background: theme === "dark" ? "#23272f" : undefined,
+        color: theme === "dark" ? "#f3f4f6" : undefined,
+      }}
+    >
       <div>
         <h2>Calendar View</h2>
         <p>Revenue trend for the current year</p>
@@ -140,6 +148,8 @@ const Calendar = () => {
         events={events}
         eventMouseEnter={handleEventMouseEnter}
         eventMouseLeave={handleEventMouseLeave}
+        themeSystem={theme === "dark" ? "standard" : undefined}
+        className={theme === "dark" ? "fc-dark" : undefined}
       />
       {tooltip.visible && (
         <Tippy
@@ -162,6 +172,12 @@ const Calendar = () => {
               left: tooltip.x,
               top: tooltip.y,
               pointerEvents: "none",
+              background: theme === "dark" ? "#23272f" : undefined,
+              color: theme === "dark" ? "#f3f4f6" : undefined,
+              border: theme === "dark" ? "1px solid #374151" : undefined,
+              borderRadius: theme === "dark" ? "8px" : undefined,
+              padding: theme === "dark" ? "8px 12px" : undefined,
+              zIndex: 9999,
             }}
           />
         </Tippy>
