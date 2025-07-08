@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "../styles/Dashboard.module.scss";
 import { motion } from "framer-motion";
 import { useAppContext } from "../contexts/AppContext";
@@ -10,29 +10,31 @@ import OngoingBookings from "../components/OngoingBookings";
 import GuestActivity from "../components/GuestActivity";
 import Calendar from "../components/Calendar";
 import TrendChart from "../components/TrendChart";
-import PieChart from "../components/PieChart";
 
 const Dashboard = () => {
   const { theme } = useAppContext();
   const [summary, setSummary] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [revenueTrend, setRevenueTrend] = useState([]);
-  const [roomTypeData, setRoomTypeData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchSummary = async () => {
+    const fetchDashboardData = async () => {
       setLoading(true);
       try {
-        const summaryData = await dashboardApi.getSummary();
+        const [summaryData, trendData] = await Promise.all([
+          dashboardApi.getSummary(),
+          dashboardApi.getRevenueTrend({ period: "month" }),
+        ]);
         setSummary(summaryData);
+        setRevenueTrend(trendData);
       } catch (err) {
         // eslint-disable-next-line no-console
-        console.error("Dashboard summary API error:", err);
+        console.error("Dashboard API error:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchSummary();
+    fetchDashboardData();
   }, []);
 
   return (
@@ -80,62 +82,40 @@ const Dashboard = () => {
         )}
       </motion.div>
 
-      <div className={styles.mainGrid}>
-        <motion.div
-          className={styles.gridItem}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-        >
-          <OngoingBookings />
-        </motion.div>
-        <motion.div
-          className={styles.gridItem}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-        >
-          <GuestActivity />
-        </motion.div>
-        <motion.div
-          className={styles.gridItemWide}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7, duration: 0.5 }}
-        >
-          <div className={styles.calendarWrapper}>
-            <h2 className={styles.chartTitle}>Scheduled Bookings</h2>
-            <Calendar />
-          </div>
-        </motion.div>
-        <motion.div
-          className={styles.gridItem}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-        >
-          <div className={styles.chartWrapper}>
-            <h2 className={styles.chartTitle}>Revenue Trend</h2>
-            <Suspense fallback={<LoadingFallback />}>
-              <TrendChart data={revenueTrend} />
-            </Suspense>
-          </div>
-        </motion.div>
+      <motion.div
+        className={styles.gridItem}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+      >
+        <OngoingBookings />
+      </motion.div>
 
-        <motion.div
-          className={styles.gridItem}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.5 }}
-        >
-          <div className={styles.chartWrapper}>
-            <h2 className={styles.chartTitle}>Room Popularity</h2>
-            <Suspense fallback={<LoadingFallback />}>
-              <PieChart data={roomTypeData} />
-            </Suspense>
-          </div>
-        </motion.div>
-      </div>
+      <motion.div
+        className={styles.gridItem}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+      >
+        <div>
+          <label
+            style={{ marginBottom: "1rem" }}
+            className={styles.sectionTitle}
+          >
+            Revenue Trend
+          </label>
+          <TrendChart data={revenueTrend} />
+        </div>
+        <div>
+          <label
+            style={{ marginBottom: "3rem" }}
+            className={styles.sectionTitle}
+          >
+            Calendar View
+          </label>
+          <Calendar />
+        </div>
+      </motion.div>
     </motion.div>
   );
 };

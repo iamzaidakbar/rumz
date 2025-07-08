@@ -1,67 +1,123 @@
 import React from "react";
+import { Line } from "react-chartjs-2";
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
+  Chart as ChartJS,
+  LineElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
   Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from "recharts";
-import { motion } from "framer-motion";
-import styles from "../styles/TrendChart.module.scss";
-import { useAppContext } from "../contexts/AppContext";
+  Legend,
+} from "chart.js";
+
+ChartJS.register(
+  LineElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  Tooltip,
+  Legend
+);
+
+const MONTHS = [
+  "Jan",
+  "Fev",
+  "Mar",
+  "April",
+  "May",
+  "June",
+  "July",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
 const TrendChart = ({ data }) => {
-  const { theme } = useAppContext();
+  // Map data to all months, fill missing with null for gaps
+  const revenueByMonth = MONTHS.map((month) => {
+    const found = data.find(
+      (d) => d.month === month || d.month === month.slice(0, 3)
+    );
+    return found ? found.revenue : null;
+  });
+  const chartData = {
+    labels: MONTHS,
+    datasets: [
+      {
+        label: "",
+        data: revenueByMonth,
+        borderColor: "#36c2cf",
+        backgroundColor: "#36c2cf",
+        fill: false,
+        tension: 0.4,
+        pointRadius: 3,
+        pointHoverRadius: 6,
+        borderWidth: 3,
+      },
+    ],
+  };
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: "top",
+        labels: {
+          boxWidth: 24,
+          font: { size: 14, weight: 400 },
+          color: "#222",
+        },
+      },
+      tooltip: {
+        enabled: true,
+        backgroundColor: "#fff",
+        borderColor: "#36c2cf",
+        borderWidth: 1,
+        titleColor: "#222",
+        bodyColor: "#222",
+        titleFont: { weight: "bold", size: 15 },
+        bodyFont: { weight: "bold", size: 15 },
+        callbacks: {
+          title: (items) => {
+            // Show the month as the title
+            return items[0].label;
+          },
+          label: (ctx) => {
+            // Show 'Revenue: ₹value' in bold
+            return `Revenue: ₹${ctx.parsed.y?.toLocaleString()}`;
+          },
+        },
+        displayColors: false,
+        padding: 14,
+        caretSize: 7,
+        cornerRadius: 6,
+      },
+    },
+    scales: {
+      x: {
+        grid: { display: true },
+        ticks: {
+          font: { size: 13 },
+          color: "#222",
+        },
+      },
+      y: {
+        grid: { display: true },
+        beginAtZero: false,
+        ticks: {
+          font: { size: 13 },
+          color: "#222",
+        },
+      },
+    },
+  };
   return (
-    <motion.div
-      className={styles.trendCard}
-      data-theme={theme}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      aria-label="Revenue Trend"
-    >
-      <ResponsiveContainer width="100%" height={200}>
-        <LineChart
-          data={data}
-          margin={{ top: 5, right: 20, left: -10, bottom: 5 }}
-        >
-          <CartesianGrid
-            strokeDasharray="3 3"
-            vertical={false}
-            stroke={theme === "dark" ? "#444" : "#eee"}
-          />
-          <XAxis
-            dataKey="name"
-            tick={{ fontSize: 12, fill: theme === "dark" ? "#aaa" : "#666" }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <YAxis
-            tick={{ fontSize: 12, fill: theme === "dark" ? "#aaa" : "#666" }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <Tooltip
-            contentStyle={{
-              background: theme === "dark" ? "#333" : "#fff",
-              border: "1px solid",
-              borderColor: theme === "dark" ? "#555" : "#ddd",
-              borderRadius: "8px",
-            }}
-          />
-          <Line
-            type="monotone"
-            dataKey="revenue"
-            stroke="#8884d8"
-            strokeWidth={2}
-            dot={{ r: 4 }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </motion.div>
+    <div style={{ width: "100%", background: "#fff" }}>
+      <Line data={chartData} options={options} height={400} />
+    </div>
   );
 };
 
