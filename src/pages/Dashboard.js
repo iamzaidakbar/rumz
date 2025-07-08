@@ -7,7 +7,6 @@ import LoadingFallback from "../components/LoadingFallback";
 import MetricCard from "../components/MetricCard";
 import QuickActions from "../components/QuickActions";
 import OngoingBookings from "../components/OngoingBookings";
-import GuestActivity from "../components/GuestActivity";
 import Calendar from "../components/Calendar";
 import TrendChart from "../components/TrendChart";
 
@@ -97,24 +96,34 @@ const Dashboard = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.5 }}
       >
-        <div>
-          <label
-            style={{ marginBottom: "1rem" }}
-            className={styles.sectionTitle}
-          >
-            Revenue Trend
-          </label>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+        >
+          <div className={styles.headerRow}>
+            <h2 className={styles.title}>Monthly Revenue Trend</h2>
+            <p className={styles.subtitle}>
+              Revenue trend for the current year
+            </p>
+          </div>
           <TrendChart data={revenueTrend} />
-        </div>
-        <div>
-          <label
-            style={{ marginBottom: "3rem" }}
-            className={styles.sectionTitle}
-          >
-            Calendar View
-          </label>
+        </motion.div>
+      </motion.div>
+
+      <motion.div
+        className={styles.gridItem}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+        >
           <Calendar />
-        </div>
+        </motion.div>
       </motion.div>
     </motion.div>
   );

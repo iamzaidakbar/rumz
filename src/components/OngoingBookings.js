@@ -5,6 +5,7 @@ import DataTable from "./DataTable";
 import { useAppContext } from "../contexts/AppContext";
 import { bookingsApi } from "../api/bookingsApi";
 import StatusPill from "./StatusPill";
+import CustomButton from "./CustomButton";
 
 const columns = [
   { header: "Guest", accessor: "guestName" },
@@ -54,8 +55,12 @@ const OngoingBookings = () => {
       data-theme={theme}
       aria-label="Ongoing Bookings"
     >
-      <div className={styles.headerRow}>
-        <h2 className={styles.title}>Ongoing Bookings</h2>
+      <div>
+        <h2>Ongoing Bookings</h2>
+        <p>
+          View your current bookings. Click on check all booking to see details
+          or edit.
+        </p>
       </div>
       {loading ? (
         <div className={styles.empty}>Loading...</div>
@@ -70,13 +75,13 @@ const OngoingBookings = () => {
       ) : (
         <div className={styles.empty}>No ongoing bookings right now.</div>
       )}
-      <button
+      <CustomButton
         className={styles.checkAllBtn}
         onClick={() => navigate("/booking")}
         aria-label="Check all bookings"
       >
         Check All Bookings
-      </button>
+      </CustomButton>
     </section>
   );
 };

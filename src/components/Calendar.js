@@ -118,6 +118,10 @@ const Calendar = () => {
 
   return (
     <div style={{ position: "relative" }}>
+      <div>
+        <h2>Calendar View</h2>
+        <p>Revenue trend for the current year</p>
+      </div>
       <FullCalendar
         plugins={[multiMonthPlugin, dayGridPlugin, timeGridPlugin]}
         initialView="dayGridMonth"

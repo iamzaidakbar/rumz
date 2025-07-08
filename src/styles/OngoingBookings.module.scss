@@ -4,20 +4,6 @@
   width: 100%;
 }
 
-.headerRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.2rem;
-}
-
-.title {
-  font-size: 1rem;
-  font-weight: 500;
-  color: #222;
-  margin: 0;
-}
-
 .ongoingSection[data-theme="dark"] .title {
   color: #fff;
 }

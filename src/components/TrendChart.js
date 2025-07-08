@@ -1,5 +1,6 @@
 import React from "react";
 import { Line } from "react-chartjs-2";
+import styles from "../styles/TrendChart.module.scss";
 import {
   Chart as ChartJS,
   LineElement,
@@ -9,6 +10,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { useAppContext } from "../contexts/AppContext";
 
 ChartJS.register(
   LineElement,
@@ -35,6 +37,7 @@ const MONTHS = [
 ];
 
 const TrendChart = ({ data }) => {
+  const { theme } = useAppContext();
   // Map data to all months, fill missing with null for gaps
   const revenueByMonth = MONTHS.map((month) => {
     const found = data.find(
@@ -115,9 +118,9 @@ const TrendChart = ({ data }) => {
     },
   };
   return (
-    <div style={{ width: "100%", background: "#fff" }}>
+    <section data-theme={theme} aria-label="Ongoing Bookings">
       <Line data={chartData} options={options} height={400} />
-    </div>
+    </section>
   );
 };
 
