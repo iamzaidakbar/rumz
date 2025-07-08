@@ -14,7 +14,9 @@ export const AppProvider = ({ children }) => {
   };
 
   const [appData, setAppData] = useState(getInitialHotel());
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState(
+    () => localStorage.getItem("theme") || "light"
+  );
   const [isInitializing, setIsInitializing] = useState(true);
 
   // Validate token on app load
@@ -61,8 +63,16 @@ export const AppProvider = ({ children }) => {
     return () => window.removeEventListener("storage", handleStorage);
   }, []);
 
+  useEffect(() => {
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
   const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
+    setTheme((prevTheme) => {
+      const newTheme = prevTheme === "light" ? "dark" : "light";
+      localStorage.setItem("theme", newTheme);
+      return newTheme;
+    });
   };
 
   // Don't render children until initialization is complete

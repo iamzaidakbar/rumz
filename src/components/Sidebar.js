@@ -2,17 +2,29 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import styles from "../styles/Sidebar.module.scss";
 import { useAppContext } from "../contexts/AppContext";
+import { useToast } from "../contexts/ToastContext";
 import {
   IoHomeOutline,
   IoBedOutline,
   IoCalendarOutline,
   IoPeopleOutline,
   IoSettingsOutline,
-  IoPersonOutline,
+  IoMoonOutline,
+  IoSunnyOutline,
 } from "react-icons/io5";
 
 const Sidebar = () => {
-  const { theme, appData } = useAppContext();
+  const { theme, appData, toggleTheme } = useAppContext();
+  const toast = useToast();
+
+  const handleThemeToggle = () => {
+    toggleTheme();
+    toast.success(
+      "Theme changed",
+      `Switched to ${theme === "light" ? "Dark" : "Light"} Mode`,
+      { duration: 3000 }
+    );
+  };
 
   return (
     <aside className={styles.sidebar} data-theme={theme}>
@@ -71,6 +83,15 @@ const Sidebar = () => {
         </NavLink> */}
       </nav>
       <div className={styles.footer}>
+        <button
+          className={styles.themeToggleBtn}
+          onClick={handleThemeToggle}
+          type="button"
+          aria-label="Toggle Theme"
+        >
+          {theme === "dark" ? <IoSunnyOutline /> : <IoMoonOutline />}
+          <span className={styles.captilize}>{theme} Theme</span>
+        </button>
         <NavLink
           to="/settings"
           className={({ isActive }) =>

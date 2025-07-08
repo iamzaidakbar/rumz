@@ -99,7 +99,7 @@
   gap: 0.5rem;
 }
 
-.themeToggle,
+.themeToggleBtn,
 .settingsLink {
   display: flex;
   align-items: center;
@@ -115,6 +115,10 @@
   cursor: pointer;
   width: 100%;
   text-align: left;
+
+  .captilize {
+    text-transform: capitalize;
+  }
 
   svg {
     font-size: 1.25rem;
@@ -152,7 +156,7 @@
     }
   }
 
-  .themeToggle,
+  .themeToggleBtn,
   .settingsLink {
     color: #9ca3af;
 
