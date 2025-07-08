@@ -6,6 +6,10 @@ import { IoSearchOutline } from "react-icons/io5";
 import InfoMessage from "./InfoMessage";
 import ConfirmDialog from "./ConfirmDialog";
 
+function getNestedValue(obj, path) {
+  return path.split(".").reduce((acc, part) => acc && acc[part], obj);
+}
+
 const DataTable = ({
   columns = [],
   data = [],
@@ -36,6 +40,11 @@ const DataTable = ({
           let value;
           if (typeof col.accessor === "function") {
             value = col.accessor(row);
+          } else if (
+            typeof col.accessor === "string" &&
+            col.accessor.includes(".")
+          ) {
+            value = getNestedValue(row, col.accessor);
           } else {
             value = row[col.accessor];
           }
@@ -47,9 +56,28 @@ const DataTable = ({
     }
 
     if (sortField) {
+      // Find the column definition for the current sortField
+      const sortCol = columns.find((col) => col.accessor === sortField);
       filtered = [...filtered].sort((a, b) => {
-        const aVal = a[sortField];
-        const bVal = b[sortField];
+        let aVal, bVal;
+        if (sortCol) {
+          if (typeof sortCol.accessor === "function") {
+            aVal = sortCol.accessor(a);
+            bVal = sortCol.accessor(b);
+          } else if (
+            typeof sortCol.accessor === "string" &&
+            sortCol.accessor.includes(".")
+          ) {
+            aVal = getNestedValue(a, sortCol.accessor);
+            bVal = getNestedValue(b, sortCol.accessor);
+          } else {
+            aVal = a[sortCol.accessor];
+            bVal = b[sortCol.accessor];
+          }
+        } else {
+          aVal = a[sortField];
+          bVal = b[sortField];
+        }
         if (aVal === bVal) return 0;
         if (sortDir === "asc") return aVal > bVal ? 1 : -1;
         return aVal < bVal ? 1 : -1;
@@ -151,16 +179,17 @@ const DataTable = ({
                       let value;
                       if (typeof col.accessor === "function") {
                         value = col.accessor(row);
+                      } else if (
+                        typeof col.accessor === "string" &&
+                        col.accessor.includes(".")
+                      ) {
+                        value = getNestedValue(row, col.accessor);
                       } else {
                         value = row[col.accessor];
                       }
-
-                      const renderedValue = col.header
-                        ? renderers[col.header]
-                          ? renderers[col.header](value)
-                          : value
+                      const renderedValue = col.cell
+                        ? col.cell(value, row)
                         : value;
-
                       return (
                         <td key={col.accessor.toString()}>{renderedValue}</td>
                       );

@@ -26,31 +26,24 @@ const TABS = ["All", "Confirmed", "Pending", "Cancelled"];
 
 const columns = [
   { header: "Booking ID", accessor: "booking_reference_id" },
-  { header: "Guest Name", accessor: (row) => row.guest_info.full_name },
-  { header: "Check-in", accessor: (row) => row.booking_details.check_in_date },
-  {
-    header: "Check-out",
-    accessor: (row) => row.booking_details.check_out_date,
-  },
+  { header: "Guest Name", accessor: "guest_info.full_name" },
+  { header: "Check-in", accessor: "booking_details.check_in_date" },
+  { header: "Check-out", accessor: "booking_details.check_out_date" },
   {
     header: "Room(s)",
-    accessor: (row) => row.booking_details.room_nos?.join(", "),
+    accessor: "booking_details.room_nos",
+    cell: (value) => value?.join(", "),
   },
-  {
-    header: "Guests",
-    accessor: (row) => row.booking_details.number_of_guests,
-  },
+  { header: "Guests", accessor: "booking_details.number_of_guests" },
   {
     header: "Payment Status",
-    accessor: (row) => (
-      <StatusPill status={row.payment_info.payment_status} type="payment" />
-    ),
+    accessor: "payment_info.payment_status",
+    cell: (value) => <StatusPill status={value} type="payment" />,
   },
   {
     header: "Booking Status",
-    accessor: (row) => (
-      <StatusPill status={row.status.booking_status} type="booking" />
-    ),
+    accessor: "status.booking_status",
+    cell: (value) => <StatusPill status={value} type="booking" />,
   },
 ];
 

@@ -62,13 +62,13 @@ const Sidebar = () => {
           <IoPeopleOutline />
           <span>Guests</span>
         </NavLink>
-        <NavLink
+        {/* <NavLink
           to="/owner"
           className={({ isActive }) => (isActive ? styles.active : "")}
         >
           <IoPersonOutline />
           <span>Owner</span>
-        </NavLink>
+        </NavLink> */}
       </nav>
       <div className={styles.footer}>
         <NavLink

@@ -10,8 +10,8 @@ import {
 import { MdOutlineEdit } from "react-icons/md";
 import { useAppContext } from "../contexts/AppContext";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
 import { useRooms } from "../hooks/useRooms";
+import { useNavigate } from "react-router-dom";
 import LoadingFallback from "../components/LoadingFallback";
 import InfoMessage from "../components/InfoMessage";
 import CustomButton from "../components/CustomButton";
@@ -24,7 +24,11 @@ const columns = [
   { header: "Room", accessor: "roomNumber" },
   { header: "Room Type", accessor: "type" },
   { header: "Floor", accessor: "floor" },
-  { header: "Amenities", accessor: "amenities" },
+  {
+    header: "Amenities",
+    accessor: "amenities",
+    cell: (value) => (Array.isArray(value) ? value.join(", ") : ""),
+  },
   {
     header: "Status",
     accessor: (row) => <StatusPill status={row.status} type="room" />,
@@ -86,9 +90,6 @@ const Rooms = () => {
         data={filteredData}
         search={true}
         searchPlaceholder="Search rooms..."
-        renderers={{
-          Amenities: (val) => (Array.isArray(val) ? val.join(", ") : ""),
-        }}
         actions={(row, openDialog) => (
           <div className={styles.actionBtns}>
             <IoEyeOutline
