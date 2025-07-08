@@ -7,12 +7,16 @@ import { bookingsApi } from "../api/bookingsApi";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 import { useAppContext } from "../contexts/AppContext";
+import LoadingFallback from "./LoadingFallback";
 
 const Calendar = () => {
   const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [modal, setModal] = useState({ open: false, event: null });
   const { theme } = useAppContext();
 
   useEffect(() => {
+    setLoading(true);
     bookingsApi.getBookings().then((data) => {
       const mapped = data.map((b) => {
         // Compose room info: prefer room_nos, fallback to roomType
@@ -45,6 +49,7 @@ const Calendar = () => {
         };
       });
       setEvents(mapped);
+      setLoading(false);
     });
   }, []);
 
@@ -118,39 +123,68 @@ const Calendar = () => {
     setTooltip({ ...tooltip, visible: false });
   };
 
+  // Event click handler for modal
+  const handleEventClick = (info) => {
+    setModal({ open: true, event: info.event });
+  };
+  const closeModal = () => setModal({ open: false, event: null });
+
+  // Highlight today style
+  const todayStyle =
+    theme === "dark"
+      ? { background: "#374151", color: "#fff", borderRadius: 6 }
+      : { background: "#f3f4f6", color: "#222", borderRadius: 6 };
+
+  if (loading) return <LoadingFallback />;
+
   return (
     <div
       style={{
         position: "relative",
         background: theme === "dark" ? "#23272f" : undefined,
         color: theme === "dark" ? "#f3f4f6" : undefined,
+        minHeight: 400,
       }}
     >
       <div>
         <h2>Calendar View</h2>
         <p>Revenue trend for the current year</p>
       </div>
-      <FullCalendar
-        plugins={[multiMonthPlugin, dayGridPlugin, timeGridPlugin]}
-        initialView="dayGridMonth"
-        duration={{ years: 1 }}
-        multiMonthMaxColumns={3}
-        headerToolbar={{
-          left: "prev,next today",
-          center: "title",
-          right: "timeGridWeek,dayGridMonth,multiMonthYear",
-        }}
-        views={{
-          timeGridWeek: { buttonText: "Week" },
-          dayGridMonth: { buttonText: "Month" },
-          multiMonthYear: { buttonText: "Year" },
-        }}
-        events={events}
-        eventMouseEnter={handleEventMouseEnter}
-        eventMouseLeave={handleEventMouseLeave}
-        themeSystem={theme === "dark" ? "standard" : undefined}
-        className={theme === "dark" ? "fc-dark" : undefined}
-      />
+      {events.length === 0 ? (
+        <div style={{ textAlign: "center", margin: "2rem 0", fontSize: 18 }}>
+          No bookings or events to display.
+        </div>
+      ) : (
+        <FullCalendar
+          plugins={[multiMonthPlugin, dayGridPlugin, timeGridPlugin]}
+          initialView="dayGridMonth"
+          duration={{ years: 1 }}
+          multiMonthMaxColumns={3}
+          headerToolbar={{
+            left: "prev,next today",
+            center: "title",
+            right: "timeGridWeek,dayGridMonth,multiMonthYear",
+          }}
+          views={{
+            timeGridWeek: { buttonText: "Week" },
+            dayGridMonth: { buttonText: "Month" },
+            multiMonthYear: { buttonText: "Year" },
+          }}
+          events={events}
+          eventMouseEnter={handleEventMouseEnter}
+          eventMouseLeave={handleEventMouseLeave}
+          eventClick={handleEventClick}
+          themeSystem={theme === "dark" ? "standard" : undefined}
+          className={theme === "dark" ? "fc-dark" : undefined}
+          dayCellContent={(arg) => {
+            // Highlight today
+            const isToday = arg.isToday;
+            return (
+              <div style={isToday ? todayStyle : {}}>{arg.dayNumberText}</div>
+            );
+          }}
+        />
+      )}
       {tooltip.visible && (
         <Tippy
           content={tooltip.content}
@@ -172,15 +206,72 @@ const Calendar = () => {
               left: tooltip.x,
               top: tooltip.y,
               pointerEvents: "none",
-              background: theme === "dark" ? "#23272f" : undefined,
-              color: theme === "dark" ? "#f3f4f6" : undefined,
-              border: theme === "dark" ? "1px solid #374151" : undefined,
-              borderRadius: theme === "dark" ? "8px" : undefined,
-              padding: theme === "dark" ? "8px 12px" : undefined,
+              background: theme === "dark" ? "#23272f" : "#fff",
+              color: theme === "dark" ? "#f3f4f6" : "#222",
+              border: "1px solid #36c2cf",
+              borderRadius: "8px",
+              padding: "10px 14px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
               zIndex: 9999,
             }}
           />
         </Tippy>
+      )}
+      {/* Modal for event details */}
+      {modal.open && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "rgba(0,0,0,0.35)",
+            zIndex: 10000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          onClick={closeModal}
+        >
+          <div
+            style={{
+              background: theme === "dark" ? "#23272f" : "#fff",
+              color: theme === "dark" ? "#f3f4f6" : "#222",
+              borderRadius: 12,
+              minWidth: 320,
+              maxWidth: 400,
+              padding: 28,
+              boxShadow: "0 4px 24px rgba(0,0,0,0.18)",
+              position: "relative",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={closeModal}
+              style={{
+                position: "absolute",
+                top: 12,
+                right: 12,
+                background: "none",
+                border: "none",
+                color: theme === "dark" ? "#f3f4f6" : "#222",
+                fontSize: 22,
+                cursor: "pointer",
+              }}
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <h3 style={{ marginTop: 0, marginBottom: 16 }}>
+              {modal.event.title}
+            </h3>
+            {renderGuestDetails(
+              modal.event.extendedProps.guest,
+              modal.event.extendedProps.booking
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
