@@ -19,14 +19,6 @@ const columns = [
   { header: "Bookings", accessor: "bookings" },
 ];
 
-const guestBookingsColumns = [
-  { header: "Check-In", accessor: (b) => b.booking_details.check_in_date },
-  { header: "Check-Out", accessor: (b) => b.booking_details.check_out_date },
-  { header: "Room Type", accessor: (b) => b.booking_details.room_type },
-  { header: "Email", accessor: (b) => b.guest_info.email },
-  { header: "Phone No", accessor: (b) => b.guest_info.phone_number },
-];
-
 const Guests = () => {
   const { theme } = useAppContext();
   const [tab, setTab] = useState("All Guests");

@@ -9,7 +9,7 @@ const GuestInfoForm = ({
 }) => (
   <div className={styles.formGrid}>
     <div className={styles.formGroup}>
-      <label>Full Name</label>
+      <label>Full Name *</label>
       <input
         type="text"
         placeholder="Enter guest's full name"
@@ -21,7 +21,7 @@ const GuestInfoForm = ({
       />
     </div>
     <div className={styles.formGroup}>
-      <label>Phone Number</label>
+      <label>Phone Number *</label>
       <input
         type="tel"
         placeholder="Enter guest's phone number"
