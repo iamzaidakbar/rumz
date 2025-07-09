@@ -6,10 +6,12 @@ import React, {
   useCallback,
 } from "react";
 import { guestsApi } from "../api/guestsApi";
+import { useAppContext } from "./AppContext";
 
 const GuestsContext = createContext();
 
 export const GuestsProvider = ({ children }) => {
+  const { appData } = useAppContext();
   const [guests, setGuests] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,7 +26,9 @@ export const GuestsProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    fetchGuests();
+    if (appData) {
+      fetchGuests();
+    }
   }, [fetchGuests]);
 
   return (

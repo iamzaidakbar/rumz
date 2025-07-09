@@ -6,10 +6,12 @@ import React, {
   useCallback,
 } from "react";
 import { roomsApi } from "../api/roomsApi";
+import { useAppContext } from "./AppContext";
 
 const RoomsContext = createContext();
 
 export const RoomsProvider = ({ children }) => {
+  const { appData } = useAppContext();
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,7 +26,9 @@ export const RoomsProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    fetchRooms();
+    if (appData) {
+      fetchRooms();
+    }
   }, [fetchRooms]);
 
   return (

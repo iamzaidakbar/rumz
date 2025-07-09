@@ -6,10 +6,12 @@ import React, {
   useCallback,
 } from "react";
 import { dashboardApi } from "../api/dashboardApi";
+import { useAppContext } from "./AppContext";
 
 const DashboardContext = createContext();
 
 export const DashboardProvider = ({ children }) => {
+  const { appData } = useAppContext();
   const [summary, setSummary] = useState(null);
   const [revenueTrend, setRevenueTrend] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,8 +31,10 @@ export const DashboardProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    fetchDashboard();
-  }, [fetchDashboard]);
+    if (appData) {
+      fetchDashboard();
+    }
+  }, [fetchDashboard, appData]);
 
   return (
     <DashboardContext.Provider

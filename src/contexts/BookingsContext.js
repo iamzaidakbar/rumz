@@ -6,10 +6,12 @@ import React, {
   useCallback,
 } from "react";
 import { bookingsApi } from "../api/bookingsApi";
+import { useAppContext } from "./AppContext";
 
 const BookingsContext = createContext();
 
 export const BookingsProvider = ({ children }) => {
+  const { appData } = useAppContext();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,8 +26,10 @@ export const BookingsProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    fetchBookings();
-  }, [fetchBookings]);
+    if (appData) {
+      fetchBookings();
+    }
+  }, [fetchBookings, appData]);
 
   return (
     <BookingsContext.Provider value={{ bookings, loading, fetchBookings }}>
