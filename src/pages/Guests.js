@@ -4,8 +4,6 @@ import DataTable from "../components/DataTable";
 import { IoEyeOutline } from "react-icons/io5";
 import { useAppContext } from "../contexts/AppContext";
 import { motion } from "framer-motion";
-import InfoMessage from "../components/InfoMessage";
-import ConfirmDialog from "../components/ConfirmDialog";
 import { IoWarningOutline } from "react-icons/io5";
 import { useGuestsContext } from "../contexts/GuestsContext";
 import { useBookingsContext } from "../contexts/BookingsContext";
@@ -16,15 +14,15 @@ const columns = [
   { header: "Guest Name", accessor: "name" },
   { header: "Email", accessor: "email" },
   { header: "Phone No", accessor: "phone" },
+  { header: "Check-In", accessor: "checkIn" },
+  { header: "Check-Out", accessor: "checkOut" },
   { header: "Bookings", accessor: "bookings" },
-  { header: "Status", accessor: "status" },
 ];
 
 const guestBookingsColumns = [
   { header: "Check-In", accessor: (b) => b.booking_details.check_in_date },
   { header: "Check-Out", accessor: (b) => b.booking_details.check_out_date },
   { header: "Room Type", accessor: (b) => b.booking_details.room_type },
-  { header: "Status", accessor: (b) => b.status?.booking_status || "-" },
   { header: "Email", accessor: (b) => b.guest_info.email },
   { header: "Phone No", accessor: (b) => b.guest_info.phone_number },
 ];
@@ -32,57 +30,8 @@ const guestBookingsColumns = [
 const Guests = () => {
   const { theme } = useAppContext();
   const [tab, setTab] = useState("All Guests");
-  const [selectedGuest, setSelectedGuest] = useState(null);
-  const [deleteDialog, setDeleteDialog] = useState({
-    isOpen: false,
-    guest: null,
-  });
-  const [guestBookings, setGuestBookings] = useState([]);
-  const [showViewModal, setShowViewModal] = useState(false);
-  const [viewLoading, setViewLoading] = useState(false);
-  const { guests, loading: guestsLoading, fetchGuests } = useGuestsContext();
+  const { guests, loading: guestsLoading } = useGuestsContext();
   const { bookings, loading: bookingsLoading } = useBookingsContext();
-  const [error, setError] = useState(null);
-
-  const handleAddGuest = () => {
-    setSelectedGuest(null);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!deleteDialog.guest) return;
-    try {
-      // You may want to call an API here, then refresh context
-      setError(null);
-      // await guestsApi.deleteGuest(deleteDialog.guest.id);
-      await fetchGuests({ refresh: true });
-    } catch (err) {
-      setError("Failed to delete guest.");
-    } finally {
-      setDeleteDialog({ isOpen: false, guest: null });
-    }
-  };
-
-  const handleCancelDelete = () => {
-    setDeleteDialog({ isOpen: false, guest: null });
-  };
-
-  const handleViewGuest = (guest) => {
-    setSelectedGuest(guest);
-    setViewLoading(true);
-    setShowViewModal(true);
-    try {
-      const filtered = bookings.filter(
-        (b) =>
-          (guest.email && b.guest_info.email === guest.email) ||
-          (guest.phone && b.guest_info.phone_number === guest.phone)
-      );
-      setGuestBookings(filtered);
-    } catch (err) {
-      setGuestBookings([]);
-    } finally {
-      setViewLoading(false);
-    }
-  };
 
   const getStatusPill = (status) => (
     <span
@@ -104,15 +53,6 @@ const Guests = () => {
     });
   };
 
-  const filteredData = useMemo(() => {
-    let filtered = guests;
-    if (tab === "Current Guests")
-      filtered = guests.filter((g) => g.status === "Active");
-    if (tab === "Past Guests")
-      filtered = guests.filter((g) => g.status === "Inactive");
-    return getUniqueGuests(filtered);
-  }, [tab, guests]);
-
   const mappedGuests = useMemo(
     () =>
       guests.map((g) => {
@@ -126,26 +66,48 @@ const Guests = () => {
           (g.contact && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(g.contact)
             ? g.contact
             : "");
-        const bookingCount = bookings.filter(
+        const guestBookings = bookings.filter(
           (b) =>
             (email && b.guest_info.email === email) ||
             (phone && b.guest_info.phone_number === phone)
-        ).length;
+        );
+        // Sort bookings by check-in date descending
+        const sorted = [...guestBookings].sort(
+          (a, b) =>
+            new Date(b.booking_details?.check_in_date) -
+            new Date(a.booking_details?.check_in_date)
+        );
+        const mostRecent = sorted[0];
+        // Compute status: Active if any booking is ongoing, else Inactive
+        const today = new Date();
+        const isActive = guestBookings.some((b) => {
+          const checkIn = new Date(b.booking_details?.check_in_date);
+          const checkOut = new Date(b.booking_details?.check_out_date);
+          return today >= checkIn && today <= checkOut;
+        });
         return {
           ...g,
           email,
           phone,
-          bookings: bookingCount,
+          bookings: guestBookings.length,
+          checkIn: mostRecent?.booking_details?.check_in_date || "-",
+          checkOut: mostRecent?.booking_details?.check_out_date || "-",
+          status: isActive ? "Active" : "Inactive",
         };
       }),
     [guests, bookings]
   );
 
+  const filteredData = useMemo(() => {
+    let filtered = mappedGuests;
+    if (tab === "Current Guests")
+      filtered = mappedGuests.filter((g) => g.status === "Active");
+    if (tab === "Past Guests")
+      filtered = mappedGuests.filter((g) => g.status === "Inactive");
+    return getUniqueGuests(filtered);
+  }, [tab, mappedGuests]);
+
   if (guestsLoading || bookingsLoading) return null;
-  if (error)
-    return (
-      <InfoMessage icon={IoWarningOutline} title="Error" message={error} />
-    );
 
   return (
     <motion.div
@@ -157,18 +119,13 @@ const Guests = () => {
     >
       <div className={styles.headerRow}>
         <h1 className={styles.header}>Guest Management</h1>
-        <button className={styles.addGuestBtn} onClick={handleAddGuest}>
-          + Add New Guest
-        </button>
       </div>
       <p className={styles.subtitle}>
         Manage guest profiles, view booking history, and update information.
       </p>
       <DataTable
         columns={columns}
-        data={filteredData.map(
-          (g) => mappedGuests.find((mg) => mg.id === g.id) || g
-        )}
+        data={filteredData}
         search
         searchPlaceholder="Search guests by name or contact..."
         tabs={TABS}
@@ -177,63 +134,12 @@ const Guests = () => {
         renderers={{
           status: (val) => getStatusPill(val),
         }}
-        actions={(row) => (
-          <div className={styles.actionBtns}>
-            <IoEyeOutline
-              size={20}
-              className={styles.viewBtn}
-              onClick={() => handleViewGuest(row)}
-            />
-          </div>
-        )}
         noDataInfo={{
           icon: IoWarningOutline,
           title: "No Guests Found",
           message: "No guests found. Add a new guest to get started.",
         }}
       />
-      <ConfirmDialog
-        isOpen={deleteDialog.isOpen}
-        onClose={handleCancelDelete}
-        onConfirm={handleConfirmDelete}
-        title="Delete Guest"
-      >
-        Are you sure you want to permanently delete this guest? This action
-        cannot be undone.
-      </ConfirmDialog>
-      {/* Add/Edit Guest Form Modal (to be implemented) */}
-      {/* {showForm && (
-        <GuestForm
-          guest={selectedGuest}
-          onSubmit={handleFormSubmit}
-          onClose={() => setShowForm(false)}
-        />
-      )} */}
-      {/* View Guest Bookings Modal */}
-      {showViewModal && selectedGuest && (
-        <div className={styles.viewModal}>
-          <div className={styles.modalContent}>
-            <h2>Bookings for {selectedGuest.name}</h2>
-            {viewLoading ? (
-              <p>Loading...</p>
-            ) : guestBookings.length === 0 ? (
-              <p>No bookings found for this guest.</p>
-            ) : (
-              <DataTable
-                columns={guestBookingsColumns}
-                data={guestBookings}
-                search={false}
-              />
-            )}
-            <button
-              className={styles.closeModalBtn}
-              onClick={() => setShowViewModal(false)}
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
     </motion.div>
   );
 };
