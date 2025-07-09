@@ -1,40 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import styles from "../styles/Dashboard.module.scss";
 import { motion } from "framer-motion";
 import { useAppContext } from "../contexts/AppContext";
-import { dashboardApi } from "../api/dashboardApi";
 import LoadingFallback from "../components/LoadingFallback";
 import MetricCard from "../components/MetricCard";
 import QuickActions from "../components/QuickActions";
 import OngoingBookings from "../components/OngoingBookings";
 import Calendar from "../components/Calendar";
 import TrendChart from "../components/TrendChart";
+import { useDashboardContext } from "../contexts/DashboardContext";
 
 const Dashboard = () => {
   const { theme } = useAppContext();
-  const [summary, setSummary] = useState(null);
-  const [revenueTrend, setRevenueTrend] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      setLoading(true);
-      try {
-        const [summaryData, trendData] = await Promise.all([
-          dashboardApi.getSummary(),
-          dashboardApi.getRevenueTrend({ period: "month" }),
-        ]);
-        setSummary(summaryData);
-        setRevenueTrend(trendData);
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.error("Dashboard API error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDashboardData();
-  }, []);
+  const { summary, revenueTrend, loading } = useDashboardContext();
 
   return (
     <motion.div
@@ -60,7 +38,7 @@ const Dashboard = () => {
           <>
             <MetricCard
               label="Total Revenue"
-              value={`₹${summary.totalRevenue.toLocaleString()}`}
+              value={`₹ ${summary.totalRevenue.toLocaleString()}`}
             />
             <MetricCard label="Total Rooms" value={summary.totalRooms} />
             <MetricCard

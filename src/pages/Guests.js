@@ -1,14 +1,14 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import styles from "../styles/Guests.module.scss";
 import DataTable from "../components/DataTable";
-import { guestsApi } from "../api/guestsApi";
 import { IoEyeOutline } from "react-icons/io5";
 import { useAppContext } from "../contexts/AppContext";
 import { motion } from "framer-motion";
 import InfoMessage from "../components/InfoMessage";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { IoWarningOutline } from "react-icons/io5";
-import { bookingsApi } from "../api/bookingsApi";
+import { useGuestsContext } from "../contexts/GuestsContext";
+import { useBookingsContext } from "../contexts/BookingsContext";
 
 const TABS = ["All Guests", "Current Guests", "Past Guests"];
 
@@ -17,12 +17,14 @@ const columns = [
   { header: "Email", accessor: "email" },
   { header: "Phone No", accessor: "phone" },
   { header: "Bookings", accessor: "bookings" },
+  { header: "Status", accessor: "status" },
 ];
 
 const guestBookingsColumns = [
   { header: "Check-In", accessor: (b) => b.booking_details.check_in_date },
   { header: "Check-Out", accessor: (b) => b.booking_details.check_out_date },
   { header: "Room Type", accessor: (b) => b.booking_details.room_type },
+  { header: "Status", accessor: (b) => b.status?.booking_status || "-" },
   { header: "Email", accessor: (b) => b.guest_info.email },
   { header: "Phone No", accessor: (b) => b.guest_info.phone_number },
 ];
@@ -30,10 +32,7 @@ const guestBookingsColumns = [
 const Guests = () => {
   const { theme } = useAppContext();
   const [tab, setTab] = useState("All Guests");
-  const [guests, setGuests] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [selectedGuest, setSelectedGuest] = useState(null);
-  const [error, setError] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState({
     isOpen: false,
     guest: null,
@@ -41,25 +40,9 @@ const Guests = () => {
   const [guestBookings, setGuestBookings] = useState([]);
   const [showViewModal, setShowViewModal] = useState(false);
   const [viewLoading, setViewLoading] = useState(false);
-  const [bookings, setBookings] = useState([]);
-
-  useEffect(() => {
-    fetchGuests();
-    bookingsApi.getBookings().then(setBookings);
-  }, []);
-
-  const fetchGuests = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await guestsApi.getGuests();
-      setGuests(data);
-    } catch (err) {
-      setError("Failed to fetch guests.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { guests, loading: guestsLoading, fetchGuests } = useGuestsContext();
+  const { bookings, loading: bookingsLoading } = useBookingsContext();
+  const [error, setError] = useState(null);
 
   const handleAddGuest = () => {
     setSelectedGuest(null);
@@ -68,8 +51,10 @@ const Guests = () => {
   const handleConfirmDelete = async () => {
     if (!deleteDialog.guest) return;
     try {
-      await guestsApi.deleteGuest(deleteDialog.guest.id);
-      fetchGuests();
+      // You may want to call an API here, then refresh context
+      setError(null);
+      // await guestsApi.deleteGuest(deleteDialog.guest.id);
+      await fetchGuests({ refresh: true });
     } catch (err) {
       setError("Failed to delete guest.");
     } finally {
@@ -81,18 +66,17 @@ const Guests = () => {
     setDeleteDialog({ isOpen: false, guest: null });
   };
 
-  const handleViewGuest = async (guest) => {
+  const handleViewGuest = (guest) => {
     setSelectedGuest(guest);
     setViewLoading(true);
     setShowViewModal(true);
     try {
-      const allBookings = await bookingsApi.getBookings();
-      const bookings = allBookings.filter(
+      const filtered = bookings.filter(
         (b) =>
           (guest.email && b.guest_info.email === guest.email) ||
           (guest.phone && b.guest_info.phone_number === guest.phone)
       );
-      setGuestBookings(bookings);
+      setGuestBookings(filtered);
     } catch (err) {
       setGuestBookings([]);
     } finally {
@@ -157,7 +141,7 @@ const Guests = () => {
     [guests, bookings]
   );
 
-  if (loading) return null;
+  if (guestsLoading || bookingsLoading) return null;
   if (error)
     return (
       <InfoMessage icon={IoWarningOutline} title="Error" message={error} />

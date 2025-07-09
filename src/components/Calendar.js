@@ -1,25 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import multiMonthPlugin from "@fullcalendar/multimonth";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import { bookingsApi } from "../api/bookingsApi";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 import { useAppContext } from "../contexts/AppContext";
 import LoadingFallback from "./LoadingFallback";
+import { useBookingsContext } from "../contexts/BookingsContext";
 
 const Calendar = () => {
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { bookings, loading } = useBookingsContext();
   const [modal, setModal] = useState({ open: false, event: null });
   const { theme } = useAppContext();
 
-  useEffect(() => {
-    setLoading(true);
-    bookingsApi.getBookings().then((data) => {
-      const mapped = data.map((b) => {
-        // Compose room info: prefer room_nos, fallback to roomType
+  // Map bookings to calendar events in-memory
+  const events = useMemo(
+    () =>
+      bookings.map((b) => {
         let roomInfo = "";
         if (
           b.booking_details?.room_nos &&
@@ -47,11 +45,9 @@ const Calendar = () => {
             booking: b,
           },
         };
-      });
-      setEvents(mapped);
-      setLoading(false);
-    });
-  }, []);
+      }),
+    [bookings]
+  );
 
   // Tooltip state
   const [tooltip, setTooltip] = useState({

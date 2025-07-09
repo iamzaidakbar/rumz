@@ -1,11 +1,10 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import styles from "../styles/Booking.module.scss";
 import DataTable from "../components/DataTable";
 import {
   IoEyeOutline,
   IoTrashOutline,
   IoWarningOutline,
-  IoCalendarOutline,
   IoCloseOutline,
 } from "react-icons/io5";
 import { useAppContext } from "../contexts/AppContext";
@@ -21,6 +20,7 @@ import { MdOutlineEdit } from "react-icons/md";
 import { IoMdAdd } from "react-icons/io";
 import CustomDropdown from "../components/CustomDropdown";
 import StatusPill from "../components/StatusPill";
+import { useBookingsContext } from "../contexts/BookingsContext";
 
 const TABS = ["All", "Confirmed", "Pending", "Cancelled"];
 
@@ -51,50 +51,28 @@ const Booking = () => {
   const { theme } = useAppContext();
   const { success, error: showError, warning } = useToast();
   const [tab, setTab] = useState("All");
-  const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [bookingToCancel, setBookingToCancel] = useState(null);
   const [isCancelling, setIsCancelling] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [cancelPaymentStatus, setCancelPaymentStatus] = useState("Refunded"); // default to Refunded
+  const [cancelPaymentStatus, setCancelPaymentStatus] = useState("Refunded");
   const navigate = useNavigate();
-
-  const fetchBookings = async () => {
-    try {
-      setLoading(true);
-      const data = await bookingsApi.getBookings();
-      setBookings(data);
-    } catch (err) {
-      setError("Failed to fetch bookings.");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchBookings();
-  }, []);
+  const { bookings, loading, fetchBookings } = useBookingsContext();
+  const [error, setError] = useState(null);
 
   const handleDelete = async (booking) => {
     if (!booking) return;
     setIsDeleting(true);
     try {
       await bookingsApi.deleteBooking(booking.booking_reference_id);
-      setBookings((prev) =>
-        prev.filter(
-          (b) => b.booking_reference_id !== booking.booking_reference_id
-        )
-      );
+      await fetchBookings({ refresh: true });
       success(
         "Booking Deleted Successfully!",
         `Booking for ${booking.guest_info.full_name} has been permanently deleted.`,
         { duration: 6000 }
       );
-      await bookingsApi.getBookings({ refresh: true }); // refresh bookings cache
     } catch (err) {
+      setError("Failed to delete booking.");
       console.error("Error deleting booking:", err);
       showError(
         "Failed to Delete Booking",
@@ -114,10 +92,8 @@ const Booking = () => {
 
   const handleConfirmCancel = async () => {
     if (!bookingToCancel) return;
-
     setIsCancelling(true);
     try {
-      // Prepare update data
       const updateData = {
         status: {
           ...bookingToCancel.status,
@@ -128,31 +104,20 @@ const Booking = () => {
           payment_status: cancelPaymentStatus,
         },
       };
-
-      // Use the updateBooking API to update both status and payment status
-      const updatedBooking = await bookingsApi.updateBooking(
+      await bookingsApi.updateBooking(
         bookingToCancel.booking_reference_id,
         updateData
       );
-
-      // Update local state with the response from API
-      setBookings((prev) =>
-        prev.map((b) =>
-          b.booking_reference_id === bookingToCancel.booking_reference_id
-            ? updatedBooking
-            : b
-        )
-      );
-
+      await fetchBookings({ refresh: true });
       warning(
         "Booking Cancelled",
         `Booking for ${bookingToCancel.guest_info.full_name} has been cancelled. Payment status updated to ${cancelPaymentStatus}.`,
         { duration: 7000 }
       );
-
       setShowCancelDialog(false);
       setBookingToCancel(null);
     } catch (err) {
+      setError("Failed to cancel booking.");
       console.error("Error cancelling booking:", err);
       showError(
         "Failed to Cancel Booking",
@@ -172,11 +137,9 @@ const Booking = () => {
   // Check if booking is ongoing or upcoming (not past)
   const isBookingActive = (booking) => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Reset time to start of day
-
+    today.setHours(0, 0, 0, 0);
     const checkOutDate = new Date(booking.booking_details.check_out_date);
     checkOutDate.setHours(0, 0, 0, 0);
-
     return checkOutDate >= today;
   };
 
@@ -248,9 +211,10 @@ const Booking = () => {
             {isBookingActive(row) &&
               row.status.booking_status !== "Cancelled" && (
                 <button
-                  className={`${styles.iconBtn} ${styles.cancelBtn}`}
+                  className={styles.iconBtn}
                   onClick={() => openCancelDialog(row)}
                   title="Cancel Booking"
+                  disabled={isCancelling}
                 >
                   <IoCloseOutline size={20} />
                 </button>
@@ -258,70 +222,34 @@ const Booking = () => {
           </div>
         )}
         noDataInfo={{
-          icon: IoCalendarOutline,
+          icon: IoWarningOutline,
           title: "No Bookings Found",
-          message:
-            "No bookings found matching your criteria. Try adjusting your filters or search term.",
+          message: "No bookings found. Add a new booking to get started.",
         }}
-        deleteDialogInfo={{
-          title: "Delete Booking",
-          message: "Are you sure you want to permanently delete this booking?",
-        }}
-        onConfirmDelete={handleDelete}
-        isDeleting={isDeleting}
       />
-
-      {/* Cancel Booking Confirmation Dialog */}
-      {showCancelDialog && bookingToCancel && (
-        <ConfirmDialog
-          isOpen={showCancelDialog}
-          onClose={handleCloseCancelDialog}
-          title="Cancel Booking"
-          confirmText="Cancel Booking"
-          cancelText="Keep Booking"
-          onConfirm={handleConfirmCancel}
-          onCancel={handleCloseCancelDialog}
-          isLoading={isCancelling}
-          loadingText="Cancelling..."
-          variant="cancel"
-        >
-          <div>
-            <p>
-              Are you sure you want to cancel the booking for{" "}
-              {bookingToCancel.guest_info.full_name}?
-            </p>
-            <div
-              style={{
-                marginTop: "1rem",
-                padding: "1rem",
-                backgroundColor: "#fef3c7",
-                borderRadius: "8px",
-                border: "1px solid #f59e0b",
-              }}
-            >
-              <p
-                style={{
-                  margin: "0 0 1rem 0",
-                  fontWeight: "600",
-                  color: "#92400e",
-                }}
-              >
-                Payment Status
-              </p>
-              <p style={{ margin: "0 0 1rem 0", color: "#92400e" }}>
-                Please select the payment status you want to set for this
-                cancelled booking:
-              </p>
-              <CustomDropdown
-                options={["Paid", "Pending", "Refunded"]}
-                value={cancelPaymentStatus}
-                onChange={setCancelPaymentStatus}
-                disabled={isCancelling}
-              />
-            </div>
+      <ConfirmDialog
+        isOpen={showCancelDialog}
+        onClose={handleCloseCancelDialog}
+        onConfirm={handleConfirmCancel}
+        title="Cancel Booking"
+        confirmText={isCancelling ? "Cancelling..." : "Confirm Cancel"}
+        confirmDisabled={isCancelling}
+      >
+        <div>
+          <p>
+            Are you sure you want to cancel this booking? This action cannot be
+            undone.
+          </p>
+          <div style={{ marginTop: 16 }}>
+            <label>Update Payment Status:</label>
+            <CustomDropdown
+              options={["Paid", "Pending", "Refunded"]}
+              value={cancelPaymentStatus}
+              onChange={setCancelPaymentStatus}
+            />
           </div>
-        </ConfirmDialog>
-      )}
+        </div>
+      </ConfirmDialog>
     </motion.div>
   );
 };

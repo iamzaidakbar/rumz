@@ -1,41 +1,31 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo } from "react";
 import styles from "../styles/GuestActivity.module.scss";
 import { useAppContext } from "../contexts/AppContext";
-import { bookingsApi } from "../api/bookingsApi";
+import { useBookingsContext } from "../contexts/BookingsContext";
 
 const GuestActivity = () => {
   const { theme } = useAppContext();
-  const [recentGuests, setRecentGuests] = useState([]);
-  const [upcomingGuests, setUpcomingGuests] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { bookings, loading } = useBookingsContext();
 
-  useEffect(() => {
-    const fetchBookings = async () => {
-      setLoading(true);
-      const bookings = await bookingsApi.getBookings();
-      const today = new Date();
-      // Recent Guests: checked in within last 2 days (including today)
-      const recent = bookings
-        .filter((b) => {
-          const checkIn = new Date(b.booking_details?.check_in_date);
-          const diff = (today - checkIn) / (1000 * 60 * 60 * 24);
-          return diff >= 0 && diff < 2;
-        })
-        .slice(0, 5);
-      // Upcoming Guests: check-in in next 2 days
-      const upcoming = bookings
-        .filter((b) => {
-          const checkIn = new Date(b.booking_details?.check_in_date);
-          const diff = (checkIn - today) / (1000 * 60 * 60 * 24);
-          return diff >= 0 && diff < 2;
-        })
-        .slice(0, 5);
-      setRecentGuests(recent);
-      setUpcomingGuests(upcoming);
-      setLoading(false);
-    };
-    fetchBookings();
-  }, []);
+  // Compute recent and upcoming guests in-memory
+  const { recentGuests, upcomingGuests } = useMemo(() => {
+    const today = new Date();
+    const recent = bookings
+      .filter((b) => {
+        const checkIn = new Date(b.booking_details?.check_in_date);
+        const diff = (today - checkIn) / (1000 * 60 * 60 * 24);
+        return diff >= 0 && diff < 2;
+      })
+      .slice(0, 5);
+    const upcoming = bookings
+      .filter((b) => {
+        const checkIn = new Date(b.booking_details?.check_in_date);
+        const diff = (checkIn - today) / (1000 * 60 * 60 * 24);
+        return diff >= 0 && diff < 2;
+      })
+      .slice(0, 5);
+    return { recentGuests: recent, upcomingGuests: upcoming };
+  }, [bookings]);
 
   return (
     <div className={styles.guestActivity} data-theme={theme}>

@@ -20,7 +20,7 @@ const AddRoom = () => {
   const AMENITIES = ["Wi-Fi", "TV", "AC", "Parking", "Balcony", "Room Service"];
   const FLOORS = ["1st Floor", "2nd Floor"];
   const TYPES = ["Standard Room", "Deluxe Suite", "Family Room", "Penthouse"];
-  const STATUS = ["Available", "Maintenance", "Reserved"];
+  const STATUS = ["Available", "Booked", "Reserved"];
 
   const {
     form,
