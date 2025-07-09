@@ -17,6 +17,7 @@ import InfoMessage from "../components/InfoMessage";
 import CustomButton from "../components/CustomButton";
 import { IoMdAdd } from "react-icons/io";
 import StatusPill from "../components/StatusPill";
+import { useToast } from "../contexts/ToastContext";
 
 const TABS = ["All", "Ground", "1st Floor", "2nd Floor"];
 
@@ -37,6 +38,7 @@ const columns = [
 
 // Rooms page for managing room details
 const Rooms = () => {
+  const { success, error: showError } = useToast();
   const { theme } = useAppContext();
   const [floor, setFloor] = useState("All");
   const navigate = useNavigate();
@@ -50,8 +52,19 @@ const Rooms = () => {
     if (!room) return;
     try {
       await deleteRoom(room.id);
+      success(
+        "Room Deleted Successfully!",
+        `Room has been permanently deleted.`,
+        { duration: 6000 }
+      );
+      await fetchRooms({ refresh: true }); // Refresh the room list after deletion
     } catch (err) {
       console.error(err);
+      showError(
+        "Failed to Delete Booking",
+        "There was an error deleting the booking. Please try again or contact support.",
+        { duration: 8000 }
+      );
     }
   };
 

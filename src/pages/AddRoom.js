@@ -16,7 +16,7 @@ const AddRoom = () => {
   const { theme } = useAppContext();
   const { success, error: showError } = useToast();
   const navigate = useNavigate();
-  const { addRoom } = useRooms();
+  const { addRoom, fetchRooms } = useRooms();
   const AMENITIES = ["Wi-Fi", "TV", "AC", "Parking", "Balcony", "Room Service"];
   const FLOORS = ["1st Floor", "2nd Floor"];
   const TYPES = ["Standard Room", "Deluxe Suite", "Family Room", "Penthouse"];
@@ -68,6 +68,7 @@ const AddRoom = () => {
     try {
       await addRoom(form);
       success("Room added successfully!", "Redirecting...", { duration: 3000 });
+      await fetchRooms({ refresh: true });
       navigate("/rooms");
     } catch (err) {
       setError("Failed to add room.");

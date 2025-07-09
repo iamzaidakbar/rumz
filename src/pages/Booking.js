@@ -61,19 +61,20 @@ const Booking = () => {
   const [cancelPaymentStatus, setCancelPaymentStatus] = useState("Refunded"); // default to Refunded
   const navigate = useNavigate();
 
+  const fetchBookings = async () => {
+    try {
+      setLoading(true);
+      const data = await bookingsApi.getBookings();
+      setBookings(data);
+    } catch (err) {
+      setError("Failed to fetch bookings.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        setLoading(true);
-        const data = await bookingsApi.getBookings();
-        setBookings(data);
-      } catch (err) {
-        setError("Failed to fetch bookings.");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchBookings();
   }, []);
 
@@ -92,6 +93,7 @@ const Booking = () => {
         `Booking for ${booking.guest_info.full_name} has been permanently deleted.`,
         { duration: 6000 }
       );
+      await bookingsApi.getBookings({ refresh: true }); // refresh bookings cache
     } catch (err) {
       console.error("Error deleting booking:", err);
       showError(

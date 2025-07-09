@@ -168,7 +168,8 @@ const EditBooking = () => {
         `Booking for ${formData.guest_info.full_name} has been updated and saved.`,
         { duration: 6000 }
       );
-      navigate(`/bookings/${bookingId}`);
+      await bookingsApi.getBookings({ refresh: true }); // refresh bookings cache
+      navigate(`/bookings`);
     } catch (error) {
       console.error("Error updating booking:", error);
       showError(

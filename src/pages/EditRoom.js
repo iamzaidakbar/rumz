@@ -24,7 +24,7 @@ const EditRoom = () => {
   const { success, error: showError } = useToast();
   const navigate = useNavigate();
   const { roomId } = useParams();
-  const { getRoom, updateRoom } = useRooms();
+  const { getRoom, updateRoom, fetchRooms } = useRooms();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [initialData, setInitialData] = useState(null);
@@ -75,6 +75,7 @@ const EditRoom = () => {
     try {
       await updateRoom(roomId, roomForm.form);
       success("Room updated successfully!", "success");
+      await fetchRooms({ refresh: true }); // Refresh the room list after deletion
       navigate(`/rooms/${roomId}`);
     } catch (err) {
       roomForm.setError("Failed to update room.");

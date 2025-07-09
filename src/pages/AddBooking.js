@@ -70,8 +70,9 @@ const AddBooking = () => {
     error: roomsError,
     fetchRooms,
   } = useRooms();
-  const [idProofImages, setIdProofImages] = useState([]);
-  const [idProofImagePreviews, setIdProofImagePreviews] = useState([]);
+  const [idProofImages, setIdProofImages] = useState([]); // File objects
+  const [idProofImagePreviews, setIdProofImagePreviews] = useState([]); // Preview URLs
+  const [idProofImageUrls, setIdProofImageUrls] = useState([]); // Uploaded Cloudinary URLs
   const [isUploading, setIsUploading] = useState(false);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const videoRef = useRef(null);
@@ -97,24 +98,48 @@ const AddBooking = () => {
     };
   }, [idProofImagePreviews]);
 
-  const handleImageUpload = (e) => {
+  // Helper to upload a single image file to Cloudinary
+  const uploadSingleImage = async (file) => {
+    try {
+      const [url] = await cloudinaryApi.uploadImages([file]);
+      return url;
+    } catch (err) {
+      showError(
+        "Image Upload Failed",
+        "Could not upload one or more images. Please try again.",
+        { duration: 6000 }
+      );
+      return null;
+    }
+  };
+
+  // Handle image selection/upload
+  const handleImageUpload = async (e) => {
     if (e.target.files && e.target.files.length > 0) {
       const files = Array.from(e.target.files);
-      const newImages = [...idProofImages, ...files];
-      setIdProofImages(newImages);
+      // Add previews
       const newPreviews = files.map((file) => URL.createObjectURL(file));
       setIdProofImagePreviews((prevPreviews) => [
         ...prevPreviews,
         ...newPreviews,
       ]);
+      setIdProofImages((prev) => [...prev, ...files]);
+      // Immediately upload each image
+      const uploadPromises = files.map(uploadSingleImage);
+      const urls = await Promise.all(uploadPromises);
+      setIdProofImageUrls((prev) => [...prev, ...urls.filter(Boolean)]);
       e.target.value = null;
     }
   };
 
+  // Remove image (preview, file, and uploaded URL)
   const handleRemoveImage = (indexToRemove) => {
     URL.revokeObjectURL(idProofImagePreviews[indexToRemove]);
     setIdProofImages((prev) => prev.filter((_, idx) => idx !== indexToRemove));
     setIdProofImagePreviews((prev) =>
+      prev.filter((_, idx) => idx !== indexToRemove)
+    );
+    setIdProofImageUrls((prev) =>
       prev.filter((_, idx) => idx !== indexToRemove)
     );
   };
@@ -149,6 +174,7 @@ const AddBooking = () => {
     }
   };
 
+  // Camera capture: upload immediately after capture
   const handleCapture = () => {
     if (videoRef.current && canvasRef.current) {
       const video = videoRef.current;
@@ -157,7 +183,7 @@ const AddBooking = () => {
       canvas.height = video.videoHeight;
       const context = canvas.getContext("2d");
       context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-      canvas.toBlob((blob) => {
+      canvas.toBlob(async (blob) => {
         const file = new File([blob], `capture-${Date.now()}.jpg`, {
           type: "image/jpeg",
         });
@@ -167,6 +193,9 @@ const AddBooking = () => {
           ...prevPreviews,
           previewUrl,
         ]);
+        // Immediately upload
+        const url = await uploadSingleImage(file);
+        if (url) setIdProofImageUrls((prev) => [...prev, url]);
         handleCloseCamera();
       }, "image/jpeg");
     }
@@ -177,16 +206,12 @@ const AddBooking = () => {
     if (isUploading) return;
     setIsUploading(true);
     try {
-      let uploadedImageUrls = [];
-      if (idProofImages.length > 0) {
-        uploadedImageUrls = await cloudinaryApi.uploadImages(idProofImages);
-      }
       const now = new Date().toISOString();
       const finalFormData = {
         ...formData,
         id_proof: {
           ...formData.id_proof,
-          id_images: uploadedImageUrls,
+          id_images: idProofImageUrls, // Use uploaded URLs
         },
         timestamps: {
           created_at: now,
@@ -199,6 +224,7 @@ const AddBooking = () => {
         `Booking for ${formData.guest_info.full_name} has been created and saved.`,
         { duration: 6000 }
       );
+      await bookingsApi.getBookings({ refresh: true }); // refresh bookings cache
       navigate("/bookings");
     } catch (error) {
       console.error("Error creating booking:", error);

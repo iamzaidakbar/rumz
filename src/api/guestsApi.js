@@ -1,71 +1,57 @@
-const STORAGE_KEY = "rumz_guests";
+import apiClient, { apiRequest } from "./apiClient";
+import { apiCache, delay } from "../utils";
 
-function getInitialGuests() {
-  try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    if (data) return JSON.parse(data);
-  } catch {}
-  return [];
-}
+const DELAY_MS = 300;
 
-function saveGuests(guests) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(guests));
-}
-
+/**
+ * Guests API for CRUD operations (backend)
+ */
 export const guestsApi = {
-  async getGuests() {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(getInitialGuests());
-      }, 300);
-    });
+  /**
+   * Get all guests
+   * @returns {Promise<Array>} Array of guests
+   */
+  async getGuests({ refresh = false } = {}) {
+    const cacheKey = "guestsApi:getGuests";
+    if (!refresh) {
+      const cached = apiCache.get(cacheKey);
+      if (cached) return cached;
+    }
+    try {
+      await delay(DELAY_MS);
+      const response = await apiRequest(() => apiClient.get("/api/guests"));
+      const guests = response.guests || response;
+      apiCache.set(cacheKey, guests);
+      return guests;
+    } catch (error) {
+      console.error("Error fetching guests:", error);
+      throw new Error("Failed to fetch guests");
+    }
   },
 
-  async addGuest(guest) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const guests = getInitialGuests();
-        const newGuest = { ...guest, id: Date.now() };
-        guests.push(newGuest);
-        saveGuests(guests);
-        resolve(newGuest);
-      }, 300);
-    });
-  },
-
-  async updateGuest(id, updates) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        let guests = getInitialGuests();
-        guests = guests.map((g) => (g.id === id ? { ...g, ...updates } : g));
-        saveGuests(guests);
-        resolve(guests.find((g) => g.id === id));
-      }, 300);
-    });
-  },
-
-  async deleteGuest(id) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        let guests = getInitialGuests();
-        guests = guests.filter((g) => g.id !== id);
-        saveGuests(guests);
-        resolve(true);
-      }, 300);
-    });
-  },
-
-  async getGuest(id) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const guests = getInitialGuests();
-        const guest = guests.find((g) => g.id === id);
-        if (guest) {
-          resolve(guest);
-        } else {
-          reject(new Error("Guest not found"));
-        }
-      }, 300);
-    });
+  /**
+   * Get a single guest by ID
+   * @param {string|number} id - Guest ID
+   * @returns {Promise<Object>} Guest object
+   */
+  async getGuest(id, { refresh = false } = {}) {
+    const cacheKey = `guestsApi:getGuest:${id}`;
+    if (!refresh) {
+      const cached = apiCache.get(cacheKey);
+      if (cached) return cached;
+    }
+    try {
+      if (!id) throw new Error("Guest ID is required");
+      await delay(DELAY_MS);
+      const response = await apiRequest(() =>
+        apiClient.get(`/api/booking/guest/${id}`)
+      );
+      const guest = response.guest || response;
+      apiCache.set(cacheKey, guest);
+      return guest;
+    } catch (error) {
+      console.error(`Error fetching guest ${id}:`, error);
+      throw error;
+    }
   },
 };

@@ -17,14 +17,12 @@ const columns = [
   { header: "Email", accessor: "email" },
   { header: "Phone No", accessor: "phone" },
   { header: "Bookings", accessor: "bookings" },
-  { header: "Status", accessor: "status" },
 ];
 
 const guestBookingsColumns = [
   { header: "Check-In", accessor: (b) => b.booking_details.check_in_date },
   { header: "Check-Out", accessor: (b) => b.booking_details.check_out_date },
   { header: "Room Type", accessor: (b) => b.booking_details.room_type },
-  { header: "Status", accessor: (b) => b.status?.booking_status || "-" },
   { header: "Email", accessor: (b) => b.guest_info.email },
   { header: "Phone No", accessor: (b) => b.guest_info.phone_number },
 ];
