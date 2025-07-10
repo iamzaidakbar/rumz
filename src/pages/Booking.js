@@ -57,22 +57,22 @@ const Booking = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [cancelPaymentStatus, setCancelPaymentStatus] = useState("Refunded");
   const navigate = useNavigate();
-  const { bookings, loading, fetchBookings } = useBookingsContext();
-  const [error, setError] = useState(null);
+  const { bookings, loading, error, deleteBooking, updateBooking } =
+    useBookingsContext();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [bookingToDelete, setBookingToDelete] = useState(null);
 
   const handleDelete = async (booking) => {
     if (!booking) return;
     setIsDeleting(true);
     try {
-      await bookingsApi.deleteBooking(booking.booking_reference_id);
-      await fetchBookings({ refresh: true });
+      await deleteBooking(booking.booking_reference_id);
       success(
         "Booking Deleted Successfully!",
         `Booking for ${booking.guest_info.full_name} has been permanently deleted.`,
         { duration: 6000 }
       );
     } catch (err) {
-      setError("Failed to delete booking.");
       console.error("Error deleting booking:", err);
       showError(
         "Failed to Delete Booking",
@@ -104,11 +104,7 @@ const Booking = () => {
           payment_status: cancelPaymentStatus,
         },
       };
-      await bookingsApi.updateBooking(
-        bookingToCancel.booking_reference_id,
-        updateData
-      );
-      await fetchBookings({ refresh: true });
+      await updateBooking(bookingToCancel.booking_reference_id, updateData);
       warning(
         "Booking Cancelled",
         `Booking for ${bookingToCancel.guest_info.full_name} has been cancelled. Payment status updated to ${cancelPaymentStatus}.`,
@@ -117,7 +113,6 @@ const Booking = () => {
       setShowCancelDialog(false);
       setBookingToCancel(null);
     } catch (err) {
-      setError("Failed to cancel booking.");
       console.error("Error cancelling booking:", err);
       showError(
         "Failed to Cancel Booking",
@@ -132,6 +127,16 @@ const Booking = () => {
   const handleCloseCancelDialog = () => {
     setShowCancelDialog(false);
     setBookingToCancel(null);
+  };
+
+  const openDeleteDialog = (booking) => {
+    setBookingToDelete(booking);
+    setShowDeleteDialog(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setShowDeleteDialog(false);
+    setBookingToDelete(null);
   };
 
   // Check if booking is ongoing or upcoming (not past)
@@ -183,7 +188,7 @@ const Booking = () => {
         tabs={TABS}
         activeTab={tab}
         onTabChange={setTab}
-        actions={(row, openDialog) => (
+        actions={(row) => (
           <div className={styles.actionBtns}>
             <button
               className={styles.iconBtn}
@@ -203,7 +208,7 @@ const Booking = () => {
             </button>
             <button
               className={`${styles.iconBtn} ${styles.deleteBtn}`}
-              onClick={() => openDialog(row)}
+              onClick={() => openDeleteDialog(row)}
               title="Delete Booking"
             >
               <IoTrashOutline size={20} />
@@ -248,6 +253,24 @@ const Booking = () => {
               onChange={setCancelPaymentStatus}
             />
           </div>
+        </div>
+      </ConfirmDialog>
+      <ConfirmDialog
+        isOpen={showDeleteDialog}
+        onClose={handleCloseDeleteDialog}
+        onConfirm={async () => {
+          await handleDelete(bookingToDelete);
+          handleCloseDeleteDialog();
+        }}
+        title="Delete Booking"
+        confirmText={isDeleting ? "Deleting..." : "Confirm Delete"}
+        confirmDisabled={isDeleting}
+      >
+        <div>
+          <p>
+            Are you sure you want to permanently delete this booking? This
+            action cannot be undone.
+          </p>
         </div>
       </ConfirmDialog>
     </motion.div>

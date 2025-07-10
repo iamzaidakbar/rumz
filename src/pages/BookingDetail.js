@@ -12,11 +12,13 @@ import {
 } from "react-icons/io5";
 import { motion } from "framer-motion";
 import CustomButton from "../components/CustomButton";
+import { useBookingsContext } from "../contexts/BookingsContext";
 
 const BookingDetail = () => {
   const { theme } = useAppContext();
   const { bookingId } = useParams();
   const navigate = useNavigate();
+  const { getBooking } = useBookingsContext();
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,7 +27,7 @@ const BookingDetail = () => {
     const fetchBooking = async () => {
       try {
         setLoading(true);
-        const data = await bookingsApi.getBooking(bookingId);
+        const data = await getBooking(bookingId);
         setBooking(data);
       } catch (err) {
         setError("Failed to fetch booking details.");
@@ -37,7 +39,7 @@ const BookingDetail = () => {
     if (bookingId) {
       fetchBooking();
     }
-  }, [bookingId]);
+  }, [bookingId, getBooking]);
 
   const formatTimestamp = (isoString) => {
     if (!isoString) return "N/A";

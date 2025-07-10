@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "../styles/AddRoom.module.scss";
 import { useNavigate } from "react-router-dom";
-import { useRooms } from "../hooks/useRooms";
+import { useRoomsContext } from "../contexts/RoomsContext";
 import { motion } from "framer-motion";
 import { useAppContext } from "../contexts/AppContext";
 import CustomDropdown from "../components/CustomDropdown";
@@ -16,7 +16,7 @@ const AddRoom = () => {
   const { theme } = useAppContext();
   const { success, error: showError } = useToast();
   const navigate = useNavigate();
-  const { addRoom, fetchRooms } = useRooms();
+  const { addRoom } = useRoomsContext();
   const AMENITIES = ["Wi-Fi", "TV", "AC", "Parking", "Balcony", "Room Service"];
   const FLOORS = ["1st Floor", "2nd Floor"];
   const TYPES = ["Standard Room", "Deluxe Suite", "Family Room", "Penthouse"];
@@ -68,7 +68,6 @@ const AddRoom = () => {
     try {
       await addRoom(form);
       success("Room added successfully!", "Redirecting...", { duration: 3000 });
-      await fetchRooms({ refresh: true });
       navigate("/rooms");
     } catch (err) {
       setError("Failed to add room.");

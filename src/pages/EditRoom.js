@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "../styles/AddRoom.module.scss"; // Re-using styles
 import { useNavigate, useParams } from "react-router-dom";
-import { useRooms } from "../hooks/useRooms";
+import { useRoomsContext } from "../contexts/RoomsContext";
 import { motion } from "framer-motion";
 import { useAppContext } from "../contexts/AppContext";
 import CustomDropdown from "../components/CustomDropdown";
@@ -24,7 +24,7 @@ const EditRoom = () => {
   const { success, error: showError } = useToast();
   const navigate = useNavigate();
   const { roomId } = useParams();
-  const { getRoom, updateRoom, fetchRooms } = useRooms();
+  const { getRoom, updateRoom, fetchRooms } = useRoomsContext();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [initialData, setInitialData] = useState(null);
@@ -76,7 +76,7 @@ const EditRoom = () => {
       await updateRoom(roomId, roomForm.form);
       success("Room updated successfully!", "success");
       await fetchRooms({ refresh: true }); // Refresh the room list after deletion
-      navigate(`/rooms/${roomId}`);
+      navigate(`/rooms`);
     } catch (err) {
       roomForm.setError("Failed to update room.");
       showError("Failed to update room. Please try again.", "error");

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { useRooms } from "../hooks/useRooms";
+import { useRoomsContext } from "../contexts/RoomsContext";
 import { useAppContext } from "../contexts/AppContext";
 import styles from "../styles/RoomDetail.module.scss";
 import LoadingFallback from "../components/LoadingFallback";
@@ -15,10 +15,10 @@ import CustomButton from "../components/CustomButton";
 import StatusPill from "../components/StatusPill";
 
 const RoomDetail = () => {
-  const { roomId } = useParams();
   const { theme } = useAppContext();
+  const { roomId } = useParams();
   const navigate = useNavigate();
-  const { getRoom } = useRooms();
+  const { getRoom } = useRoomsContext();
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -27,16 +27,18 @@ const RoomDetail = () => {
     const fetchRoom = async () => {
       try {
         setLoading(true);
-        const roomData = await getRoom(roomId);
-        setRoom(roomData);
+        const data = await getRoom(roomId);
+        setRoom(data);
       } catch (err) {
-        setError("Could not find the requested room.");
+        setError("Failed to fetch room details.");
         console.error(err);
       } finally {
         setLoading(false);
       }
     };
-    fetchRoom();
+    if (roomId) {
+      fetchRoom();
+    }
   }, [roomId, getRoom]);
 
   if (loading) return <LoadingFallback />;

@@ -10,7 +10,7 @@ import {
 import { MdOutlineEdit } from "react-icons/md";
 import { useAppContext } from "../contexts/AppContext";
 import { motion } from "framer-motion";
-import { useRooms } from "../hooks/useRooms";
+import { useRoomsContext } from "../contexts/RoomsContext";
 import { useNavigate } from "react-router-dom";
 import LoadingFallback from "../components/LoadingFallback";
 import InfoMessage from "../components/InfoMessage";
@@ -42,7 +42,7 @@ const Rooms = () => {
   const { theme } = useAppContext();
   const [floor, setFloor] = useState("All");
   const navigate = useNavigate();
-  const { rooms, loading, error, fetchRooms, deleteRoom } = useRooms();
+  const { rooms, loading, error, deleteRoom, fetchRooms } = useRoomsContext();
 
   useEffect(() => {
     fetchRooms();
@@ -61,8 +61,8 @@ const Rooms = () => {
     } catch (err) {
       console.error(err);
       showError(
-        "Failed to Delete Booking",
-        "There was an error deleting the booking. Please try again or contact support.",
+        "Failed to Delete Room",
+        "There was an error deleting the room. Please try again or contact support.",
         { duration: 8000 }
       );
     }

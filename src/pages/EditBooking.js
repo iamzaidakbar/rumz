@@ -8,7 +8,8 @@ import { bookingsApi } from "../api/bookingsApi";
 import { cloudinaryApi } from "../api/cloudinaryApi";
 import { IoArrowBackOutline } from "react-icons/io5";
 import CustomButton from "../components/CustomButton";
-import { useRooms } from "../hooks/useRooms";
+import { useRoomsContext } from "../contexts/RoomsContext";
+import { useBookingsContext } from "../contexts/BookingsContext";
 import { useBookingForm } from "../hooks/useBookingForm";
 import BookingForm from "../components/BookingForm/BookingForm";
 import LoadingFallback from "../components/LoadingFallback";
@@ -18,7 +19,8 @@ const EditBooking = () => {
   const { success, error: showError } = useToast();
   const navigate = useNavigate();
   const { bookingId } = useParams();
-  const { rooms, loading: roomsLoading, error: roomsError } = useRooms();
+  const { rooms, loading: roomsLoading, error: roomsError } = useRoomsContext();
+  const { updateBooking, getBooking } = useBookingsContext();
   const [idProofImages, setIdProofImages] = useState([]);
   const [idProofImagePreviews, setIdProofImagePreviews] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -42,7 +44,7 @@ const EditBooking = () => {
     const fetchBooking = async () => {
       try {
         setLoading(true);
-        const bookingData = await bookingsApi.getBooking(bookingId);
+        const bookingData = await getBooking(bookingId);
         setInitialData(bookingData);
         setFormData(bookingData);
         setIdProofImagePreviews(bookingData.id_proof.id_images || []);
@@ -60,7 +62,7 @@ const EditBooking = () => {
     };
     fetchBooking();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bookingId, navigate, showError]);
+  }, [bookingId, navigate, showError, getBooking]);
 
   // Clean up previews on unmount
   useEffect(() => {
@@ -162,13 +164,12 @@ const EditBooking = () => {
           updated_at: now,
         },
       };
-      await bookingsApi.updateBooking(bookingId, finalFormData);
+      await updateBooking(bookingId, finalFormData);
       success(
         "Booking Updated Successfully!",
         `Booking for ${formData.guest_info.full_name} has been updated and saved.`,
         { duration: 6000 }
       );
-      await bookingsApi.getBookings({ refresh: true }); // refresh bookings cache
       navigate(`/bookings`);
     } catch (error) {
       console.error("Error updating booking:", error);

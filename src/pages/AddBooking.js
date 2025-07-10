@@ -9,7 +9,8 @@ import { cloudinaryApi } from "../api/cloudinaryApi";
 import { IoArrowBackOutline } from "react-icons/io5";
 import CustomButton from "../components/CustomButton";
 import { CiSaveDown1 } from "react-icons/ci";
-import { useRooms } from "../hooks/useRooms";
+import { useRoomsContext } from "../contexts/RoomsContext";
+import { useBookingsContext } from "../contexts/BookingsContext";
 import { useBookingForm } from "../hooks/useBookingForm";
 import BookingForm from "../components/BookingForm/BookingForm";
 
@@ -64,12 +65,8 @@ const AddBooking = () => {
   const { theme } = useAppContext();
   const { success, error: showError } = useToast();
   const navigate = useNavigate();
-  const {
-    rooms,
-    loading: roomsLoading,
-    error: roomsError,
-    fetchRooms,
-  } = useRooms();
+  const { rooms, loading: roomsLoading, error: roomsError } = useRoomsContext();
+  const { addBooking } = useBookingsContext();
   const [idProofImages, setIdProofImages] = useState([]); // File objects
   const [idProofImagePreviews, setIdProofImagePreviews] = useState([]); // Preview URLs
   const [idProofImageUrls, setIdProofImageUrls] = useState([]); // Uploaded Cloudinary URLs
@@ -88,8 +85,8 @@ const AddBooking = () => {
 
   // Fetch rooms on component mount
   React.useEffect(() => {
-    fetchRooms();
-  }, [fetchRooms]);
+    // fetchRooms(); // This line is removed as per the edit hint
+  }, []); // Removed fetchRooms from dependency array
 
   // Clean up previews on unmount
   React.useEffect(() => {
@@ -218,13 +215,12 @@ const AddBooking = () => {
           updated_at: now,
         },
       };
-      await bookingsApi.addBooking(finalFormData);
+      await addBooking(finalFormData);
       success(
         "Booking Created Successfully!",
         `Booking for ${formData.guest_info.full_name} has been created and saved.`,
         { duration: 6000 }
       );
-      await bookingsApi.getBookings({ refresh: true }); // refresh bookings cache
       navigate("/bookings");
     } catch (error) {
       console.error("Error creating booking:", error);
