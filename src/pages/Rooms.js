@@ -48,6 +48,8 @@ const Rooms = () => {
     fetchRooms();
   }, [fetchRooms]);
 
+  console.log(rooms);
+
   const handleDelete = async (room) => {
     if (!room) return;
     try {

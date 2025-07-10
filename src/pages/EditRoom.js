@@ -51,6 +51,7 @@ const EditRoom = () => {
     const fetchRoom = async () => {
       try {
         const roomData = await getRoom(roomId);
+        console.log("Fetched room data:", roomData);
         setInitialData(roomData);
         roomForm.setForm(roomData);
       } catch (err) {
@@ -65,6 +66,7 @@ const EditRoom = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Submitting form data:", roomForm.form);
     roomForm.setSaving(true);
     roomForm.setError("");
     if (!roomForm.validate()) {
@@ -74,8 +76,11 @@ const EditRoom = () => {
     }
     try {
       await updateRoom(roomId, roomForm.form);
-      success("Room updated successfully!", "success");
-      await fetchRooms({ refresh: true }); // Refresh the room list after deletion
+      success(
+        "Room updated successfully!",
+        "Room has been updated successfully."
+      );
+      await fetchRooms({ refresh: true }); // Refresh the room list after updating
       navigate(`/rooms`);
     } catch (err) {
       roomForm.setError("Failed to update room.");
@@ -93,10 +98,10 @@ const EditRoom = () => {
     try {
       const urls = await cloudinaryApi.uploadImages([file]);
       roomForm.setForm((prev) => ({ ...prev, photo: urls[0] }));
-      success("Photo uploaded!", "success");
+      success("Photo uploaded successfully!", "Room photo has been updated.");
     } catch (err) {
       roomForm.setPhotoError("Failed to upload photo.");
-      showError("Failed to upload photo.", "error");
+      showError("Failed to upload photo. Please try again.", "error");
     } finally {
       roomForm.setPhotoUploading(false);
     }
@@ -111,10 +116,10 @@ const EditRoom = () => {
     try {
       const urls = await cloudinaryApi.uploadImages([file]);
       roomForm.setForm((prev) => ({ ...prev, photo: urls[0] }));
-      success("Photo uploaded!", "success");
+      success("Photo uploaded successfully!", "Room photo has been updated.");
     } catch (err) {
       roomForm.setPhotoError("Failed to upload photo.");
-      showError("Failed to upload photo.", "error");
+      showError("Failed to upload photo. Please try again.", "error");
     } finally {
       roomForm.setPhotoUploading(false);
     }
@@ -251,21 +256,31 @@ const EditRoom = () => {
           <div className={styles.inputGroup}>
             <label>Amenities</label>
             <div className={styles.amenitiesWrap}>
-              {AMENITIES.map((a) => (
+              {AMENITIES.map((amenity) => (
                 <label
-                  key={a}
+                  key={amenity}
                   className={`${styles.amenityLabel} ${
-                    roomForm.form.amenities.includes(a) ? styles.selected : ""
+                    roomForm.form.amenities.includes(amenity)
+                      ? styles.selected
+                      : ""
                   }`}
                 >
                   <input
                     type="checkbox"
                     name="amenities"
-                    value={a}
-                    checked={roomForm.form.amenities.includes(a)}
-                    onChange={roomForm.handleChange}
+                    value={amenity}
+                    checked={roomForm.form.amenities.includes(amenity)}
+                    onChange={(e) => {
+                      const { value, checked } = e.target;
+                      roomForm.setForm((prev) => ({
+                        ...prev,
+                        amenities: checked
+                          ? [...prev.amenities, value]
+                          : prev.amenities.filter((a) => a !== value),
+                      }));
+                    }}
                   />
-                  <span>{a}</span>
+                  <span>{amenity}</span>
                 </label>
               ))}
             </div>
