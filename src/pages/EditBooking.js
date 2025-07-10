@@ -4,7 +4,6 @@ import { useAppContext } from "../contexts/AppContext";
 import { useToast } from "../contexts/ToastContext";
 import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
-import { bookingsApi } from "../api/bookingsApi";
 import { cloudinaryApi } from "../api/cloudinaryApi";
 import { IoArrowBackOutline } from "react-icons/io5";
 import CustomButton from "../components/CustomButton";

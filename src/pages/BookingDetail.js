@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { bookingsApi } from "../api/bookingsApi";
 import styles from "../styles/BookingDetail.module.scss";
 import { useAppContext } from "../contexts/AppContext";
 import LoadingFallback from "../components/LoadingFallback";

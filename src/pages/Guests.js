@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from "react";
 import styles from "../styles/Guests.module.scss";
 import DataTable from "../components/DataTable";
-import { IoEyeOutline } from "react-icons/io5";
 import { useAppContext } from "../contexts/AppContext";
 import { motion } from "framer-motion";
 import { IoWarningOutline } from "react-icons/io5";

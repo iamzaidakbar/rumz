@@ -11,7 +11,6 @@ import { useAppContext } from "../contexts/AppContext";
 import { useToast } from "../contexts/ToastContext";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { bookingsApi } from "../api/bookingsApi";
 import CustomButton from "../components/CustomButton";
 import LoadingFallback from "../components/LoadingFallback";
 import InfoMessage from "../components/InfoMessage";
@@ -39,6 +38,11 @@ const columns = [
     header: "Payment Status",
     accessor: "payment_info.payment_status",
     cell: (value) => <StatusPill status={value} type="payment" />,
+  },
+  {
+    header: "Paid Amount",
+    accessor: "payment_info.amount",
+    cell: (value) => `$ ${value ? value : 0}`,
   },
   {
     header: "Booking Status",
